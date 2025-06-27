@@ -1,15 +1,20 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-export default defineConfig(({ command }) => ({
+export default defineConfig({
   plugins: [react()],
   optimizeDeps: {
     exclude: ['lucide-react'],
   },
   preview: {
-    // Permite apenas o host do Render quando em preview (Docker)
-    allowedHosts: command === 'serve' 
-      ? ['localhost', '127.0.0.1']  // Modo dev (npm run dev)
-      : ['contas-9q4q.onrender.com'] // Modo preview (npm run preview)
+    // Permite o host do Render e qualquer subdomínio do Render
+    allowedHosts: [
+      'contas-9q4q.onrender.com',
+      '.onrender.com' // Permite todos os subdomínios do Render
+    ],
+    // Adicional: Força o Vite a aceitar o host do Render
+    host: '0.0.0.0',
+    strictPort: true,
+    port: 4173
   }
-}));
+});
