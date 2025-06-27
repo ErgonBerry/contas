@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Expense, ExpenseFilter, ExpenseSummary, ExpenseCategory } from '../types/expense';
+import { generateUUID } from '../utils/uuid';
 
 const STORAGE_KEY = 'household-expenses';
 
@@ -31,7 +32,7 @@ export function useExpenses() {
   const addExpense = useCallback((expense: Omit<Expense, 'id' | 'createdAt' | 'updatedAt'>) => {
     const newExpense: Expense = {
       ...expense,
-      id: crypto.randomUUID(),
+      id: generateUUID(),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
