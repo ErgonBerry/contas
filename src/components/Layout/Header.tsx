@@ -24,11 +24,7 @@ export function Header({ onMenuClick, onAddClick, currentUser, onUserChange }: H
               <h1 className="text-lg font-semibold text-taupe_gray-800">
                 Contas da Casa
               </h1>
-            </div>
-          </div>
-          
-          <div className="flex items-center space-x-2">
-            <select
+              <select
               value={currentUser}
               onChange={(e) => onUserChange(e.target.value)}
               className="text-xs bg-cambridge_blue-50 border border-cambridge_blue-200 rounded-lg px-2 py-1 text-cambridge_blue-700 focus:outline-none focus:ring-2 focus:ring-cambridge_blue-300"
@@ -36,10 +32,15 @@ export function Header({ onMenuClick, onAddClick, currentUser, onUserChange }: H
               <option value="usuario1">Rodolfo</option>
               <option value="usuario2">Thaís</option>
             </select>
+            </div>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            
             
             <button
               onClick={onAddClick}
-              className="bg-tea_green-500 hover:bg-tea_green-600 text-white p-2 rounded-lg transition-colors shadow-sm"
+              className="bg-tea_green-600 hover:bg-tea_green-600 text-white p-2 rounded-lg transition-colors shadow-sm"
             >
               <Plus className="w-5 h-5" />
             </button>
