@@ -39,7 +39,7 @@ function App() {
     setShowExpenseForm(true);
   };
 
-  const handleSaveExpense = (expenseData: Omit<Expense, 'id' | 'createdAt' | 'updatedAt'>) => {
+  const handleSaveExpense = (expenseData: Omit<Expense, 'id'>) => {
     if (editingExpense) {
       updateExpense(editingExpense.id, expenseData);
     } else {

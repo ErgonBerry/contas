@@ -17,9 +17,10 @@ export function ExpenseList({ expenses, onEdit, onDelete, onTogglePaid }: Expens
   const [showFilters, setShowFilters] = useState(false);
 
   const filteredExpenses = expenses.filter(expense => {
-    const matchesSearch = expense.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         expense.description?.toLowerCase().includes(searchTerm.toLowerCase());
+    const titleMatch = expense.title?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false;
+    const descriptionMatch = expense.description?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false;
     
+    const matchesSearch = titleMatch || descriptionMatch;
     const matchesCategory = !filter.category || expense.category === filter.category;
     const matchesPaid = filter.paid === undefined || expense.paid === filter.paid;
     
