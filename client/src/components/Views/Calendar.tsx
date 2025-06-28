@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Clock, DollarSign } from 'lucide-react';
 import { Expense } from '../../types/expense';
 import { formatCurrency, categoryColors } from '../../utils/categories';
+import { format, utcToZonedTime, zonedTimeToUtc } from 'date-fns-tz';
+import { ptBR } from 'date-fns/locale';
 
 interface CalendarProps {
   expenses: Expense[];
@@ -71,8 +73,18 @@ export function Calendar({ expenses }: CalendarProps) {
   };
 
   const getExpensesForDate = (date: Date): Expense[] => {
-    const dateStr = date.toISOString().split('T')[0];
-    return expenses.filter(expense => expense.dueDate === dateStr);
+    const utcDate = new Date(Date.UTC(
+      date.getFullYear(), 
+      date.getMonth(), 
+      date.getDate()
+    ));
+
+    const dateStr = utcDate.toISOString().split('T')[0];
+    return expenses.filter(expense => {
+      // Garante que a dueDate está no formato esperado (YYYY-MM-DD)
+      const expenseDateStr = expense.dueDate.split('T')[0];
+      return expenseDateStr === dateStr;
+    });
   };
 
   const navigateMonth = (direction: 'prev' | 'next') => {
@@ -103,11 +115,16 @@ export function Calendar({ expenses }: CalendarProps) {
 
   const getOverdueExpenses = (): Expense[] => {
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    // Normaliza para UTC (meia-noite UTC)
+    const todayUTC = new Date(Date.UTC(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate()
+    ));
     
     return expenses.filter(expense => {
       const dueDate = new Date(expense.dueDate);
-      return !expense.paid && dueDate < today;
+      return !expense.paid && dueDate < todayUTC;
     });
   };
 
@@ -233,6 +250,7 @@ export function Calendar({ expenses }: CalendarProps) {
           <h3 className="text-lg font-semibold text-taupe_gray-800 mb-4 flex items-center">
             <CalendarIcon className="w-5 h-5 mr-2" />
             {selectedDate.toLocaleDateString('pt-BR', { 
+              timeZone: 'UTC', // Adiciona isso
               weekday: 'long', 
               year: 'numeric', 
               month: 'long', 

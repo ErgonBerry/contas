@@ -2,62 +2,102 @@ import { useState, useEffect, useCallback } from 'react';
 import { Expense, ExpenseFilter, ExpenseSummary, ExpenseCategory } from '../types/expense';
 import { generateUUID } from '../utils/uuid';
 
-const STORAGE_KEY = 'household-expenses';
+const API_URL = 'http://localhost:5000/api/expenses';
 
 export function useExpenses() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Load expenses from localStorage
+  // Load expenses from the API
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        setExpenses(JSON.parse(saved));
+    const fetchExpenses = async () => {
+      try {
+        const response = await fetch(API_URL);
+        const data = await response.json();
+        console.log('Fetched expenses:', data);
+        setExpenses(data);
+      } catch (error) {
+        console.error('Error loading expenses:', error);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error('Error loading expenses:', error);
-    } finally {
-      setLoading(false);
-    }
+    };
+
+    fetchExpenses();
   }, []);
 
-  // Save expenses to localStorage
-  useEffect(() => {
-    if (!loading) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(expenses));
-    }
-  }, [expenses, loading]);
-
-  const addExpense = useCallback((expense: Omit<Expense, 'id' | 'createdAt' | 'updatedAt'>) => {
+  const addExpense = useCallback(async (expense: Omit<Expense, 'id' | 'createdAt' | 'updatedAt'>) => {
     const newExpense: Expense = {
       ...expense,
       id: generateUUID(),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-    setExpenses(prev => [...prev, newExpense]);
+
+    try {
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newExpense),
+      });
+      const savedExpense = await response.json();
+      setExpenses(prev => [...prev, savedExpense]);
+    } catch (error) {
+      console.error('Error adding expense:', error);
+    }
   }, []);
 
-  const updateExpense = useCallback((id: string, updates: Partial<Expense>) => {
-    setExpenses(prev => prev.map(expense => 
-      expense.id === id 
-        ? { ...expense, ...updates, updatedAt: new Date().toISOString() }
-        : expense
-    ));
+  const updateExpense = useCallback(async (id: string, updates: Partial<Expense>) => {
+    try {
+      const response = await fetch(`${API_URL}/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ...updates, updatedAt: new Date().toISOString() }),
+      });
+      const updatedExpense = await response.json();
+      setExpenses(prev => prev.map(expense => 
+        expense.id === id ? updatedExpense : expense
+      ));
+    } catch (error) {
+      console.error('Error updating expense:', error);
+    }
   }, []);
 
-  const deleteExpense = useCallback((id: string) => {
-    setExpenses(prev => prev.filter(expense => expense.id !== id));
+  const deleteExpense = useCallback(async (id: string) => {
+    try {
+      await fetch(`${API_URL}/${id}`, {
+        method: 'DELETE',
+      });
+      setExpenses(prev => prev.filter(expense => expense.id !== id));
+    } catch (error) {
+      console.error('Error deleting expense:', error);
+    }
   }, []);
 
-  const toggleExpensePaid = useCallback((id: string) => {
-    setExpenses(prev => prev.map(expense => 
-      expense.id === id 
-        ? { ...expense, paid: !expense.paid, updatedAt: new Date().toISOString() }
-        : expense
-    ));
-  }, []);
+  const toggleExpensePaid = useCallback(async (id: string) => {
+    try {
+      const expenseToUpdate = expenses.find(expense => expense.id === id);
+      if (!expenseToUpdate) return;
+
+      const response = await fetch(`${API_URL}/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ paid: !expenseToUpdate.paid, updatedAt: new Date().toISOString() }),
+      });
+      const updatedExpense = await response.json();
+      setExpenses(prev => prev.map(expense => 
+        expense.id === id ? updatedExpense : expense
+      ));
+    } catch (error) {
+      console.error('Error toggling paid status:', error);
+    }
+  }, [expenses]);
 
   const getFilteredExpenses = useCallback((filter: ExpenseFilter = {}) => {
     return expenses.filter(expense => {
