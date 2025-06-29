@@ -3,18 +3,22 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
+  server: {
+    host: '0.0.0.0',
+    port: 5173,
+    strictPort: true,
+  },
+  preview: {
+    host: '0.0.0.0',
+    port: 5173,
+    strictPort: true,
+  },
+  build: {
+    outDir: 'dist',
+    emptyOutDir: true,
+    sourcemap: true, // Opcional: útil para debug em produção
+  },
   optimizeDeps: {
     exclude: ['lucide-react'],
   },
-  preview: {
-    // Permite o host do Render e qualquer subdomínio do Render
-    allowedHosts: [
-      'contas-staging.onrender.com',
-      '.onrender.com' // Permite todos os subdomínios do Render
-    ],
-    // Adicional: Força o Vite a aceitar o host do Render
-    host: '0.0.0.0',
-    strictPort: true,
-    port: 4173
-  }
 });

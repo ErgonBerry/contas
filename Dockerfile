@@ -1,40 +1,23 @@
-# Build stage
-FROM node:18-alpine AS builder
+# Estágio de construção
+FROM node:18-alpine as builder
 
 WORKDIR /app
-
-# Copy package files
 COPY package*.json ./
-
-# Install all dependencies
-RUN npm ci
-
-# Copy source code
+RUN npm install
 COPY . .
-
-# Build the application
 RUN npm run build
 
-# Production stage
-FROM node:18-alpine AS production
-
+# Estágio de produção
+FROM node:18-alpine
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
-
-# Install only production dependencies + vite for preview
-RUN npm ci --only=production && npm install vite
-
-# Copy built application from builder stage
+# Copie os arquivos construídos e as dependências
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/package*.json ./
+RUN npm install --only=production
 
-# Copy other necessary files
-COPY --from=builder /app/vite.config.ts ./
-COPY --from=builder /app/index.html ./
+# Instale um servidor HTTP simples para servir os arquivos estáticos
+RUN npm install -g serve
 
-# Expose port
-EXPOSE 4173
-
-# Start the application
-CMD ["sh", "-c", "npm run preview -- --host 0.0.0.0 --port 4173"]
+EXPOSE 5173
+CMD ["serve", "-s", "dist", "-l", "5173"]
