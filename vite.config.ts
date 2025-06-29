@@ -9,11 +9,12 @@ export default defineConfig({
   preview: {
     // Permite o host do Render e qualquer subdomínio do Render
     allowedHosts: [
+      'contas-staging.onrender.com',
       '.onrender.com' // Permite todos os subdomínios do Render
     ],
     // Adicional: Força o Vite a aceitar o host do Render
     host: '0.0.0.0',
     strictPort: true,
-    port: 5173
+    port: 4173
   }
 });
