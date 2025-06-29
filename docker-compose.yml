@@ -1,42 +1,7 @@
 version: '3.8'
 
 services:
-  household-expenses:
-    build: .
-    ports:
-      - "3000:4173"
-    environment:
-      - NODE_ENV=production
-    restart: unless-stopped
-    container_name: household-expenses-app
-
-  server:
-    build:
-      context: ./server
-      dockerfile: Dockerfile
-    ports:
-      - "5000:5000"
-    environment:
-      - MONGO_URI=mongodb+srv://rodolfoneto:iso900222@cluster0.u8x8t.mongodb.net/household_db?retryWrites=true&w=majority"
-      - PORT=5000
-    # depends_on:
-    #   - mongo
-    profiles:
-      - dev
-    container_name: household-expenses-server-dev
-
-  # mongo:
-  #   image: mongo
-  #   ports:
-  #     - "27017:27017"
-  #   volumes:
-  #     - mongo-data:/data/db
-  #   profiles:
-  #     - dev
-  #   container_name: household-expenses-mongo-dev
-
-  # Development service (optional)
-  household-expenses-dev:
+  financial-app:
     build:
       context: .
       dockerfile: Dockerfile.dev
@@ -47,9 +12,11 @@ services:
       - /app/node_modules
     environment:
       - NODE_ENV=development
-    profiles:
-      - dev
-    container_name: household-expenses-dev
+    stdin_open: true
+    tty: true
+    networks:
+      - financial-network
 
-# volumes:
-#   mongo-data:
+networks:
+  financial-network:
+    driver: bridge

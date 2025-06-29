@@ -1,126 +1,99 @@
-# Sistema de Gestão de Contas Domésticas
+# 💰 Controle Financeiro - Rodolfo & Thaís
 
-Um sistema moderno e intuitivo para gerenciar contas e despesas domésticas, otimizado para dispositivos móveis.
+Aplicativo web moderno para gerenciamento financeiro doméstico, otimizado para dispositivos móveis Android.
 
-## 🚀 Características
+## 🚀 Funcionalidades
 
-- **Mobile-First**: Interface otimizada para dispositivos móveis
-- **Multi-usuário**: Suporte para múltiplos usuários (você e sua esposa)
-- **Gestão Completa**: Adicionar, editar e excluir contas
-- **Relatórios**: Resumos e previsões de gastos
-- **Categorização**: Organize suas contas por categorias
-- **Design Moderno**: Interface limpa e intuitiva
+### ✅ Implementadas
+- **Registro de Gastos e Receitas** com categorias personalizáveis
+- **Sistema de Status de Pagamento** (pago/pendente) para despesas
+- **Calendário de Vencimentos** com alertas para pagamentos pendentes
+- **Dashboard Financeiro** com resumo mensal e comparativos
+- **Relatórios Interativos** com gráficos de distribuição e evolução
+- **Sistema de Metas de Economia** com acompanhamento de progresso
+- **Armazenamento Local** com persistência de dados
+- **Design Responsivo** otimizado para mobile
 
-## 🛠️ Tecnologias
+### 📱 Interface
+- Design moderno com paleta Nordic (azuis e verdes suaves)
+- Navegação por abas intuitiva
+- Transições suaves e micro-interações
+- Otimizado para uso em smartphones Android
 
-- **Frontend**: React + TypeScript + Tailwind CSS
-- **Ícones**: Lucide React
-- **Build**: Vite
-- **Containerização**: Docker + Docker Compose
+## 🐳 Executando com Docker
 
-## 🏃‍♂️ Como Executar
-
-### Com Docker (Recomendado)
-
-#### Produção
+### Desenvolvimento
 ```bash
-# Construir e executar
+# Clone o repositório
+git clone <repository-url>
+cd financial-app
+
+# Execute com Docker Compose
 docker-compose up --build
 
-# Acessar em http://localhost:3000
+# Acesse em http://localhost:5173
 ```
 
-#### Desenvolvimento
+### Produção
 ```bash
-# Executar em modo desenvolvimento
-docker-compose --profile dev up --build
+# Build e execute a versão de produção
+docker-compose -f docker-compose.prod.yml up --build
 
-# Acessar em http://localhost:5173
+# Acesse em http://localhost:8080
 ```
 
-### Sem Docker
+## 📋 Comandos Úteis
 
 ```bash
-# Instalar dependências
-npm install
+# Parar os containers
+docker-compose down
 
-# Executar em modo desenvolvimento
-npm run dev
+# Rebuild completo
+docker-compose up --build --force-recreate
 
-# Construir para produção
-npm run build
-npm run preview
+# Ver logs
+docker-compose logs -f
+
+# Executar comandos no container
+docker-compose exec financial-app sh
 ```
 
-## 📱 Funcionalidades
+## 🏗️ Estrutura do Projeto
 
-### Dashboard
-- Resumo financeiro geral
-- Total de gastos, valores pagos e pendentes
-- Previsão mensal de gastos
-- Gráfico de gastos por categoria
+```
+src/
+├── components/          # Componentes React
+│   ├── Dashboard.tsx    # Resumo financeiro
+│   ├── TransactionList.tsx # Lista de transações
+│   ├── Calendar.tsx     # Calendário de vencimentos
+│   ├── Reports.tsx      # Relatórios e gráficos
+│   └── SavingsGoals.tsx # Metas de economia
+├── hooks/              # Custom hooks
+├── types/              # Definições TypeScript
+└── utils/              # Funções utilitárias
+```
 
-### Gestão de Contas
-- Adicionar novas contas com categorias
-- Editar contas existentes
-- Marcar contas como pagas
-- Filtrar e buscar contas
-- Separação por status (vencidas, próximas, pagas)
+## 🎯 Próximas Funcionalidades
+- [ ] Backup/Restauração de dados
+- [ ] Modo escuro
+- [ ] Notificações push para vencimentos
+- [ ] Categorias personalizáveis
+- [ ] Relatórios avançados
 
-### Categorias Disponíveis
-- Moradia
-- Utilidades (luz, água, gás)
-- Internet
-- Alimentação
-- Transporte
-- Saúde
-- Entretenimento
-- Compras
-- Educação
-- Outros
+## 🛠️ Tecnologias Utilizadas
+- **React 18** com TypeScript
+- **Tailwind CSS** para estilização
+- **Chart.js** para gráficos interativos
+- **Lucide React** para ícones
+- **Docker** para containerização
+- **Vite** como bundler
 
-## 🎨 Paleta de Cores
+## 📱 Otimizações Mobile
+- Layout responsivo mobile-first
+- Navegação otimizada para touch
+- Carregamento rápido em conexões móveis
+- Interface adaptada para telas pequenas
 
-O sistema utiliza uma paleta de cores harmoniosa:
+---
 
-- **Tea Green** (#d1f0b1): Cor principal para ações positivas
-- **Celadon** (#b6cb9e): Cor secundária para elementos de apoio
-- **Cambridge Blue** (#92b4a7): Cor para informações neutras
-- **Taupe Gray** (#8c8a93): Cor para textos e elementos secundários
-- **Chinese Violet** (#81667a): Cor para alertas e elementos de destaque
-
-## 💾 Armazenamento
-
-Os dados são armazenados localmente no navegador usando localStorage. Em futuras versões, será possível integrar com um backend para sincronização entre dispositivos.
-
-## 🔧 Configuração
-
-### Multi-usuário
-O sistema suporta dois usuários por padrão:
-- Usuário 1: "Você"
-- Usuário 2: "Esposa"
-
-Cada usuário pode criar e gerenciar suas próprias contas, com visão compartilhada dos dados.
-
-### Contas Recorrentes
-É possível marcar contas como recorrentes (mensais, semanais ou anuais) para facilitar o planejamento financeiro.
-
-## 📊 Relatórios
-
-- Resumo geral de gastos
-- Distribuição por categorias
-- Previsão de gastos mensais baseada em contas recorrentes
-- Identificação de contas vencidas
-
-## 🚀 Próximas Funcionalidades
-
-- Calendário de vencimentos
-- Relatórios detalhados por período
-- Notificações de vencimento
-- Exportação de dados
-- Sincronização na nuvem
-- Gráficos de tendências
-
-## 📄 Licença
-
-Este projeto é de uso pessoal.
+Desenvolvido com ❤️ para Rodolfo & Thaís
