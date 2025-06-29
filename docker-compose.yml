@@ -1,7 +1,17 @@
 version: '3.8'
 
 services:
-  financial-app:
+  household-expenses:
+    build: .
+    ports:
+      - "3000:4173"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    container_name: household-expenses-app
+
+  # Development service (optional)
+  household-expenses-dev:
     build:
       context: .
       dockerfile: Dockerfile.dev
@@ -12,11 +22,6 @@ services:
       - /app/node_modules
     environment:
       - NODE_ENV=development
-    stdin_open: true
-    tty: true
-    networks:
-      - financial-network
-
-networks:
-  financial-network:
-    driver: bridge
+    profiles:
+      - dev
+    container_name: household-expenses-dev
