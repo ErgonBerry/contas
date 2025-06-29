@@ -1,37 +1,14 @@
-# Build stage
-FROM node:18-alpine AS builder
+FROM node:18-alpine
 
+# Set working directory
 WORKDIR /app
 
-# Copy package files
+# Install dependencies
 COPY package*.json ./
-
-# Install all dependencies
-RUN npm ci
+RUN npm install
 
 # Copy source code
 COPY . .
-
-# Build the application
-RUN npm run build
-
-# Production stage
-FROM node:18-alpine AS production
-
-WORKDIR /app
-
-# Copy package files
-COPY package*.json ./
-
-# Install only production dependencies + vite for preview
-RUN npm ci --only=production && npm install vite
-
-# Copy built application from builder stage
-COPY --from=builder /app/dist ./dist
-
-# Copy other necessary files
-COPY --from=builder /app/vite.config.ts ./
-COPY --from=builder /app/index.html ./
 
 # Expose port
 EXPOSE 5173
