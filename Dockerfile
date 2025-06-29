@@ -1,17 +1,23 @@
-FROM node:18-alpine
+# Estágio de construção
+FROM node:18-alpine as builder
 
-# Set working directory
 WORKDIR /app
-
-# Install dependencies
 COPY package*.json ./
 RUN npm install
-
-# Copy source code
 COPY . .
+RUN npm run build
 
-# Expose port
+# Estágio de produção
+FROM node:18-alpine
+WORKDIR /app
+
+# Copie os arquivos construídos e as dependências
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/package*.json ./
+RUN npm install --only=production
+
+# Instale um servidor HTTP simples para servir os arquivos estáticos
+RUN npm install -g serve
+
 EXPOSE 5173
-
-# Start development server
-CMD ["npm", "run", "preview", "--", "--host", "0.0.0.0", "--port", "5173"]
+CMD ["serve", "-s", "dist", "-l", "5173"]
