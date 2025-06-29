@@ -15,6 +15,6 @@ export default defineConfig({
     // Adicional: Força o Vite a aceitar o host do Render
     host: '0.0.0.0',
     strictPort: true,
-    port: 4173
+    port: 5173
   }
 });
