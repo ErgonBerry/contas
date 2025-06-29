@@ -1,13 +1,11 @@
-# Build stage
+# Multi-stage build for production
 FROM node:18-alpine AS builder
 
 WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
-
-# Install all dependencies
-RUN npm ci
+RUN npm ci --only=production
 
 # Copy source code
 COPY . .
@@ -16,25 +14,16 @@ COPY . .
 RUN npm run build
 
 # Production stage
-FROM node:18-alpine AS production
+FROM nginx:alpine
 
-WORKDIR /app
+# Copy built files to nginx
+COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Copy package files
-COPY package*.json ./
-
-# Install only production dependencies + vite for preview
-RUN npm ci --only=production && npm install vite
-
-# Copy built application from builder stage
-COPY --from=builder /app/dist ./dist
-
-# Copy other necessary files
-COPY --from=builder /app/vite.config.ts ./
-COPY --from=builder /app/index.html ./
+# Copy nginx configuration
+COPY nginx.conf /etc/nginx/nginx.conf
 
 # Expose port
-EXPOSE 4173
+EXPOSE 80
 
-# Start the application
-CMD ["sh", "-c", "npm run preview -- --host 0.0.0.0 --port 4173"]
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]

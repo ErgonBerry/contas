@@ -8,6 +8,6 @@ README.md
 coverage
 .nyc_output
 .coverage
-.coverage/
+.vscode
 dist
-.DS_Store
+build
