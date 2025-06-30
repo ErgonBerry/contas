@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Transaction } from '../types';
-import { formatCurrency, isTransactionOverdue, getDaysUntilDue, formatBrazilDate } from '../utils/helpers';
+import { formatCurrency, isTransactionOverdue, getDaysUntilDue, formatBrazilDate, parseLocalDate } from '../utils/helpers';
 import { Plus, Trash2, Filter, Check, X, Calendar, CreditCard, Clock, Edit3 } from 'lucide-react';
 import TransactionForm from './TransactionForm';
 
@@ -219,7 +219,7 @@ const TransactionList: React.FC<TransactionListProps> = ({
                       
                       {/* Para receitas, mostrar data da transação */}
                       {type === 'income' && (
-                        <span className="whitespace-nowrap">{formatBrazilDate(new Date(transaction.date))}</span>
+                        <span className="whitespace-nowrap">{formatBrazilDate(parseLocalDate(transaction.date))}</span>
                       )}
                       
                       {transaction.recurrence !== 'none' && (
@@ -254,7 +254,7 @@ const TransactionList: React.FC<TransactionListProps> = ({
                                daysUntilDue === 0 ? 'Vence hoje' :
                                daysUntilDue === 1 ? 'Vence amanhã' :
                                daysUntilDue !== null && daysUntilDue > 0 ? `${daysUntilDue} dias` :
-                               formatBrazilDate(new Date(transaction.dueDate))}
+                               formatBrazilDate(parseLocalDate(transaction.dueDate))}
                             </span>
                           </span>
                         )}
