@@ -1,16 +1,6 @@
 version: '3.8'
 
 services:
-  household-expenses:
-    build: .
-    ports:
-      - "3000:4173"
-    environment:
-      - NODE_ENV=production
-    restart: unless-stopped
-    container_name: household-expenses-app
-
-  # Development service (optional)
   household-expenses-dev:
     build:
       context: .
@@ -20,8 +10,11 @@ services:
     volumes:
       - .:/app
       - /app/node_modules
+      - /app/dist  # Adicione esta linha se estiver usando build
     environment:
       - NODE_ENV=development
-    profiles:
-      - dev
+      - CHOKIDAR_USEPOLLING=true
+    restart: unless-stopped
     container_name: household-expenses-dev
+    stdin_open: true
+    tty: true

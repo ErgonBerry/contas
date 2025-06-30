@@ -1,18 +1,13 @@
 FROM node:18-alpine
 
 WORKDIR /app
-
-# Copy package files
 COPY package*.json ./
-
-# Install all dependencies (including dev dependencies)
-RUN npm ci
-
-# Copy source code
+RUN npm install
 COPY . .
 
-# Expose port
-EXPOSE 5173
+# Adicione esta linha para verificar a estrutura do projeto
+RUN ls -la
 
-# Start development server
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+# Para desenvolvimento, use o comando de dev diretamente
+EXPOSE 5173
+CMD ["npm", "run", "dev"]

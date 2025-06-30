@@ -1,6 +1,6 @@
 import React from 'react';
 import { Transaction, SavingsGoal } from '../types';
-import { formatCurrency, filterTransactionsByMonth, calculateMonthlyBalance, calculateGoalsImpact, getCurrentBrazilDate, formatBrazilDate } from '../utils/helpers';
+import { formatCurrency, filterTransactionsByMonth, calculateMonthlyBalance, calculateGoalsImpact, getCurrentBrazilDate, formatBrazilDate, parseLocalDate } from '../utils/helpers';
 import { TrendingUp, TrendingDown, Wallet, Target, AlertTriangle } from 'lucide-react';
 
 interface DashboardProps {
@@ -236,9 +236,9 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, savingsGoals }) => 
                     {' • '}
                     <span className="whitespace-nowrap">
                       {transaction.type === 'income' 
-                        ? formatBrazilDate(new Date(transaction.date))
+                        ? formatBrazilDate(parseLocalDate(transaction.date))
                         : transaction.dueDate 
-                        ? `Vence: ${formatBrazilDate(new Date(transaction.dueDate))}`
+                        ? `Vence: ${formatBrazilDate(parseLocalDate(transaction.dueDate))}`
                         : 'Sem vencimento'
                       }
                     </span>
