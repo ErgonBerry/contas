@@ -2,33 +2,30 @@ version: '3.8'
 
 services:
   frontend:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
     ports:
       - "5173:5173"
     volumes:
       - .:/app
       - /app/node_modules
     environment:
-      - VITE_API_BASE_URL=http://backend:3001/api
-    command: npm run dev
+      - VITE_API_BASE_URL=http://localhost:3001/api
     depends_on:
       - backend
     restart: unless-stopped
     container_name: financial-app-frontend
-    stdin_open: true
-    tty: true
 
   backend:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
     ports:
       - "3001:3001"
-    volumes:
-      - .:/app
-      - /app/node_modules
     environment:
       - MONGO_URI="mongodb+srv://rodolfoneto:iso900222@cluster0.u8x8t.mongodb.net/household_db?retryWrites=true&w=majority"
       - NODE_ENV=development
-    command: node server.js
     depends_on:
       - mongo
     restart: unless-stopped

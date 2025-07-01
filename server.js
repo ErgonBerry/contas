@@ -1,7 +1,7 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const dotenv = require('dotenv');
-const cors = require('cors');
+import express from 'express';
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+import cors from 'cors';
 
 dotenv.config();
 
@@ -11,11 +11,16 @@ const port = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json());
 
-mongoose.connect(process.env.MONGO_URI)
+// Conexão com MongoDB
+mongoose.connect("mongodb+srv://rodolfoneto:iso900222@cluster0.u8x8t.mongodb.net/household_db?retryWrites=true&w=majority", {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  serverSelectionTimeoutMS: 5000
+})
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.error('MongoDB connection error:', err));
 
-// Define Mongoose Schemas and Models
+// Schemas e Models
 const transactionSchema = new mongoose.Schema({
   description: String,
   amount: Number,
@@ -24,8 +29,6 @@ const transactionSchema = new mongoose.Schema({
   category: String,
 });
 
-const Transaction = mongoose.model('Transaction', transactionSchema);
-
 const savingsGoalSchema = new mongoose.Schema({
   name: String,
   targetAmount: Number,
@@ -33,9 +36,10 @@ const savingsGoalSchema = new mongoose.Schema({
   dueDate: Date,
 });
 
+const Transaction = mongoose.model('Transaction', transactionSchema);
 const SavingsGoal = mongoose.model('SavingsGoal', savingsGoalSchema);
 
-// API Routes
+// Rotas da API
 app.get('/api/transactions', async (req, res) => {
   try {
     const transactions = await Transaction.find();
@@ -85,7 +89,11 @@ app.post('/api/goals', async (req, res) => {
 
 app.put('/api/goals/:id', async (req, res) => {
   try {
-    const updatedGoal = await SavingsGoal.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const updatedGoal = await SavingsGoal.findByIdAndUpdate(
+      req.params.id, 
+      req.body, 
+      { new: true }
+    );
     res.json(updatedGoal);
   } catch (err) {
     res.status(400).json({ message: err.message });
