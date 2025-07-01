@@ -1,20 +1,19 @@
 import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { Home, TrendingDown, TrendingUp, BarChart3, Target, Calendar, Settings } from 'lucide-react';
 
-interface NavigationProps {
-  activeTab: string;
-  onTabChange: (tab: string) => void;
-}
+const Navigation: React.FC = () => {
+  const location = useLocation();
+  const activeTab = location.pathname;
 
-const Navigation: React.FC<NavigationProps> = ({ activeTab, onTabChange }) => {
   const tabs = [
-    { id: 'dashboard', label: 'Resumo', icon: Home },
-    { id: 'expenses', label: 'Gastos', icon: TrendingDown },
-    { id: 'income', label: 'Receitas', icon: TrendingUp },
-    { id: 'calendar', label: 'Agenda', icon: Calendar },
-    { id: 'reports', label: 'Relatórios', icon: BarChart3 },
-    { id: 'goals', label: 'Metas', icon: Target },
-    { id: 'settings', label: 'Config', icon: Settings },
+    { id: '/', label: 'Resumo', icon: Home },
+    { id: '/expenses', label: 'Gastos', icon: TrendingDown },
+    { id: '/income', label: 'Receitas', icon: TrendingUp },
+    { id: '/calendar', label: 'Agenda', icon: Calendar },
+    { id: '/reports', label: 'Relatórios', icon: BarChart3 },
+    { id: '/goals', label: 'Metas', icon: Target },
+    { id: '/settings', label: 'Config', icon: Settings },
   ];
 
   return (
@@ -25,9 +24,9 @@ const Navigation: React.FC<NavigationProps> = ({ activeTab, onTabChange }) => {
           const isActive = activeTab === tab.id;
           
           return (
-            <button
+            <Link
               key={tab.id}
-              onClick={() => onTabChange(tab.id)}
+              to={tab.id}
               className={`flex flex-col items-center gap-1 py-2 px-1 rounded-xl transition-all ${
                 isActive 
                   ? 'bg-blue-100 text-blue-600' 
@@ -38,7 +37,7 @@ const Navigation: React.FC<NavigationProps> = ({ activeTab, onTabChange }) => {
               <span className="text-xs font-medium">
                 {tab.label}
               </span>
-            </button>
+            </Link>
           );
         })}
       </div>
