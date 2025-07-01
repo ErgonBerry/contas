@@ -180,9 +180,6 @@ const Settings: React.FC<SettingsProps> = ({
             <strong>Controle Financeiro</strong> - Versão 1.0
           </p>
           <p>
-            Desenvolvido especialmente para Rodolfo & Thaís
-          </p>
-          <p>
             Os dados são armazenados localmente no seu navegador e não são enviados para nenhum servidor externo.
           </p>
           <p>
