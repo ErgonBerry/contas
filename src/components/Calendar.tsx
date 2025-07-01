@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Transaction, PendingPayment } from '../types';
 import { formatCurrency, getCurrentBrazilDate, formatBrazilDate, parseLocalDate, isTransactionOverdue, getDaysUntilDue, getTransactionsWithRecurrence } from '../utils/helpers';
-import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, AlertTriangle, Clock, CreditCard, TrendingUp, DollarSign, Repeat, Check } from 'lucide-react';
+import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, AlertTriangle, Clock, CreditCard, TrendingUp, DollarSign, Repeat, Check, Eye } from 'lucide-react';
+import TransactionDetailModal from './TransactionDetailModal';
 import { startOfMonth, endOfMonth } from 'date-fns';
 
 interface CalendarProps {
@@ -26,6 +27,28 @@ interface CalendarEvent {
 const Calendar: React.FC<CalendarProps> = ({ transactions, onUpdatePaymentStatus }) => {
   const [currentDate, setCurrentDate] = useState(getCurrentBrazilDate());
   const [processingPayments, setProcessingPayments] = useState<Set<string>>(new Set());
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
+
+  const handleDayClick = (date: Date) => {
+    setSelectedDate(prev => {
+      // If the same date is clicked again, deselect it
+      if (prev && prev.toDateString() === date.toDateString()) {
+        return null;
+      }
+      return date;
+    });
+  };
+
+  const handleTransactionClick = (transaction: CalendarEvent) => {
+    // Find the original transaction object from the main transactions array
+    const originalTransaction = transactions.find(t => t.id === transaction.originalId || t.id === transaction.id);
+    if (originalTransaction) {
+      setSelectedTransaction(originalTransaction);
+      setIsDetailModalOpen(true);
+    }
+  };
 
   const getPendingPayments = (): PendingPayment[] => {
     const today = getCurrentBrazilDate();
@@ -313,14 +336,15 @@ const Calendar: React.FC<CalendarProps> = ({ transactions, onUpdatePaymentStatus
             return (
               <div
                 key={index}
-                className={`min-h-[80px] p-1 border border-slate-100 rounded-lg ${
+                className={`min-h-[80px] p-1 border border-slate-100 rounded-lg cursor-pointer ${
                   !isCurrentMonth ? 'bg-slate-50 text-slate-400' :
                   isToday ? 'bg-blue-100 border-blue-300' :
                   hasOverdue ? 'bg-red-50 border-red-200' :
                   hasUpcoming ? 'bg-yellow-50 border-yellow-200' :
                   hasIncome ? 'bg-green-50 border-green-200' :
                   'bg-white hover:bg-slate-50'
-                } transition-colors`}
+                } ${selectedDate && day.toDateString() === selectedDate.toDateString() ? 'ring-2 ring-blue-500' : ''} transition-colors`}
+                onClick={() => isCurrentMonth && handleDayClick(day)}
               >
                 <div className="text-sm font-medium mb-1 flex items-center justify-between">
                   <span>{day.getDate()}</span>
@@ -334,7 +358,7 @@ const Calendar: React.FC<CalendarProps> = ({ transactions, onUpdatePaymentStatus
                     {eventsForDay.slice(0, 3).map(event => (
                       <div
                         key={event.id}
-                        className={`text-xs p-1 rounded truncate flex items-center gap-1 ${
+                        className={`text-xs p-1 rounded truncate flex items-center gap-1 cursor-pointer ${
                           event.type === 'income' 
                             ? 'bg-green-200 text-green-800' 
                             : event.isOverdue 
@@ -344,6 +368,7 @@ const Calendar: React.FC<CalendarProps> = ({ transactions, onUpdatePaymentStatus
                             : 'bg-yellow-200 text-yellow-800'
                         }`}
                         title={`${event.description} - ${formatCurrency(event.amount)}${event.isRecurring ? ' (Recorrente)' : ''}${event.type === 'expense' ? (event.isPaid ? ' - Pago' : ' - Pendente') : ''}`}
+                        onClick={() => handleTransactionClick(event)}
                       >
                         {event.type === 'income' ? (
                           <TrendingUp className="w-2 h-2 flex-shrink-0" />
@@ -372,6 +397,108 @@ const Calendar: React.FC<CalendarProps> = ({ transactions, onUpdatePaymentStatus
           })}
         </div>
       </div>
+
+      {/* Expanded Day View */}
+      {selectedDate && (
+        <div className="bg-white rounded-2xl border border-slate-200 p-6">
+          <h3 className="text-lg font-semibold text-slate-800 mb-4 truncate">
+            Transações de {formatBrazilDate(selectedDate)}
+          </h3>
+          <div className="space-y-3">
+            {getEventsForDate(selectedDate).length > 0 ? (
+              getEventsForDate(selectedDate).map(event => {
+                const isProcessing = processingPayments.has(event.id);
+                return (
+                  <div
+                    key={event.id}
+                    className={`flex items-center justify-between p-4 rounded-xl border gap-3 transition-all cursor-pointer ${
+                      event.type === 'income'
+                        ? 'bg-green-50 border-green-200'
+                        : event.isPaid
+                        ? 'bg-green-50 border-green-200'
+                        : event.isOverdue
+                        ? 'bg-red-50 border-red-200'
+                        : 'bg-yellow-50 border-yellow-200'
+                    } ${isProcessing ? 'opacity-75' : ''}`}
+                    onClick={() => handleTransactionClick(event)}
+                  >
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        {event.type === 'income' ? (
+                          <TrendingUp className="w-4 h-4 text-green-600 flex-shrink-0" />
+                        ) : event.isPaid ? (
+                          <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
+                        ) : (
+                          <DollarSign className="w-4 h-4 text-orange-600 flex-shrink-0" />
+                        )}
+                        <h4 className="font-medium text-slate-900 truncate">
+                          {event.description}
+                        </h4>
+                        {event.isRecurring && (
+                          <Repeat className="w-3 h-3 text-slate-500 flex-shrink-0" title="Transação recorrente" />
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-slate-600 flex-wrap">
+                        <span className="bg-slate-200 px-2 py-1 rounded-full truncate max-w-[120px]">
+                          {event.category}
+                        </span>
+                        {event.type === 'expense' && (
+                          <span className={`px-2 py-1 rounded-full whitespace-nowrap ${
+                            event.isPaid
+                              ? 'bg-green-200 text-green-800'
+                              : event.isOverdue
+                              ? 'bg-red-200 text-red-800'
+                              : event.daysUntilDue === 0
+                              ? 'bg-yellow-200 text-yellow-800'
+                              : event.daysUntilDue === 1
+                              ? 'bg-yellow-200 text-yellow-800'
+                              : 'bg-blue-200 text-blue-800'
+                          }`}>
+                            {event.isPaid ? '✓ Pago' :
+                              event.isOverdue ? 'Vencido' :
+                              event.daysUntilDue === 0 ? 'Vence hoje' :
+                              event.daysUntilDue === 1 ? 'Vence amanhã' :
+                              event.daysUntilDue !== null ? `${event.daysUntilDue} dias` : 'Sem vencimento'}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 flex-shrink-0">
+                      <span className={`font-semibold text-sm sm:text-lg break-words ${
+                        event.type === 'income' ? 'text-green-600' : 'text-red-600'
+                      }`}>
+                        {event.type === 'income' ? '+' : '-'}{formatCurrency(event.amount)}
+                      </span>
+                      {event.type === 'expense' && !event.isPaid && (
+                        <button
+                          onClick={() => handlePaymentStatusUpdate(event.id, true)}
+                          disabled={isProcessing}
+                          className={`px-3 py-2 text-white rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
+                            isProcessing
+                              ? 'bg-gray-400 cursor-not-allowed'
+                              : 'bg-green-500 hover:bg-green-600 hover:scale-105'
+                          }`}
+                        >
+                          {isProcessing ? (
+                            <div className="flex items-center gap-2">
+                              <div className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin"></div>
+                              Processando...
+                            </div>
+                          ) : (
+                            'Marcar como Pago'
+                          )}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <p className="text-slate-600 text-center">Nenhuma transação para esta data.</p>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Events List for Current Month */}
       {currentMonthEvents.length > 0 && (
@@ -563,6 +690,12 @@ const Calendar: React.FC<CalendarProps> = ({ transactions, onUpdatePaymentStatus
           </div>
         </div>
       )}
+
+      <TransactionDetailModal
+        transaction={selectedTransaction}
+        isOpen={isDetailModalOpen}
+        onClose={() => setIsDetailModalOpen(false)}
+      />
     </div>
   );
 };
