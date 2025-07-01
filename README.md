@@ -1,4 +1,4 @@
-# 💰 Controle Financeiro - Rodolfo & Thaís
+# 💰 Controle Financeiro
 
 Aplicativo web moderno para gerenciamento financeiro doméstico, otimizado para dispositivos móveis Android.
 
@@ -95,6 +95,3 @@ src/
 - Interface adaptada para telas pequenas
 
 ---
-
-Desenvolvido com ❤️ para Rodolfo & Thaís
-
