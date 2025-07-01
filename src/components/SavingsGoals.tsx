@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { SavingsGoal, SavingsContribution } from '../types';
 import { formatCurrency, formatBrazilDate, getBrazilDateString, parseLocalDate } from '../utils/helpers';
 import { Target, Plus, Trash2, Edit3, Calendar, TrendingUp, History, X } from 'lucide-react';
+import ConfirmationModal from './ConfirmationModal';
 
 interface SavingsGoalsProps {
   goals: SavingsGoal[];
@@ -29,6 +30,26 @@ const SavingsGoals: React.FC<SavingsGoalsProps> = ({
     targetAmount: '',
     deadline: '',
   });
+
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [goalToDelete, setGoalToDelete] = useState<string | null>(null);
+
+  const openDeleteModal = (id: string) => {
+    setGoalToDelete(id);
+    setIsDeleteModalOpen(true);
+  };
+
+  const closeDeleteModal = () => {
+    setGoalToDelete(null);
+    setIsDeleteModalOpen(false);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (goalToDelete) {
+      onDelete(goalToDelete);
+    }
+    closeDeleteModal();
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -118,7 +139,7 @@ const SavingsGoals: React.FC<SavingsGoalsProps> = ({
                 progress={progress}
                 isComplete={isComplete}
                 onEdit={() => handleEdit(goal)}
-                onDelete={() => onDelete(goal.id)}
+                onDelete={() => openDeleteModal(goal.id)}
                 onAddContribution={onAddContribution}
                 onUpdateContribution={onUpdateContribution}
                 onDeleteContribution={onDeleteContribution}
@@ -214,6 +235,14 @@ const SavingsGoals: React.FC<SavingsGoalsProps> = ({
           </div>
         </div>
       )}
+
+      <ConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={closeDeleteModal}
+        onConfirm={handleDeleteConfirm}
+        title="Confirmar Exclusão"
+        message="Tem certeza de que deseja excluir esta meta de economia? Esta ação não pode ser desfeita."
+      />
     </div>
   );
 };
