@@ -1,6 +1,6 @@
-import { format, startOfMonth, endOfMonth, isWithinInterval, addDays, addWeeks, addMonths, addYears } from 'date-fns';
+import { format, startOfMonth, endOfMonth, isWithinInterval, addWeeks, addMonths, addYears } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Transaction, MonthlyData, CategoryData, SavingsGoal, SavingsContribution } from '../types';
+import { Transaction, MonthlyData, CategoryData, SavingsGoal } from '../types';
 
 export const generateId = (): string => {
   return Date.now().toString(36) + Math.random().toString(36).substr(2);

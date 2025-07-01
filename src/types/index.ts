@@ -1,5 +1,6 @@
 export interface Transaction {
-  id: string;
+  _id?: string; // Adicionado para o MongoDB
+  id: string; // Mantido para compatibilidade
   type: 'expense' | 'income';
   amount: number;
   description: string;
@@ -9,6 +10,7 @@ export interface Transaction {
   isPaid: boolean; // Status de pagamento
   recurrence: 'none' | 'weekly' | 'monthly' | 'yearly';
   createdAt: string;
+  notes?: string; // Adicionado para o campo de notas
 }
 
 export interface SavingsContribution {
@@ -19,7 +21,8 @@ export interface SavingsContribution {
 }
 
 export interface SavingsGoal {
-  id: string;
+  _id?: string; // Adicionado para o MongoDB
+  id: string; // Mantido para compatibilidade
   name: string;
   targetAmount: number;
   currentAmount: number;
@@ -50,5 +53,5 @@ export interface PendingPayment {
   dueDate: string;
   category: string;
   isOverdue: boolean;
-  daysUntilDue: number;
+  daysUntilDue: number | null; // Alterado para permitir null
 }

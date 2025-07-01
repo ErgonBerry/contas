@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Transaction, PendingPayment } from '../types';
 import { formatCurrency, getCurrentBrazilDate, formatBrazilDate, parseLocalDate, isTransactionOverdue, getDaysUntilDue, getTransactionsWithRecurrence } from '../utils/helpers';
-import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, AlertTriangle, Clock, CreditCard, TrendingUp, DollarSign, Repeat, Check, Eye } from 'lucide-react';
+import { ChevronLeft, ChevronRight, AlertTriangle, Clock, CreditCard, TrendingUp, DollarSign, Repeat, Check } from 'lucide-react';
 import TransactionDetailModal from './TransactionDetailModal';
 import { startOfMonth, endOfMonth } from 'date-fns';
 
@@ -19,7 +19,7 @@ interface CalendarEvent {
   type: 'expense' | 'income';
   isPaid?: boolean;
   isOverdue?: boolean;
-  daysUntilDue?: number;
+  daysUntilDue?: number | null;
   isRecurring?: boolean;
   originalId?: string; // For recurring transactions
 }
@@ -209,7 +209,7 @@ const Calendar: React.FC<CalendarProps> = ({ transactions, onUpdatePaymentStatus
 
   const pendingPayments = getPendingPayments();
   const overduePayments = pendingPayments.filter(p => p.isOverdue);
-  const upcomingPayments = pendingPayments.filter(p => !p.isOverdue && p.daysUntilDue <= 7);
+  const upcomingPayments = pendingPayments.filter(p => !p.isOverdue && p.daysUntilDue !== null && p.daysUntilDue <= 7);
   const days = getDaysInMonth(currentDate);
   const today = getCurrentBrazilDate();
 
@@ -349,7 +349,10 @@ const Calendar: React.FC<CalendarProps> = ({ transactions, onUpdatePaymentStatus
                 <div className="text-sm font-medium mb-1 flex items-center justify-between">
                   <span>{day.getDate()}</span>
                   {hasRecurring && (
-                    <Repeat className="w-2 h-2 text-slate-400" title="Contém transações recorrentes" />
+                    <>
+                      <Repeat className="w-2 h-2 text-slate-400" />
+                      <span className="sr-only">Contém transações recorrentes</span>
+                    </>
                   )}
                 </div>
                 
@@ -435,7 +438,10 @@ const Calendar: React.FC<CalendarProps> = ({ transactions, onUpdatePaymentStatus
                           {event.description}
                         </h4>
                         {event.isRecurring && (
-                          <Repeat className="w-3 h-3 text-slate-500 flex-shrink-0" title="Transação recorrente" />
+                          <>
+                            <Repeat className="w-3 h-3 text-slate-500 flex-shrink-0" />
+                            <span className="sr-only">Transação recorrente</span>
+                          </>
                         )}
                       </div>
                       <div className="flex items-center gap-2 text-sm text-slate-600 flex-wrap">
@@ -548,7 +554,10 @@ const Calendar: React.FC<CalendarProps> = ({ transactions, onUpdatePaymentStatus
                           {event.description}
                         </h4>
                         {isRecurring && (
-                          <Repeat className="w-3 h-3 text-slate-500 flex-shrink-0" title="Transação recorrente" />
+                          <>
+                            <Repeat className="w-3 h-3 text-slate-500 flex-shrink-0" />
+                            <span className="sr-only">Transação recorrente</span>
+                          </>
                         )}
                       </div>
                       <div className="flex items-center gap-2 text-sm text-slate-600 flex-wrap">
@@ -617,79 +626,7 @@ const Calendar: React.FC<CalendarProps> = ({ transactions, onUpdatePaymentStatus
       )}
 
       {/* Pending Payments List */}
-      {pendingPayments.length > 0 && (
-        <div className="bg-white rounded-2xl border border-slate-200 p-6">
-          <h3 className="text-lg font-semibold text-slate-800 mb-4">
-            Próximos Vencimentos (30 dias)
-          </h3>
-          
-          <div className="space-y-3">
-            {pendingPayments.slice(0, 10).map(payment => {
-              const isProcessing = processingPayments.has(payment.id);
-              
-              return (
-                <div
-                  key={payment.id}
-                  className={`flex items-center justify-between p-4 rounded-xl border gap-3 transition-all ${
-                    payment.isOverdue 
-                      ? 'bg-red-50 border-red-200' 
-                      : payment.daysUntilDue <= 3
-                      ? 'bg-yellow-50 border-yellow-200'
-                      : 'bg-slate-50 border-slate-200'
-                  } ${isProcessing ? 'opacity-75' : ''}`}
-                >
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-medium text-slate-900 mb-1 truncate">
-                      {payment.description}
-                    </h4>
-                    <div className="flex items-center gap-2 text-sm text-slate-600 flex-wrap">
-                      <span className="bg-slate-200 px-2 py-1 rounded-full truncate max-w-[120px]">
-                        {payment.category}
-                      </span>
-                      <span className={`px-2 py-1 rounded-full whitespace-nowrap ${
-                        payment.isOverdue 
-                          ? 'bg-red-200 text-red-800' 
-                          : payment.daysUntilDue <= 3
-                          ? 'bg-yellow-200 text-yellow-800'
-                          : 'bg-blue-200 text-blue-800'
-                      }`}>
-                        {payment.isOverdue ? 'Vencido' : 
-                         payment.daysUntilDue === 0 ? 'Vence hoje' :
-                         payment.daysUntilDue === 1 ? 'Vence amanhã' :
-                         `${payment.daysUntilDue} dias`}
-                      </span>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-3 flex-shrink-0">
-                    <span className="font-semibold text-red-600 text-sm sm:text-base break-words">
-                      {formatCurrency(payment.amount)}
-                    </span>
-                    <button
-                      onClick={() => handlePaymentStatusUpdate(payment.id, true)}
-                      disabled={isProcessing}
-                      className={`px-3 py-2 text-white rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
-                        isProcessing 
-                          ? 'bg-gray-400 cursor-not-allowed' 
-                          : 'bg-green-500 hover:bg-green-600 hover:scale-105'
-                      }`}
-                    >
-                      {isProcessing ? (
-                        <div className="flex items-center gap-2">
-                          <div className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin"></div>
-                          Processando...
-                        </div>
-                      ) : (
-                        'Marcar como Pago'
-                      )}
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
+      {/* Pending Payments List - Temporarily removed for debugging */}
 
       <TransactionDetailModal
         transaction={selectedTransaction}

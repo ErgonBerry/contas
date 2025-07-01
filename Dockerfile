@@ -19,5 +19,5 @@ RUN npm install --only=production
 # Instale um servidor HTTP simples para servir os arquivos estáticos
 RUN npm install -g serve
 
-EXPOSE 5173
+EXPOSE 5173 3001
 CMD ["serve", "-s", "dist", "-l", "5173"]
