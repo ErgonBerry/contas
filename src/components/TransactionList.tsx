@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Transaction } from '../types';
 import { formatCurrency, isTransactionOverdue, getDaysUntilDue, formatBrazilDate, parseLocalDate } from '../utils/helpers';
 import { Plus, Trash2, Filter, Check, X, Calendar, CreditCard, Clock, Edit3 } from 'lucide-react';
@@ -14,24 +14,29 @@ interface TransactionListProps {
   onUpdatePaymentStatus: (id: string, isPaid: boolean) => void;
 }
 
-const TransactionList: React.FC<TransactionListProps> = ({ 
-  type, 
-  transactions, 
-  onAdd, 
+const TransactionList: React.FC<TransactionListProps> = ({
+  type,
+  transactions,
+  onAdd,
   onUpdate,
   onDelete,
   onUpdatePaymentStatus
 }) => {
   const [showForm, setShowForm] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
-  const [filter, setFilter] = useState('all');
+  const [categoryFilter, setCategoryFilter] = useState('all');
   const [paymentFilter, setPaymentFilter] = useState('all');
+
+  useEffect(() => {
+    setCategoryFilter('all');
+    setPaymentFilter('all'); // Reset payment filter when type changes
+  }, [type]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [transactionToDelete, setTransactionToDelete] = useState<string | null>(null);
   
   const filteredTransactions = transactions
     .filter(t => t.type === type)
-    .filter(t => filter === 'all' || t.category === filter)
+    .filter(t => categoryFilter === 'all' || t.category === categoryFilter)
     .filter(t => {
       if (paymentFilter === 'all') return true;
       if (paymentFilter === 'paid') return t.isPaid;
@@ -115,9 +120,9 @@ const TransactionList: React.FC<TransactionListProps> = ({
           <div className="flex items-center gap-2 overflow-x-auto pb-2">
             <Filter className="w-4 h-4 text-slate-500 flex-shrink-0" />
             <button
-              onClick={() => setFilter('all')}
+              onClick={() => setCategoryFilter('all')}
               className={`px-3 py-1 rounded-full text-sm whitespace-nowrap transition-colors ${
-                filter === 'all' 
+                categoryFilter === 'all' 
                   ? 'bg-blue-500 text-white' 
                   : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
               }`}
@@ -127,9 +132,9 @@ const TransactionList: React.FC<TransactionListProps> = ({
             {categories.map(category => (
               <button
                 key={category}
-                onClick={() => setFilter(category)}
+                onClick={() => setCategoryFilter(category)}
                 className={`px-3 py-1 rounded-full text-sm whitespace-nowrap transition-colors ${
-                  filter === category 
+                  categoryFilter === category 
                     ? 'bg-blue-500 text-white' 
                     : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                 }`}
