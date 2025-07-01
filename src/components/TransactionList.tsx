@@ -3,6 +3,7 @@ import { Transaction } from '../types';
 import { formatCurrency, isTransactionOverdue, getDaysUntilDue, formatBrazilDate, parseLocalDate } from '../utils/helpers';
 import { Plus, Trash2, Filter, Check, X, Calendar, CreditCard, Clock, Edit3 } from 'lucide-react';
 import TransactionForm from './TransactionForm';
+import ConfirmationModal from './ConfirmationModal';
 
 interface TransactionListProps {
   type: 'expense' | 'income';
@@ -25,6 +26,8 @@ const TransactionList: React.FC<TransactionListProps> = ({
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const [filter, setFilter] = useState('all');
   const [paymentFilter, setPaymentFilter] = useState('all');
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [transactionToDelete, setTransactionToDelete] = useState<string | null>(null);
   
   const filteredTransactions = transactions
     .filter(t => t.type === type)
@@ -59,6 +62,22 @@ const TransactionList: React.FC<TransactionListProps> = ({
       onAdd(transactionData);
     }
     handleCloseForm();
+  };
+
+  const openDeleteModal = (id: string) => {
+    setTransactionToDelete(id);
+    setIsDeleteModalOpen(true);
+  };
+
+  const closeDeleteModal = () => {
+    setTransactionToDelete(null);
+    setIsDeleteModalOpen(false);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (transactionToDelete) {
+      onDelete(transactionToDelete);
+    }
   };
 
   return (
@@ -275,7 +294,7 @@ const TransactionList: React.FC<TransactionListProps> = ({
                       <Edit3 className="w-4 h-4" />
                     </button>
                     <button
-                      onClick={() => onDelete(transaction.id)}
+                      onClick={() => openDeleteModal(transaction.id)}
                       className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -297,6 +316,15 @@ const TransactionList: React.FC<TransactionListProps> = ({
           onClose={handleCloseForm}
         />
       )}
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={closeDeleteModal}
+        onConfirm={handleDeleteConfirm}
+        title="Confirmar Exclusão"
+        message="Tem certeza de que deseja excluir esta transação? Esta ação não pode ser desfeita."
+      />
     </div>
   );
 };
