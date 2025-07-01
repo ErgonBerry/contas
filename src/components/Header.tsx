@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import packageJson from '../../package.json';
+
 
 const Header: React.FC = () => {
   const [isPulsing, setIsPulsing] = useState(false);
-  const appVersion = packageJson.version;
+  const appVersion = import.meta.env.APP_VERSION;
 
   const handleHeaderClick = () => {
     if (isPulsing) return;

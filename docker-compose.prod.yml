@@ -5,6 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    image: financial-app:${APP_VERSION:-latest}
     ports:
       - "8080:80"
     restart: unless-stopped
