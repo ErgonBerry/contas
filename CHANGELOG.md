@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.4](https://github.com/ErgonBerry/contas/compare/v0.0.3...v0.0.4) (2025-07-02)
+
+
+### Features
+
+* mongo v1 (localmente) - dockerfile prod ([65a445d](https://github.com/ErgonBerry/contas/commit/65a445d0f961487fdf513e0237b6f725960298d7))
+
 ### [0.0.3](https://github.com/ErgonBerry/contas/compare/v0.0.2...v0.0.3) (2025-07-02)
 
 
