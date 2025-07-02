@@ -334,7 +334,7 @@ const GoalCard: React.FC<GoalCardProps> = ({
           </h3>
           {goal.deadline && (
             <p className="text-sm text-slate-600 truncate">
-              Prazo: {formatBrazilDate(parseLocalDate(goal.deadline))}
+              Prazo: {formatBrazilDate(new Date(goal.deadline))}
             </p>
           )}
         </div>
@@ -442,7 +442,7 @@ const GoalCard: React.FC<GoalCardProps> = ({
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between items-center mb-1">
                         <span className="text-sm text-slate-600 truncate pr-2">
-                          {formatBrazilDate(parseLocalDate(contribution.date))}
+                          {formatBrazilDate(new Date(contribution.date))}
                         </span>
                         <span className="font-medium text-green-600 flex-shrink-0">
                           +{formatCurrency(contribution.amount)}
@@ -484,7 +484,7 @@ const GoalCard: React.FC<GoalCardProps> = ({
             {sortedContributions.slice(0, 2).map(contribution => (
               <div key={contribution.id} className="flex justify-between text-xs bg-slate-50 rounded p-2">
                 <span className="text-slate-600 truncate pr-2">
-                  {formatBrazilDate(parseLocalDate(contribution.date))}
+                  {formatBrazilDate(new Date(contribution.date))}
                 </span>
                 <span className="font-medium text-green-600 flex-shrink-0">
                   +{formatCurrency(contribution.amount)}

@@ -5,6 +5,14 @@ import cors from 'cors';
 
 dotenv.config();
 
+// Helper function to convert YYYY-MM-DD string to a UTC Date object at the start of the day
+const createLocalDateForStorage = (dateString) => {
+  if (!dateString) return undefined;
+  const [year, month, day] = dateString.split('-').map(Number);
+  // Create a Date object in local time (Brazil) at noon to avoid timezone issues
+  return new Date(year, month - 1, day, 12, 0, 0);
+};
+
 const app = express();
 const port = process.env.PORT || 3001;
 
@@ -125,7 +133,12 @@ app.get('/api/transactions', async (req, res) => {
 });
 
 app.post('/api/transactions', async (req, res) => {
-  const transaction = new Transaction(req.body);
+  const transactionData = {
+    ...req.body,
+    date: createLocalDateForStorage(req.body.date),
+    dueDate: req.body.dueDate ? createLocalDateForStorage(req.body.dueDate) : undefined,
+  };
+  const transaction = new Transaction(transactionData);
   try {
     const newTransaction = await transaction.save();
     res.status(201).json(newTransaction);
@@ -136,9 +149,14 @@ app.post('/api/transactions', async (req, res) => {
 
 app.put('/api/transactions/:id', async (req, res) => {
   try {
+    const updateData = {
+      ...req.body,
+      date: createLocalDateForStorage(req.body.date),
+      dueDate: req.body.dueDate ? createLocalDateForStorage(req.body.dueDate) : undefined,
+    };
     const updatedTransaction = await Transaction.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      updateData,
       { new: true, runValidators: true } // new: true retorna o documento atualizado
     );
     if (!updatedTransaction) {
@@ -169,7 +187,11 @@ app.get('/api/goals', async (req, res) => {
 });
 
 app.post('/api/goals', async (req, res) => {
-  const goal = new SavingsGoal(req.body);
+  const goalData = {
+    ...req.body,
+    deadline: req.body.deadline ? createLocalDateForStorage(req.body.deadline) : undefined,
+  };
+  const goal = new SavingsGoal(goalData);
   try {
     const newGoal = await goal.save();
     res.status(201).json(newGoal);
@@ -180,9 +202,13 @@ app.post('/api/goals', async (req, res) => {
 
 app.put('/api/goals/:id', async (req, res) => {
   try {
+    const updateData = {
+      ...req.body,
+      deadline: req.body.deadline ? createLocalDateForStorage(req.body.deadline) : undefined,
+    };
     const updatedGoal = await SavingsGoal.findByIdAndUpdate(
       req.params.id, 
-      req.body, 
+      updateData, 
       { new: true }
     );
     res.json(updatedGoal);
@@ -211,7 +237,7 @@ app.post('/api/goals/:id/contributions', async (req, res) => {
     const { amount, date } = req.body;
     const contribution = {
       amount,
-      date: date || new Date(), // Usa a data atual se não for fornecida
+      date: date ? createLocalDateForStorage(date) : new Date(), // Usa a data atual se não for fornecida
     };
 
     goal.contributions.push(contribution);

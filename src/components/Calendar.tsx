@@ -565,7 +565,7 @@ const Calendar: React.FC<CalendarProps> = ({ transactions, onUpdatePaymentStatus
                           {event.category}
                         </span>
                         <span className="whitespace-nowrap">
-                          {formatBrazilDate(parseLocalDate(eventDate))}
+                          {formatBrazilDate(new Date(eventDate))}
                         </span>
                         {event.type === 'expense' && (
                           <>

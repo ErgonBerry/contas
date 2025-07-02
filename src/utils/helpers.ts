@@ -46,21 +46,21 @@ export const formatBrazilDate = (date: Date | string, formatStr: string = 'dd/MM
   if (typeof date === 'string') {
     // CRITICAL FIX FOR CARDS: Handle date strings with ABSOLUTE ZERO timezone interference
     if (date.includes('T')) {
-      // If it's an ISO string with time, parse it directly
-      dateObj = new Date(date);
+      // If it's an ISO string (from backend), parse it as UTC and then adjust to Brazil's local day
+      const utcDate = new Date(date);
+      // Get year, month, day from UTC date
+      const year = utcDate.getUTCFullYear();
+      const month = utcDate.getUTCMonth();
+      const day = utcDate.getUTCDate();
+      // Create a new Date object representing the same calendar day in local timezone (at noon to avoid DST issues)
+      dateObj = new Date(year, month, day, 12, 0, 0, 0);
     } else if (date.match(/^\d{4}-\d{2}-\d{2}$/)) {
-      // CARDS FIX: For YYYY-MM-DD strings, parse as LOCAL date with ZERO timezone shift
+      // For YYYY-MM-DD strings (from frontend date pickers), parse as LOCAL date with NO UTC conversion
       const [yearStr, monthStr, dayStr] = date.split('-');
       const year = parseInt(yearStr, 10);
       const month = parseInt(monthStr, 10) - 1; // month is 0-indexed
       const day = parseInt(dayStr, 10);
-      
-      // DEFINITIVE FIX: Create date object in LOCAL timezone with NO UTC conversion
-      // Using noon (12:00) to avoid any DST edge cases
-      dateObj = new Date(year, month, day, 12, 0, 0, 0);
-      
-      // DEBUG: Log the parsing to verify correctness
-      console.log(`🔧 formatBrazilDate DEBUG: "${date}" → Year: ${year}, Month: ${month + 1}, Day: ${day} → Result: ${dateObj.toLocaleDateString('pt-BR')}`);
+      dateObj = new Date(year, month, day, 12, 0, 0, 0); // Noon to avoid DST edge cases
     } else {
       // Fallback for other string formats
       dateObj = new Date(date);
@@ -100,7 +100,9 @@ export const parseLocalDate = (dateString: string): Date => {
 
   // Handles ISO strings from backend (e.g., "2023-10-27T10:00:00.000Z")
   if (dateString.includes('T')) {
-    return new Date(dateString);
+    const utcDate = new Date(dateString);
+    // Create a new Date object representing the same calendar day in local timezone (at noon to avoid DST issues)
+    return new Date(utcDate.getUTCFullYear(), utcDate.getUTCMonth(), utcDate.getUTCDate(), 12, 0, 0);
   }
 
   // Handles "YYYY-MM-DD" strings from date pickers, avoiding timezone issues.
