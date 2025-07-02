@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.6](https://github.com/ErgonBerry/contas/compare/v0.0.5...v0.0.6) (2025-07-02)
+
+
+### Features
+
+* ia ([8cf293e](https://github.com/ErgonBerry/contas/commit/8cf293e5fd17d4b3fdbaa358f0ef47904684edaf))
+* IA button first version ([b1165fa](https://github.com/ErgonBerry/contas/commit/b1165faf009955622a884361ec2ae73b2da1d4e2))
+
+
+### Bug Fixes
+
+* nginx ([3714664](https://github.com/ErgonBerry/contas/commit/3714664ec72a18edeb6ac71ef13775da7363da05))
+* nginx ([ddc512f](https://github.com/ErgonBerry/contas/commit/ddc512ffb53b5b13df7167ffad275fcfee0a4f51))
+* year ([a654965](https://github.com/ErgonBerry/contas/commit/a6549650c04495e9be15ff38a17a0c8c61bf47ab))
+
 ### [0.0.5](https://github.com/ErgonBerry/contas/compare/v0.0.4...v0.0.5) (2025-07-02)
 
 ### [0.0.4](https://github.com/ErgonBerry/contas/compare/v0.0.3...v0.0.4) (2025-07-02)
