@@ -221,7 +221,7 @@ const Reports: React.FC<ReportsProps> = ({ transactions, savingsGoals = [] }) =>
               Evolução Mensal
             </h2>
             <p className="text-sm text-slate-600 truncate">
-              Receitas vs Despesas vs Metas nos últimos 6 meses
+              das finanças nos últimos 6 meses
             </p>
           </div>
         </div>
@@ -229,20 +229,9 @@ const Reports: React.FC<ReportsProps> = ({ transactions, savingsGoals = [] }) =>
           <Bar data={barChartData} options={barChartOptions} />
         </div>
 
-        {loadingAi && (
-          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-2xl z-40">
-            <p className="text-white text-lg font-semibold">Gerando Relatório IA...</p>
-          </div>
-        )}
+        
 
-        <button
-          onClick={generateAiMessage}
-          className="absolute bottom-4 right-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white p-3 rounded-full shadow-lg flex items-center justify-center z-50 transition-all duration-300 ease-in-out transform hover:scale-110 animate-pulse"
-          aria-label="Gerar insights de IA"
-          disabled={loadingAi}
-        >
-          <Brain className="w-6 h-6" />
-        </button>
+        
       </div>
       {/* Category Distribution */}
       {categoryData.length > 0 && (
@@ -260,8 +249,21 @@ const Reports: React.FC<ReportsProps> = ({ transactions, savingsGoals = [] }) =>
               </p>
             </div>
           </div>
-          <div className="h-64 mb-6">
+          <div className="h-64 mb-6 relative">
             <Doughnut data={doughnutData} options={doughnutOptions} />
+            <button
+              onClick={generateAiMessage}
+              className="absolute top-4 right-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white p-1 rounded-full shadow-lg flex items-center justify-center z-50 transition-all duration-300 ease-in-out transform hover:scale-110 animate-pulse"
+              aria-label="Gerar insights de IA"
+              disabled={loadingAi}
+            >
+              <Brain className="w-6 h-6" />
+            </button>
+            {loadingAi && (
+              <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-2xl z-40">
+                <p className="text-white text-lg font-semibold">Gerando Relatório IA...</p>
+              </div>
+            )}
           </div>
           
           {/* Category Details */}
