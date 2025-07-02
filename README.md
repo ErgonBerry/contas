@@ -95,3 +95,5 @@ src/
 - Interface adaptada para telas pequenas
 
 ---
+
+
