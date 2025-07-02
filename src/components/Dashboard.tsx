@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Transaction, SavingsGoal } from '../types';
 import { formatCurrency, filterTransactionsByMonth, calculateMonthlyBalance, calculateGoalsImpact, getCurrentBrazilDate, formatBrazilDate, parseLocalDate } from '../utils/helpers';
-import { TrendingUp, TrendingDown, Wallet, Target, AlertTriangle } from 'lucide-react';
+import { TrendingUp, TrendingDown, Wallet, Target, AlertTriangle, Calendar } from 'lucide-react';
 import Confetti from 'react-confetti';
 import useWindowSize from '../hooks/useWindowSize';
 
@@ -82,8 +82,15 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, savingsGoals }) => 
         <h1 className="text-2xl font-bold text-slate-800 mb-2">
           Resumo Financeiro
         </h1>
-        <p className="text-slate-600">
+        <p className="text-slate-600 flex items-center justify-center gap-2">
           {formatBrazilDate(currentDate, 'MMMM yyyy')}
+          <button
+            onClick={() => handleCardClick('/calendar')}
+            className="p-2 rounded-full bg-orange-100 text-orange-600 hover:bg-orange-200 transition-colors shadow-md"
+            title="Ir para o Calendário"
+          >
+            <Calendar className="w-4 h-4" />
+          </button>
         </p>
       </div>
 

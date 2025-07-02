@@ -23,8 +23,9 @@ services:
       dockerfile: Dockerfile.backend
     ports:
       - "3001:3001"
+    env_file:
+      - .env
     environment:
-      - MONGO_URI="mongodb+srv://rodolfoneto:iso900222@cluster0.u8x8t.mongodb.net/household_db?retryWrites=true&w=majority"
       - NODE_ENV=development
     depends_on:
       - mongo

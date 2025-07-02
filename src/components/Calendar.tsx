@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Transaction, PendingPayment } from '../types';
-import { formatCurrency, getCurrentBrazilDate, formatBrazilDate, parseLocalDate, isTransactionOverdue, getDaysUntilDue, getTransactionsWithRecurrence } from '../utils/helpers';
+import { formatCurrency, getCurrentBrazilDate, formatBrazilDate, parseLocalDate, isTransactionOverdue, getDaysUntilDue, getTransactionsWithRecurrence, getBrazilDateString } from '../utils/helpers';
 import { ChevronLeft, ChevronRight, AlertTriangle, Clock, CreditCard, TrendingUp, DollarSign, Repeat, Check } from 'lucide-react';
 import TransactionDetailModal from './TransactionDetailModal';
 import { startOfMonth, endOfMonth } from 'date-fns';
@@ -90,9 +90,18 @@ const Calendar: React.FC<CalendarProps> = ({ transactions, onUpdatePaymentStatus
     
     const dayTransactions = getTransactionsWithRecurrence(transactions, dayStart, dayEnd, false);
 
+    const isSameDay = (d1: Date, d2: Date) => {
+      return d1.getFullYear() === d2.getFullYear() &&
+             d1.getMonth() === d2.getMonth() &&
+             d1.getDate() === d2.getDate();
+    };
+
     // Add all expenses (both paid and pending)
     const expenseEvents = dayTransactions
-      .filter(t => t.type === 'expense' && (t.dueDate === dateStr || t.date === dateStr))
+      .filter(t => {
+        const transactionDate = t.dueDate ? parseLocalDate(t.dueDate) : parseLocalDate(t.date);
+        return t.type === 'expense' && isSameDay(transactionDate, date);
+      })
       .map(t => {
         const daysUntilDue = t.dueDate ? getDaysUntilDue(t.dueDate) : null;
         const isRecurring = t.id.includes('_') || t.recurrence !== 'none';
@@ -101,7 +110,7 @@ const Calendar: React.FC<CalendarProps> = ({ transactions, onUpdatePaymentStatus
           id: t.id,
           description: t.description,
           amount: t.amount,
-          date: dateStr,
+          date: getBrazilDateString(t.dueDate ? parseLocalDate(t.dueDate) : parseLocalDate(t.date)),
           category: t.category,
           type: 'expense' as const,
           isPaid: t.isPaid,
@@ -114,7 +123,10 @@ const Calendar: React.FC<CalendarProps> = ({ transactions, onUpdatePaymentStatus
 
     // Add income (transaction date)
     const incomeEvents = dayTransactions
-      .filter(t => t.type === 'income' && t.date === dateStr)
+      .filter(t => {
+        const transactionDate = parseLocalDate(t.date);
+        return t.type === 'income' && isSameDay(transactionDate, date);
+      })
       .map(t => {
         const isRecurring = t.id.includes('_') || t.recurrence !== 'none';
         
@@ -122,7 +134,7 @@ const Calendar: React.FC<CalendarProps> = ({ transactions, onUpdatePaymentStatus
           id: t.id,
           description: t.description,
           amount: t.amount,
-          date: dateStr,
+          date: getBrazilDateString(parseLocalDate(t.date)),
           category: t.category,
           type: 'income' as const,
           isPaid: true,

@@ -20,7 +20,7 @@ app.use(cors());
 app.use(express.json());
 
 // Conexão com MongoDB
-mongoose.connect("mongodb+srv://rodolfoneto:iso900222@cluster0.u8x8t.mongodb.net/household_db?retryWrites=true&w=majority", {
+mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   serverSelectionTimeoutMS: 5000
