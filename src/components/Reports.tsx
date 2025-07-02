@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement } from 'chart.js';
 import { Bar, Doughnut } from 'react-chartjs-2';
 import { Transaction, SavingsGoal } from '../types';
 import { getMonthlyData, getCategoryData, formatCurrency } from '../utils/helpers';
-import { BarChart3, PieChart, TrendingUp } from 'lucide-react';
+import { BarChart3, PieChart, TrendingUp, Brain } from 'lucide-react';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
 
@@ -17,25 +17,22 @@ const Reports: React.FC<ReportsProps> = ({ transactions, savingsGoals = [] }) =>
   const categoryData = getCategoryData(transactions);
 
   const barChartData = {
-    labels: monthlyData.map(d => d.month),
+    labels: monthlyData.map(data => data.month),
     datasets: [
       {
         label: 'Receitas',
-        data: monthlyData.map(d => d.income),
-        backgroundColor: '#10B981',
-        borderRadius: 8,
+        data: monthlyData.map(data => data.income),
+        backgroundColor: 'rgba(75, 192, 192, 0.6)',
       },
       {
         label: 'Despesas',
-        data: monthlyData.map(d => d.expenses),
-        backgroundColor: '#EF4444',
-        borderRadius: 8,
+        data: monthlyData.map(data => data.expenses),
+        backgroundColor: 'rgba(255, 99, 132, 0.6)',
       },
       {
         label: 'Metas',
-        data: monthlyData.map(d => d.goalsImpact || 0),
-        backgroundColor: '#F59E0B',
-        borderRadius: 8,
+        data: monthlyData.map(data => data.goalsImpact || 0),
+        backgroundColor: 'rgba(255, 206, 86, 0.6)',
       },
     ],
   };
@@ -47,34 +44,45 @@ const Reports: React.FC<ReportsProps> = ({ transactions, savingsGoals = [] }) =>
       legend: {
         position: 'top' as const,
       },
+      title: {
+        display: false,
+        text: 'Evolução Mensal',
+      },
       tooltip: {
         callbacks: {
           label: function(context: any) {
-            return `${context.dataset.label}: ${formatCurrency(context.raw)}`;
-          },
-        },
-      },
+            let label = context.dataset.label || '';
+            if (label) {
+              label += ': ';
+            }
+            if (context.parsed.y !== null) {
+              label += formatCurrency(context.parsed.y);
+            }
+            return label;
+          }
+        }
+      }
     },
     scales: {
       y: {
         beginAtZero: true,
         ticks: {
-          callback: function(value: any) {
-            return formatCurrency(value);
-          },
-        },
-      },
-    },
+          callback: function(value: string | number) {
+            return formatCurrency(value as number);
+          }
+        }
+      }
+    }
   };
 
   const doughnutData = {
-    labels: categoryData.map(d => d.category),
+    labels: categoryData.map(data => data.category),
     datasets: [
       {
-        data: categoryData.map(d => d.amount),
-        backgroundColor: categoryData.map(d => d.color),
-        borderWidth: 2,
+        data: categoryData.map(data => data.amount),
+        backgroundColor: categoryData.map(data => data.color),
         borderColor: '#ffffff',
+        borderWidth: 2,
       },
     ],
   };
@@ -84,18 +92,75 @@ const Reports: React.FC<ReportsProps> = ({ transactions, savingsGoals = [] }) =>
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: 'bottom' as const,
+        position: 'right' as const,
       },
       tooltip: {
         callbacks: {
           label: function(context: any) {
-            const data = categoryData[context.dataIndex];
-            return `${data.category}: ${formatCurrency(data.amount)} (${data.percentage.toFixed(1)}%)`;
-          },
-        },
-      },
+            const label = context.label || '';
+            const value = context.parsed || 0;
+            const percentage = categoryData.find(c => c.category === label)?.percentage || 0;
+            return `${label}: ${formatCurrency(value)} (${percentage.toFixed(1)}%)`;
+          }
+        }
+      }
     },
   };
+
+  const [showAiMessagePopup, setShowAiMessagePopup] = useState(false);
+  const [aiMessage, setAiMessage] = useState('');
+  const [loadingAi, setLoadingAi] = useState(false);
+  const [countdown, setCountdown] = useState(0);
+
+  const generateAiMessage = () => {
+    if (categoryData.length === 0) {
+      setAiMessage('Adicione transações para uma análise de IA.');
+      setShowAiMessagePopup(true);
+      return;
+    }
+
+    setLoadingAi(true);
+    // Simulate AI processing time
+    setTimeout(() => {
+      const predominantCategory = categoryData.reduce((prev, current) => (
+        (prev.percentage > current.percentage) ? prev : current
+      ));
+
+      let message = '';
+      if (predominantCategory.category === 'Dívidas' && predominantCategory.percentage > 50) {
+        message = 'Cuidado, suas dívidas estão altas! Priorize o pagamento.';
+      } else if (predominantCategory.category === 'Alimentação' && predominantCategory.percentage > 40) {
+        message = 'Seus gastos com alimentação estão elevados. Que tal cozinhar mais?';
+      } else if (predominantCategory.category === 'Transporte' && predominantCategory.percentage > 30) {
+        message = 'Gastos com transporte significativos. Considere alternativas.';
+      } else if (predominantCategory.category === 'Lazer' && predominantCategory.percentage > 20) {
+        message = 'Aproveite o lazer, mas com moderação para suas finanças.';
+      } else {
+        message = `Sua maior despesa é em ${predominantCategory.category}. Fique de olho!`;
+      }
+      setAiMessage(message);
+      setLoadingAi(false);
+      setShowAiMessagePopup(true);
+    }, 3500); // 2 second delay
+  };
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (showAiMessagePopup) {
+      setCountdown(5);
+      timer = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            setShowAiMessagePopup(false);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [showAiMessagePopup]);
 
   if (transactions.length === 0) {
     return (
@@ -112,7 +177,7 @@ const Reports: React.FC<ReportsProps> = ({ transactions, savingsGoals = [] }) =>
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
       <div className="text-center py-4">
         <h1 className="text-2xl font-bold text-slate-800 mb-2">
           Relatórios Financeiros
@@ -122,8 +187,23 @@ const Reports: React.FC<ReportsProps> = ({ transactions, savingsGoals = [] }) =>
         </p>
       </div>
 
+      {showAiMessagePopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full text-center relative">
+            <h3 className="text-lg font-semibold mb-4">Insight de IA</h3>
+            <p className="text-slate-700 mb-6">{aiMessage}</p>
+            <button
+              onClick={() => setShowAiMessagePopup(false)}
+              className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full transition-colors duration-300"
+            >
+              Fechar ({countdown})
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Monthly Trends */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-6">
+      <div className="bg-white rounded-2xl border border-slate-200 p-6 relative">
         <div className="flex items-center gap-3 mb-6">
           <div className="p-2 bg-blue-100 rounded-lg">
             <TrendingUp className="w-5 h-5 text-blue-600" />
@@ -140,8 +220,22 @@ const Reports: React.FC<ReportsProps> = ({ transactions, savingsGoals = [] }) =>
         <div className="h-64">
           <Bar data={barChartData} options={barChartOptions} />
         </div>
-      </div>
 
+        {loadingAi && (
+          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-2xl z-40">
+            <p className="text-white text-lg font-semibold">Loading...</p>
+          </div>
+        )}
+
+        <button
+          onClick={generateAiMessage}
+          className="absolute bottom-4 right-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white p-3 rounded-full shadow-lg flex items-center justify-center z-50 transition-all duration-300 ease-in-out transform hover:scale-110 animate-pulse"
+          aria-label="Gerar insights de IA"
+          disabled={loadingAi}
+        >
+          <Brain className="w-6 h-6" />
+        </button>
+      </div>
       {/* Category Distribution */}
       {categoryData.length > 0 && (
         <div className="bg-white rounded-2xl border border-slate-200 p-6">
@@ -219,9 +313,7 @@ const Reports: React.FC<ReportsProps> = ({ transactions, savingsGoals = [] }) =>
               )}
               <div className="flex justify-between text-sm pt-2 border-t">
                 <span className="font-medium text-slate-800 truncate pr-2">Saldo</span>
-                <span className={`font-semibold flex-shrink-0 ${
-                  month.balance >= 0 ? 'text-green-600' : 'text-red-600'
-                }`}>
+                <span className={`font-semibold flex-shrink-0 ${month.balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                   {formatCurrency(month.balance)}
                 </span>
               </div>
