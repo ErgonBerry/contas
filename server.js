@@ -306,8 +306,11 @@ app.delete('/api/goals/:goalId/contributions/:contributionId', async (req, res) 
   }
 });
 
-// Serve the frontend's index.html for the root path
-app.get('/', (req, res) => {
+// Serve static files from the 'dist' directory
+app.use(express.static(path.join(__dirname, 'dist')));
+
+// Fallback for all other requests to serve index.html
+app.use((req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
