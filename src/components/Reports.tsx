@@ -250,7 +250,21 @@ const Reports: React.FC<ReportsProps> = ({ transactions, savingsGoals = [] }) =>
             </div>
           </div>
           <div className="h-64 mb-6 relative">
-            <Doughnut data={doughnutData} options={doughnutOptions} />
+            <div className={`absolute inset-0 flex items-center justify-center ${loadingAi ? 'animate-spin-slow' : ''}`}>
+              <Doughnut
+                data={doughnutData}
+                options={{
+                  ...doughnutOptions,
+                  plugins: {
+                    ...doughnutOptions.plugins,
+                    legend: {
+                      ...doughnutOptions.plugins.legend,
+                      display: !loadingAi,
+                    },
+                  },
+                }}
+              />
+            </div>
             <button
               onClick={generateAiMessage}
               className="absolute top-4 right-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white p-1 rounded-full shadow-lg flex items-center justify-center z-50 transition-all duration-300 ease-in-out transform hover:scale-110 animate-pulse"
