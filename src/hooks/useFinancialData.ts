@@ -53,44 +53,45 @@ export const useFinancialData = () => {
 
   const updateTransaction = async (id: string, updates: Partial<Transaction>) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/transactions/\${id}`, {
+      const response = await fetch(`${API_BASE_URL}/transactions/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updates),
       });
       if (!response.ok) throw new Error('Failed to update transaction');
+      const updatedTransaction = await response.json();
       setTransactions(prev => prev.map(transaction =>
-        transaction._id === id ? { ...transaction, ...updates } : transaction
+        transaction.id === id ? updatedTransaction : transaction
       ));
     } catch (error) {
       console.error('Error updating transaction:', error);
+      throw new Error('Failed to update transaction');
     }
   };
 
   const deleteTransaction = async (id: string) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/transactions/\${id}`, {
+      const response = await fetch(`${API_BASE_URL}/transactions/${id}`, {
         method: 'DELETE',
       });
       if (!response.ok) throw new Error('Failed to delete transaction');
-      setTransactions(prev => prev.filter(t => t._id !== id));
+      setTransactions(prev => prev.filter(t => t.id !== id));
     } catch (error) {
       console.error('Error deleting transaction:', error);
     }
   };
 
   const updatePaymentStatus = async (id: string, isPaid: boolean) => {
-    // This logic might need to be adjusted based on how recurring transactions are handled in the backend
-    // For now, assuming it's a direct update to an existing transaction
     try {
-      const response = await fetch(`${API_BASE_URL}/transactions/\${id}`, {
+      const response = await fetch(`${API_BASE_URL}/transactions/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ isPaid }),
       });
       if (!response.ok) throw new Error('Failed to update payment status');
+      const updatedTransaction = await response.json();
       setTransactions(prev => prev.map(transaction =>
-        transaction._id === id ? { ...transaction, isPaid } : transaction
+        transaction.id === id ? updatedTransaction : transaction
       ));
     } catch (error) {
       console.error('Error updating payment status:', error);
@@ -118,14 +119,15 @@ export const useFinancialData = () => {
 
   const updateSavingsGoal = async (id: string, updates: Partial<SavingsGoal>) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/goals/\${id}`, {
+      const response = await fetch(`${API_BASE_URL}/goals/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updates),
       });
       if (!response.ok) throw new Error('Failed to update savings goal');
+      const updatedGoal = await response.json();
       setSavingsGoals(prev => prev.map(goal =>
-        goal._id === id ? { ...goal, ...updates } : goal
+        goal.id === id ? updatedGoal : goal
       ));
     } catch (error) {
       console.error('Error updating savings goal:', error);
@@ -134,31 +136,24 @@ export const useFinancialData = () => {
 
   const addSavingsContribution = async (goalId: string, amount: number, date?: string) => {
     try {
-      const goalToUpdate = savingsGoals.find(g => g._id === goalId);
+      const goalToUpdate = savingsGoals.find(g => g.id === goalId);
       if (!goalToUpdate) throw new Error('Goal not found');
 
-      const contribution: SavingsContribution = {
-        id: generateId(), // Still generate client-side ID for contributions
+      const contribution: Omit<SavingsContribution, 'id' | 'createdAt'> = {
         amount,
         date: date || getBrazilDateString(),
-        createdAt: getCurrentBrazilDate().toISOString(),
       };
 
-      const updatedContributions = [...(goalToUpdate.contributions || []), contribution];
-      const newCurrentAmount = updatedContributions.reduce((sum, c) => sum + c.amount, 0);
-
-      const response = await fetch(`${API_BASE_URL}/goals/\${goalId}`, {
-        method: 'PUT',
+      const response = await fetch(`${API_BASE_URL}/goals/${goalId}/contributions`, {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contributions: updatedContributions,
-          currentAmount: newCurrentAmount,
-        }),
+        body: JSON.stringify(contribution),
       });
+
       if (!response.ok) throw new Error('Failed to add savings contribution');
       const updatedGoal = await response.json();
       setSavingsGoals(prev => prev.map(goal =>
-        goal._id === goalId ? updatedGoal : goal
+        goal.id === goalId ? updatedGoal : goal
       ));
     } catch (error) {
       console.error('Error adding savings contribution:', error);
@@ -167,26 +162,16 @@ export const useFinancialData = () => {
 
   const updateSavingsContribution = async (goalId: string, contributionId: string, updates: Partial<SavingsContribution>) => {
     try {
-      const goalToUpdate = savingsGoals.find(g => g._id === goalId);
-      if (!goalToUpdate) throw new Error('Goal not found');
-
-      const updatedContributions = goalToUpdate.contributions.map(contribution =>
-        contribution.id === contributionId ? { ...contribution, ...updates } : contribution
-      );
-      const newCurrentAmount = updatedContributions.reduce((sum, c) => sum + c.amount, 0);
-
-      const response = await fetch(`${API_BASE_URL}/goals/\${goalId}`, {
+      const response = await fetch(`${API_BASE_URL}/goals/${goalId}/contributions/${contributionId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contributions: updatedContributions,
-          currentAmount: newCurrentAmount,
-        }),
+        body: JSON.stringify(updates),
       });
+
       if (!response.ok) throw new Error('Failed to update savings contribution');
       const updatedGoal = await response.json();
       setSavingsGoals(prev => prev.map(goal =>
-        goal._id === goalId ? updatedGoal : goal
+        goal.id === goalId ? updatedGoal : goal
       ));
     } catch (error) {
       console.error('Error updating savings contribution:', error);
@@ -195,24 +180,14 @@ export const useFinancialData = () => {
 
   const deleteSavingsContribution = async (goalId: string, contributionId: string) => {
     try {
-      const goalToUpdate = savingsGoals.find(g => g._id === goalId);
-      if (!goalToUpdate) throw new Error('Goal not found');
-
-      const filteredContributions = goalToUpdate.contributions.filter(c => c.id !== contributionId);
-      const newCurrentAmount = filteredContributions.reduce((sum, c) => sum + c.amount, 0);
-
-      const response = await fetch(`${API_BASE_URL}/goals/\${goalId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contributions: filteredContributions,
-          currentAmount: newCurrentAmount,
-        }),
+      const response = await fetch(`${API_BASE_URL}/goals/${goalId}/contributions/${contributionId}`, {
+        method: 'DELETE',
       });
+
       if (!response.ok) throw new Error('Failed to delete savings contribution');
       const updatedGoal = await response.json();
       setSavingsGoals(prev => prev.map(goal =>
-        goal._id === goalId ? updatedGoal : goal
+        goal.id === goalId ? updatedGoal : goal
       ));
     } catch (error) {
       console.error('Error deleting savings contribution:', error);
@@ -221,11 +196,11 @@ export const useFinancialData = () => {
 
   const deleteSavingsGoal = async (id: string) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/goals/\${id}`, {
+      const response = await fetch(`${API_BASE_URL}/goals/${id}`, {
         method: 'DELETE',
       });
       if (!response.ok) throw new Error('Failed to delete savings goal');
-      setSavingsGoals(prev => prev.filter(g => g._id !== id));
+      setSavingsGoals(prev => prev.filter(g => g.id !== id));
     } catch (error) {
       console.error('Error deleting savings goal:', error);
     }

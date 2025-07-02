@@ -28,10 +28,11 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, transaction, on
         amount: transaction.amount.toString(),
         description: transaction.description,
         category: transaction.category,
-        date: transaction.date,
-        dueDate: transaction.dueDate || '',
+        date: getBrazilDateString(new Date(transaction.date)),
+        dueDate: transaction.dueDate ? getBrazilDateString(new Date(transaction.dueDate)) : '',
         isPaid: transaction.isPaid,
-        recurrence: transaction.recurrence,
+        recurrence: transaction.recurrence || 'none',
+        notes: transaction.notes || ''
       });
     }
   }, [transaction]);
@@ -45,21 +46,24 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, transaction, on
       return;
     }
 
-    // Para gastos, se não tiver data de vencimento e não estiver pago, usar a data atual como vencimento
     let finalDueDate = formData.dueDate;
     if (type === 'expense' && !formData.isPaid && !finalDueDate) {
       finalDueDate = getBrazilDateString();
     }
+
+    // Garante que a data principal seja a data de vencimento para despesas
+    const finalDate = type === 'expense' ? (finalDueDate || getBrazilDateString()) : formData.date;
 
     onSubmit({
       type,
       amount: parseFloat(formData.amount),
       description: formData.description,
       category: formData.category,
-      date: formData.date,
+      date: finalDate,
       dueDate: finalDueDate || undefined,
       isPaid: formData.isPaid,
       recurrence: formData.recurrence,
+      notes: '' // Adicionar campo de notas se necessário no futuro
     });
   };
 

@@ -93,9 +93,25 @@ export const getBrazilDateString = (date?: Date): string => {
 
 // FIXED: Convert date string to proper Date object - DEFINITIVE SOLUTION
 export const parseLocalDate = (dateString: string): Date => {
-  // CRITICAL FIX: Parse date string as local date to avoid timezone issues
-  const [year, month, day] = dateString.split('-').map(Number);
-  return new Date(year, month - 1, day, 12, 0, 0, 0); // Use noon to avoid DST issues
+  if (!dateString) {
+    // Fallback for safety, though this might indicate a bug elsewhere.
+    return new Date();
+  }
+
+  // Handles ISO strings from backend (e.g., "2023-10-27T10:00:00.000Z")
+  if (dateString.includes('T')) {
+    return new Date(dateString);
+  }
+
+  // Handles "YYYY-MM-DD" strings from date pickers, avoiding timezone issues.
+  if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    const [year, month, day] = dateString.split('-').map(Number);
+    // Create date in local time at noon to avoid DST and timezone boundary issues.
+    return new Date(year, month - 1, day, 12, 0, 0);
+  }
+
+  // Fallback for any other format that new Date() might understand.
+  return new Date(dateString);
 };
 
 export const getMonthKey = (date: Date): string => {

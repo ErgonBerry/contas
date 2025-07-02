@@ -203,13 +203,13 @@ const TransactionList: React.FC<TransactionListProps> = ({
             </button>
           </div>
         ) : (
-          filteredTransactions.map((transaction) => {
+          filteredTransactions.map((transaction, index) => {
             const overdue = isTransactionOverdue(transaction);
             const daysUntilDue = transaction.dueDate ? getDaysUntilDue(transaction.dueDate) : null;
             
             return (
               <div
-                key={transaction.id}
+                key={`${transaction.id}-${index}`}
                 className={`bg-white border rounded-xl p-4 hover:shadow-md transition-shadow ${
                   overdue ? 'border-red-300 bg-red-50' : 
                   !transaction.isPaid && type === 'expense' ? 'border-orange-200 bg-orange-50' :
@@ -243,7 +243,7 @@ const TransactionList: React.FC<TransactionListProps> = ({
                       
                       {/* Para receitas, mostrar data da transação */}
                       {type === 'income' && (
-                        <span className="whitespace-nowrap">{formatBrazilDate(parseLocalDate(transaction.date))}</span>
+                        <span className="whitespace-nowrap">{formatBrazilDate(transaction.date)}</span>
                       )}
                       
                       {transaction.recurrence !== 'none' && (
@@ -275,10 +275,10 @@ const TransactionList: React.FC<TransactionListProps> = ({
                             <Calendar className="w-3 h-3 flex-shrink-0" />
                             <span className="truncate">
                               {overdue ? 'Vencido' : 
-                               daysUntilDue === 0 ? 'Vence hoje' :
+                               daysUntilDue === 0 ? 'Vence hoje' : 
                                daysUntilDue === 1 ? 'Vence amanhã' :
                                daysUntilDue !== null && daysUntilDue > 0 ? `${daysUntilDue} dias` :
-                               formatBrazilDate(parseLocalDate(transaction.dueDate))}
+                               formatBrazilDate(transaction.dueDate)}
                             </span>
                           </span>
                         )}

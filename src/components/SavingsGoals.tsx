@@ -78,10 +78,11 @@ const SavingsGoals: React.FC<SavingsGoalsProps> = ({
   };
 
   const handleEdit = (goal: SavingsGoal) => {
+    const deadline = goal.deadline ? new Date(goal.deadline).toISOString().split('T')[0] : '';
     setFormData({
       name: goal.name,
       targetAmount: goal.targetAmount.toString(),
-      deadline: goal.deadline || '',
+      deadline: deadline,
     });
     setEditingGoal(goal.id);
     setShowForm(true);
@@ -290,7 +291,8 @@ const GoalCard: React.FC<GoalCardProps> = ({
   const handleEditContribution = (contribution: SavingsContribution) => {
     setEditingContribution(contribution.id);
     setEditAmount(contribution.amount.toString());
-    setEditDate(contribution.date);
+    const formattedDate = contribution.date ? new Date(contribution.date).toISOString().split('T')[0] : '';
+    setEditDate(formattedDate);
   };
 
   const handleUpdateContribution = () => {
