@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.3](https://github.com/ErgonBerry/contas/compare/v0.0.2...v0.0.3) (2025-07-02)
+
+
+### Features
+
+* mongo v1 (localmente) - sem hardcoded ([6447bdf](https://github.com/ErgonBerry/contas/commit/6447bdfd76c9d3f4eaa2f23cee56fe8bfb67b501))
+* trying mongo ([c20cad1](https://github.com/ErgonBerry/contas/commit/c20cad10d5fb36e1a22956ba35af99da87333088))
+
 ### [0.0.2](https://github.com/ErgonBerry/contas/compare/v0.0.1...v0.0.2) (2025-07-01)
 
 
