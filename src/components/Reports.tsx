@@ -111,6 +111,7 @@ const Reports: React.FC<ReportsProps> = ({ transactions, savingsGoals = [] }) =>
   const [aiMessage, setAiMessage] = useState('');
   const [loadingAi, setLoadingAi] = useState(false);
   const [countdown, setCountdown] = useState(0);
+  const [buttonColorClass, setButtonColorClass] = useState('bg-blue-500');
 
   const generateAiMessage = () => {
     if (categoryData.length === 0) {
@@ -147,7 +148,8 @@ const Reports: React.FC<ReportsProps> = ({ transactions, savingsGoals = [] }) =>
   useEffect(() => {
     let timer: NodeJS.Timeout;
     if (showAiMessagePopup) {
-      setCountdown(5);
+      setCountdown(10);
+      setButtonColorClass('bg-blue-500'); // Reset color when popup opens
       timer = setInterval(() => {
         setCountdown((prev) => {
           if (prev <= 1) {
@@ -155,6 +157,12 @@ const Reports: React.FC<ReportsProps> = ({ transactions, savingsGoals = [] }) =>
             setShowAiMessagePopup(false);
             return 0;
           }
+          // Update button color based on countdown
+          if (prev === 5) setButtonColorClass('bg-blue-500');
+          else if (prev === 4) setButtonColorClass('bg-blue-400');
+          else if (prev === 3) setButtonColorClass('bg-yellow-500');
+          else if (prev === 2) setButtonColorClass('bg-orange-500');
+          else if (prev === 1) setButtonColorClass('bg-red-500');
           return prev - 1;
         });
       }, 1000);
@@ -194,7 +202,7 @@ const Reports: React.FC<ReportsProps> = ({ transactions, savingsGoals = [] }) =>
             <p className="text-slate-700 mb-6">{aiMessage}</p>
             <button
               onClick={() => setShowAiMessagePopup(false)}
-              className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full transition-colors duration-300"
+              className={`${buttonColorClass} hover:opacity-80 text-white font-bold py-2 px-4 rounded-full transition-all duration-500 ease-in-out`}
             >
               Fechar ({countdown})
             </button>
@@ -223,7 +231,7 @@ const Reports: React.FC<ReportsProps> = ({ transactions, savingsGoals = [] }) =>
 
         {loadingAi && (
           <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-2xl z-40">
-            <p className="text-white text-lg font-semibold">Loading...</p>
+            <p className="text-white text-lg font-semibold">Gerando Relatório IA...</p>
           </div>
         )}
 
