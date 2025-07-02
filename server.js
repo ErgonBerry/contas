@@ -2,6 +2,11 @@ import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 dotenv.config();
 
@@ -299,6 +304,11 @@ app.delete('/api/goals/:goalId/contributions/:contributionId', async (req, res) 
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
+});
+
+// Serve the frontend's index.html for the root path
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
 app.listen(port, () => {
