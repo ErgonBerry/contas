@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Transaction } from '../types';
-import { formatCurrency, isTransactionOverdue, getDaysUntilDue, formatBrazilDate, parseLocalDate } from '../utils/helpers';
+import { formatCurrency, isTransactionOverdue, getDaysUntilDue, formatBrazilDate } from '../utils/helpers';
 import { Plus, Trash2, Filter, Check, Calendar, CreditCard, Clock, Edit3 } from 'lucide-react';
 import TransactionForm from './TransactionForm';
 import ConfirmationModal from './ConfirmationModal';

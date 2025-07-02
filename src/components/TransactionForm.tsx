@@ -11,7 +11,16 @@ interface TransactionFormProps {
 }
 
 const TransactionForm: React.FC<TransactionFormProps> = ({ type, transaction, onSubmit, onClose }) => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    amount: string;
+    description: string;
+    category: string;
+    date: string;
+    dueDate: string;
+    isPaid: boolean;
+    recurrence: Transaction['recurrence'];
+    notes: string;
+  }>({
     amount: '',
     description: '',
     category: '',
@@ -19,6 +28,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, transaction, on
     dueDate: '',
     isPaid: type === 'income', // Receitas são marcadas como pagas por padrão
     recurrence: 'none' as Transaction['recurrence'],
+    notes: '',
   });
 
   // Populate form when editing
@@ -63,7 +73,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, transaction, on
       dueDate: finalDueDate || undefined,
       isPaid: formData.isPaid,
       recurrence: formData.recurrence,
-      notes: '' // Adicionar campo de notas se necessário no futuro
+      notes: formData.notes,
     });
   };
 
