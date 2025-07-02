@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.7](https://github.com/ErgonBerry/contas/compare/v0.0.6...v0.0.7) (2025-07-02)
+
+
+### Features
+
+* ia button ([f0c1a8a](https://github.com/ErgonBerry/contas/commit/f0c1a8aa063e134c6c6cf25b2413ff4f0b0920bb))
+
 ### [0.0.6](https://github.com/ErgonBerry/contas/compare/v0.0.5...v0.0.6) (2025-07-02)
 
 
