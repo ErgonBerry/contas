@@ -320,7 +320,7 @@ const calculateBalanceFromTransactionList = (transactions: Transaction[]): numbe
   }, 0);
 };
 
-export const getMonthlyData = (transactions: Transaction[], savingsGoals: SavingsGoal[] = [], months: number = 6): MonthlyData[] => {
+export const getMonthlyData = (transactions: Transaction[], savingsGoals: SavingsGoal[] = [], months: number = 6, endDate: Date = getCurrentBrazilDate()): MonthlyData[] => {
   const data: MonthlyData[] = [];
   const now = getCurrentBrazilDate();
 
@@ -352,11 +352,10 @@ export const getMonthlyData = (transactions: Transaction[], savingsGoals: Saving
   return data;
 };
 
-export const getCategoryData = (transactions: Transaction[]): CategoryData[] => {
+export const getCategoryData = (transactions: Transaction[], date: Date = getCurrentBrazilDate()): CategoryData[] => {
   // Get current month transactions with recurrence
-  const now = getCurrentBrazilDate();
-  const start = startOfMonth(now);
-  const end = endOfMonth(now);
+  const start = startOfMonth(date);
+  const end = endOfMonth(date);
   const currentMonthTransactions = getTransactionsWithRecurrence(transactions, start, end, true);
   
   // FIXED: Only consider paid expenses for category analysis

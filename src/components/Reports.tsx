@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement } from 'chart.js';
 import { Bar, Doughnut } from 'react-chartjs-2';
 import { Transaction, SavingsGoal } from '../types';
-import { getMonthlyData, getCategoryData, formatCurrency } from '../utils/helpers';
-import { BarChart3, PieChart, TrendingUp, Brain } from 'lucide-react';
+import { getMonthlyData, getCategoryData, formatCurrency, getCurrentBrazilDate } from '../utils/helpers';
+import { BarChart3, PieChart, TrendingUp, Brain, ChevronLeft, ChevronRight } from 'lucide-react';
+import { format, addMonths, subMonths } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
 
@@ -13,8 +15,10 @@ interface ReportsProps {
 }
 
 const Reports: React.FC<ReportsProps> = ({ transactions, savingsGoals = [] }) => {
-  const monthlyData = getMonthlyData(transactions, savingsGoals);
-  const categoryData = getCategoryData(transactions);
+  const [currentMonth, setCurrentMonth] = useState<Date>(getCurrentBrazilDate());
+
+  const monthlyData = getMonthlyData(transactions, savingsGoals, 6, currentMonth);
+  const categoryData = getCategoryData(transactions, currentMonth);
 
   const barChartData = {
     labels: monthlyData.map(data => data.month),
@@ -190,9 +194,17 @@ const Reports: React.FC<ReportsProps> = ({ transactions, savingsGoals = [] }) =>
         <h1 className="text-2xl font-bold text-slate-800 mb-2">
           Relatórios Financeiros
         </h1>
-        <p className="text-slate-600">
-          Análise detalhada das suas finanças
-        </p>
+        <div className="flex items-center justify-center gap-2 text-slate-600">
+          <button onClick={() => setCurrentMonth(prevMonth => subMonths(prevMonth, 1))} className="p-1 rounded-full hover:bg-slate-100">
+            <ChevronLeft className="w-5 h-5 text-slate-600" />
+          </button>
+          <p className="text-slate-600">
+            {format(currentMonth, 'MMMM yyyy', { locale: ptBR })}
+          </p>
+          <button onClick={() => setCurrentMonth(prevMonth => addMonths(prevMonth, 1))} className="p-1 rounded-full hover:bg-slate-100">
+            <ChevronRight className="w-5 h-5 text-slate-600" />
+          </button>
+        </div>
       </div>
 
       {showAiMessagePopup && (

@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Transaction } from '../types';
-import { formatCurrency, isTransactionOverdue, getDaysUntilDue, formatBrazilDate } from '../utils/helpers';
-import { Plus, Trash2, Filter, Check, Calendar, CreditCard, Clock, Edit3 } from 'lucide-react';
+import { formatCurrency, isTransactionOverdue, getDaysUntilDue, formatBrazilDate, getCurrentBrazilDate, filterTransactionsByMonth, parseLocalDate } from '../utils/helpers';
+import { Plus, Trash2, Filter, Check, Calendar, CreditCard, Clock, Edit3, ChevronLeft, ChevronRight } from 'lucide-react';
 import TransactionForm from './TransactionForm';
 import ConfirmationModal from './ConfirmationModal';
+import { format, addMonths, subMonths } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 interface TransactionListProps {
   type: 'expense' | 'income';
@@ -26,6 +28,7 @@ const TransactionList: React.FC<TransactionListProps> = ({
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [paymentFilter, setPaymentFilter] = useState('all');
+  const [currentMonth, setCurrentMonth] = useState<Date>(getCurrentBrazilDate());
 
   useEffect(() => {
     setCategoryFilter('all');
@@ -46,9 +49,21 @@ const TransactionList: React.FC<TransactionListProps> = ({
 
   const categories = [...new Set(transactions.filter(t => t.type === type).map(t => t.category))];
   
-  const total = filteredTransactions.reduce((sum, t) => sum + t.amount, 0);
-  const paidTotal = filteredTransactions.filter(t => t.isPaid).reduce((sum, t) => sum + t.amount, 0);
-  const pendingTotal = filteredTransactions.filter(t => !t.isPaid).reduce((sum, t) => sum + t.amount, 0);
+  // Filter transactions by the current month
+  const transactionsForMonth = filterTransactionsByMonth(filteredTransactions, currentMonth);
+
+  // Sort expenses by due date
+  const sortedTransactions = type === 'expense'
+    ? [...transactionsForMonth].sort((a, b) => {
+        const dateA = a.dueDate ? parseLocalDate(a.dueDate) : new Date(8640000000000000); // Max Date
+        const dateB = b.dueDate ? parseLocalDate(b.dueDate) : new Date(8640000000000000); // Max Date
+        return dateA.getTime() - dateB.getTime();
+      })
+    : transactionsForMonth;
+
+  const total = sortedTransactions.reduce((sum, t) => sum + t.amount, 0);
+  const paidTotal = sortedTransactions.filter(t => t.isPaid).reduce((sum, t) => sum + t.amount, 0);
+  const pendingTotal = sortedTransactions.filter(t => !t.isPaid).reduce((sum, t) => sum + t.amount, 0);
 
   const handleEdit = (transaction: Transaction) => {
     setEditingTransaction(transaction);
@@ -85,14 +100,30 @@ const TransactionList: React.FC<TransactionListProps> = ({
     }
   };
 
+  const handlePreviousMonth = () => {
+    setCurrentMonth(prevMonth => subMonths(prevMonth, 1));
+  };
+
+  const handleNextMonth = () => {
+    setCurrentMonth(prevMonth => addMonths(prevMonth, 1));
+  };
+
   return (
     <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex-1 min-w-0">
-          <h2 className="text-xl font-semibold text-slate-800 mb-1 truncate">
-            {type === 'expense' ? 'Despesas' : 'Receitas'}
-          </h2>
+          <div className="flex items-center gap-2 mb-1">
+            <button onClick={handlePreviousMonth} className="p-1 rounded-full hover:bg-slate-100">
+              <ChevronLeft className="w-5 h-5 text-slate-600" />
+            </button>
+            <h2 className="text-xl font-semibold text-slate-800 truncate">
+              {type === 'expense' ? 'Despesas' : 'Receitas'} - {format(currentMonth, 'MMMM yyyy', { locale: ptBR })}
+            </h2>
+            <button onClick={handleNextMonth} className="p-1 rounded-full hover:bg-slate-100">
+              <ChevronRight className="w-5 h-5 text-slate-600" />
+            </button>
+          </div>
           <div className="text-sm text-slate-600 space-y-1">
             <p className="truncate">Total: <span className="font-medium">{formatCurrency(total)}</span></p>
             {type === 'expense' && (
@@ -185,13 +216,13 @@ const TransactionList: React.FC<TransactionListProps> = ({
 
       {/* Transaction List */}
       <div className="space-y-3">
-        {filteredTransactions.length === 0 ? (
+        {sortedTransactions.length === 0 ? (
           <div className="text-center py-12">
             <div className="w-16 h-16 mx-auto mb-4 bg-slate-100 rounded-full flex items-center justify-center">
               <Plus className="w-8 h-8 text-slate-400" />
             </div>
             <p className="text-slate-600 mb-4">
-              Nenhuma {type === 'expense' ? 'despesa' : 'receita'} registrada
+              Nenhuma {type === 'expense' ? 'despesa' : 'receita'} registrada para este mês.
             </p>
             <button
               onClick={() => setShowForm(true)}
@@ -203,7 +234,7 @@ const TransactionList: React.FC<TransactionListProps> = ({
             </button>
           </div>
         ) : (
-          filteredTransactions.map((transaction, index) => {
+          sortedTransactions.map((transaction, index) => {
             const overdue = isTransactionOverdue(transaction);
             const daysUntilDue = transaction.dueDate ? getDaysUntilDue(transaction.dueDate) : null;
             

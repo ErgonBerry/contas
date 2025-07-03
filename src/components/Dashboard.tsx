@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Transaction, SavingsGoal } from '../types';
 import { formatCurrency, filterTransactionsByMonth, calculateMonthlyBalance, calculateGoalsImpact, getCurrentBrazilDate, formatBrazilDate, parseLocalDate } from '../utils/helpers';
-import { TrendingUp, TrendingDown, Wallet, Target, AlertTriangle, Calendar } from 'lucide-react';
+import { TrendingUp, TrendingDown, Wallet, Target, AlertTriangle, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
 import Confetti from 'react-confetti';
 import useWindowSize from '../hooks/useWindowSize';
+import { format, addMonths, subMonths } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 interface DashboardProps {
   transactions: Transaction[];
@@ -16,27 +18,27 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, savingsGoals }) => 
   const { width, height } = useWindowSize();
   const [showConfetti, setShowConfetti] = useState(false);
   const [isPulsing, setIsPulsing] = useState(false);
+  const [currentMonth, setCurrentMonth] = useState<Date>(getCurrentBrazilDate());
 
-  const currentDate = getCurrentBrazilDate();
-  const currentMonthTransactions = filterTransactionsByMonth(transactions, currentDate);
+  const transactionsForSelectedMonth = filterTransactionsByMonth(transactions, currentMonth);
   
-  const currentBalance = calculateMonthlyBalance(transactions, currentDate);
+  const currentBalance = calculateMonthlyBalance(transactions, currentMonth);
   
-  const currentIncome = currentMonthTransactions
+  const currentIncome = transactionsForSelectedMonth
     .filter(t => t.type === 'income')
     .reduce((sum, t) => sum + t.amount, 0);
   
-  const currentExpenses = currentMonthTransactions
+  const currentExpenses = transactionsForSelectedMonth
     .filter(t => t.type === 'expense' && t.isPaid)
     .reduce((sum, t) => sum + t.amount, 0);
 
-  const goalsImpact = calculateGoalsImpact(savingsGoals, currentDate);
+  const goalsImpact = calculateGoalsImpact(savingsGoals, currentMonth);
   const adjustedBalance = currentBalance - goalsImpact;
 
   const totalSavingsGoals = savingsGoals.reduce((sum, goal) => sum + goal.targetAmount, 0);
   const totalSaved = savingsGoals.reduce((sum, goal) => sum + goal.currentAmount, 0);
 
-  const previousDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
+  const previousDate = subMonths(currentMonth, 1);
   const previousBalance = calculateMonthlyBalance(transactions, previousDate);
   const previousGoalsImpact = calculateGoalsImpact(savingsGoals, previousDate);
   const previousAdjustedBalance = previousBalance - previousGoalsImpact;
@@ -71,6 +73,14 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, savingsGoals }) => 
     navigate(path);
   };
 
+  const handlePreviousMonth = () => {
+    setCurrentMonth(prevMonth => subMonths(prevMonth, 1));
+  };
+
+  const handleNextMonth = () => {
+    setCurrentMonth(prevMonth => addMonths(prevMonth, 1));
+  };
+
   const confettiColors = adjustedBalance < 0 
     ? ['#FFD700', '#DAA520', '#B8860B', '#8B4513'] // Gold, Goldenrod, DarkGoldenrod, SaddleBrown (money-like colors)
     : ['#a8e063', '#56ab2f', '#4CAF50', '#8BC34A']; // Green shades
@@ -82,8 +92,16 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, savingsGoals }) => 
         <h1 className="text-2xl font-bold text-slate-800 mb-2">
           Resumo Financeiro
         </h1>
-        <p className="text-slate-600 flex items-center justify-center gap-2">
-          {formatBrazilDate(currentDate, 'MMMM yyyy')}
+        <div className="flex items-center justify-center gap-2 text-slate-600">
+          <button onClick={handlePreviousMonth} className="p-1 rounded-full hover:bg-slate-100">
+            <ChevronLeft className="w-5 h-5 text-slate-600" />
+          </button>
+          <p className="text-slate-600">
+            {format(currentMonth, 'MMMM yyyy', { locale: ptBR })}
+          </p>
+          <button onClick={handleNextMonth} className="p-1 rounded-full hover:bg-slate-100">
+            <ChevronRight className="w-5 h-5 text-slate-600" />
+          </button>
           <button
             onClick={() => handleCardClick('/calendar')}
             className="p-2 rounded-full bg-orange-100 text-orange-600 hover:bg-orange-200 transition-colors shadow-md"
@@ -91,7 +109,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, savingsGoals }) => 
           >
             <Calendar className="w-4 h-4" />
           </button>
-        </p>
+        </div>
       </div>
 
       {/* Main Balance */}
@@ -230,13 +248,13 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, savingsGoals }) => 
       )}
 
       {/* Recent Transactions - NOT CLICKABLE */}
-      {currentMonthTransactions.length > 0 && (
+      {transactionsForSelectedMonth.length > 0 && (
         <div className="bg-white rounded-xl border border-slate-200 p-4">
           <h3 className="text-lg font-semibold text-slate-800 mb-3">
             Transações Recentes
           </h3>
           <div className="space-y-3">
-            {currentMonthTransactions.slice(0, 5).map((transaction) => (
+            {transactionsForSelectedMonth.slice(0, 5).map((transaction) => (
               <div key={transaction.id} className="flex items-center justify-between py-2 gap-3">
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-slate-900 text-sm truncate">
@@ -284,17 +302,17 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, savingsGoals }) => 
       <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-xs">
         <h4 className="font-semibold text-green-800 mb-2">🔧 DEBUG - Transações Recorrentes</h4>
         <div className="space-y-1 text-green-700">
-          <p><strong>Total transações do mês:</strong> {currentMonthTransactions.length}</p>
-          <p><strong>Transações recorrentes:</strong> {currentMonthTransactions.filter(t => t.id.includes('_') || t.recurrence !== 'none').length}</p>
-          <p><strong>Despesas pagas (recorrentes):</strong> {currentMonthTransactions.filter(t => (t.id.includes('_') || t.recurrence !== 'none') && t.type === 'expense' && t.isPaid).length}</p>
-          <p><strong>Despesas pendentes (recorrentes):</strong> {currentMonthTransactions.filter(t => (t.id.includes('_') || t.recurrence !== 'none') && t.type === 'expense' && !t.isPaid).length}</p>
+          <p><strong>Total transações do mês:</strong> {transactionsForSelectedMonth.length}</p>
+          <p><strong>Transações recorrentes:</strong> {transactionsForSelectedMonth.filter(t => t.id.includes('_') || t.recurrence !== 'none').length}</p>
+          <p><strong>Despesas pagas (recorrentes):</strong> {transactionsForSelectedMonth.filter(t => (t.id.includes('_') || t.recurrence !== 'none') && t.type === 'expense' && t.isPaid).length}</p>
+          <p><strong>Despesas pendentes (recorrentes):</strong> {transactionsForSelectedMonth.filter(t => (t.id.includes('_') || t.recurrence !== 'none') && t.type === 'expense' && !t.isPaid).length}</p>
           <p><strong>Receitas:</strong> {formatCurrency(currentIncome)}</p>
           <p><strong>Despesas pagas:</strong> {formatCurrency(currentExpenses)}</p>
           <p><strong>Saldo final:</strong> {formatCurrency(adjustedBalance)}</p>
-          {currentMonthTransactions.filter(t => t.id.includes('_') || t.recurrence !== 'none').length > 0 && (
+          {transactionsForSelectedMonth.filter(t => t.id.includes('_') || t.recurrence !== 'none').length > 0 && (
             <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded">
               <p className="font-semibold text-blue-800 mb-1">Detalhes das Recorrentes:</p>
-              {currentMonthTransactions.filter(t => t.id.includes('_') || t.recurrence !== 'none').slice(0, 3).map(t => (
+              {transactionsForSelectedMonth.filter(t => t.id.includes('_') || t.recurrence !== 'none').slice(0, 3).map(t => (
                 <p key={t.id} className="text-blue-700 text-xs">
                   • {t.description}: {formatCurrency(t.amount)} ({t.isPaid ? 'Pago' : 'Pendente'})
                 </p>
