@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Transaction, SavingsGoal, SavingsContribution } from '../types';
 import { getCurrentBrazilDate, getBrazilDateString } from '../utils/helpers';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
 export const useFinancialData = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
