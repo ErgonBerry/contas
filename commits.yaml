@@ -1,3 +1,5 @@
    1. Desenvolvimento: Faça commits com mensagens no padrão Conventional Commits.
    2. Release: Quando quiser lançar uma nova versão, execute npm run release.
    3. Publicação: Envie as mudanças para o repositório remoto: git push --follow-tags.
+
+   obs.: antes de enviar para prod , rodar para validar ---> docker-compose -f docker-compose.prod.yml up --build

@@ -320,24 +320,28 @@ const calculateBalanceFromTransactionList = (transactions: Transaction[]): numbe
   }, 0);
 };
 
-export const getMonthlyData = (transactions: Transaction[], savingsGoals: SavingsGoal[] = [], months: number = 6, endDate: Date = getCurrentBrazilDate()): MonthlyData[] => {
+export const getMonthlyData = (
+  transactions: Transaction[], 
+  savingsGoals: SavingsGoal[] = [], 
+  months: number = 6, 
+  endDate: Date = getCurrentBrazilDate() // Parameter is now actually used
+): MonthlyData[] => {
   const data: MonthlyData[] = [];
-  const now = getCurrentBrazilDate();
+  // Use the provided endDate instead of getting a new current date
+  const end = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
 
   for (let i = months - 1; i >= 0; i--) {
-    const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const date = new Date(end.getFullYear(), end.getMonth() - i, 1);
     const monthTransactions = filterTransactionsByMonth(transactions, date);
     
     const income = monthTransactions
       .filter(t => t.type === 'income')
       .reduce((sum, t) => sum + t.amount, 0);
     
-    // FIXED: For expenses, only count paid ones (regardless of due date)
     const expenses = monthTransactions
       .filter(t => t.type === 'expense' && t.isPaid)
       .reduce((sum, t) => sum + t.amount, 0);
 
-    // Calculate actual goals impact for this specific month
     const goalsImpact = calculateGoalsImpactForMonth(savingsGoals, date);
 
     data.push({
