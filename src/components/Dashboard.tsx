@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Transaction, SavingsGoal } from '../types';
-import { formatCurrency, filterTransactionsByMonth, calculateMonthlyBalance, calculateGoalsImpact, getCurrentBrazilDate, formatBrazilDate, parseLocalDate } from '../utils/helpers';
+import { Transaction, SavingsGoal, MonthlyBalance } from '../types';
+import { formatCurrency, filterTransactionsByMonth, calculateGoalsImpact, getCurrentBrazilDate, formatBrazilDate, parseLocalDate } from '../utils/helpers';
 import { TrendingUp, TrendingDown, Wallet, Target, AlertTriangle, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
 import Confetti from 'react-confetti';
 import useWindowSize from '../hooks/useWindowSize';
@@ -11,9 +11,10 @@ import { ptBR } from 'date-fns/locale';
 interface DashboardProps {
   transactions: Transaction[];
   savingsGoals: SavingsGoal[];
+  monthlyBalances: MonthlyBalance[];
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ transactions, savingsGoals }) => {
+const Dashboard: React.FC<DashboardProps> = ({ transactions, savingsGoals, monthlyBalances }) => {
   const navigate = useNavigate();
   const { width, height } = useWindowSize();
   const [showConfetti, setShowConfetti] = useState(false);
@@ -22,7 +23,12 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, savingsGoals }) => 
 
   const transactionsForSelectedMonth = filterTransactionsByMonth(transactions, currentMonth);
   
-  const currentBalance = calculateMonthlyBalance(transactions, currentMonth);
+  const currentMonthKey = format(currentMonth, 'yyyy-MM');
+  const currentMonthBalanceData = useMemo(() => {
+    return monthlyBalances.find(mb => mb.month === currentMonthKey);
+  }, [monthlyBalances, currentMonthKey]);
+
+  const currentBalance = currentMonthBalanceData?.balance ?? 0;
   
   const currentIncome = transactionsForSelectedMonth
     .filter(t => t.type === 'income')
@@ -38,10 +44,12 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, savingsGoals }) => 
   const totalSavingsGoals = savingsGoals.reduce((sum, goal) => sum + goal.targetAmount, 0);
   const totalSaved = savingsGoals.reduce((sum, goal) => sum + goal.currentAmount, 0);
 
-  const previousDate = subMonths(currentMonth, 1);
-  const previousBalance = calculateMonthlyBalance(transactions, previousDate);
-  const previousGoalsImpact = calculateGoalsImpact(savingsGoals, previousDate);
-  const previousAdjustedBalance = previousBalance - previousGoalsImpact;
+  const previousMonthKey = format(subMonths(currentMonth, 1), 'yyyy-MM');
+  const previousMonthBalanceData = useMemo(() => {
+    return monthlyBalances.find(mb => mb.month === previousMonthKey);
+  }, [monthlyBalances, previousMonthKey]);
+
+  const previousAdjustedBalance = (previousMonthBalanceData?.balance ?? 0) - calculateGoalsImpact(savingsGoals, subMonths(currentMonth, 1));
   const balanceChange = adjustedBalance - previousAdjustedBalance;
 
   const getBalanceCardStyle = () => {

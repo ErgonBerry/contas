@@ -25,7 +25,7 @@ const Header: React.FC = () => {
           <div className="text-center">
             <h1 className="text-xl font-bold">💰 Controle Financeiro</h1>
             <p className="text-blue-100 text-sm mt-1">
-              _______________ | v{appVersion} 🚀
+              Elisa, te amamos! | v{appVersion} 🚀
             </p>
           </div>
           <div

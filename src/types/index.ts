@@ -39,6 +39,14 @@ export interface MonthlyData {
   goalsImpact?: number;
 }
 
+export interface MonthlyBalance {
+  month: string;
+  income: number;
+  expenses: number;
+  balance: number;
+  remainingBalanceFromPreviousMonth: number;
+}
+
 export interface CategoryData {
   category: string;
   amount: number;

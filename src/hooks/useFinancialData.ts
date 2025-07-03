@@ -1,12 +1,80 @@
-import { useState, useEffect } from 'react';
-import { Transaction, SavingsGoal, SavingsContribution } from '../types';
+import { useState, useEffect, useMemo } from 'react';
+import { Transaction, SavingsGoal, SavingsContribution, MonthlyBalance } from '../types';
 import { getCurrentBrazilDate, getBrazilDateString } from '../utils/helpers';
+import { format } from 'date-fns';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
 export const useFinancialData = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [savingsGoals, setSavingsGoals] = useState<SavingsGoal[]>([]);
+  const [monthlyBalances, setMonthlyBalances] = useState<MonthlyBalance[]>([]);
+
+  const calculateMonthlyBalances = useMemo(() => {
+    return () => {
+      const balancesMap = new Map<string, { income: number; expenses: number; }>();
+
+      transactions.forEach(transaction => {
+        const monthKey = format(new Date(transaction.date), 'yyyy-MM');
+        if (!balancesMap.has(monthKey)) {
+          balancesMap.set(monthKey, { income: 0, expenses: 0 });
+        }
+        const currentMonthData = balancesMap.get(monthKey)!;
+        if (transaction.type === 'income') {
+          currentMonthData.income += transaction.amount;
+        } else if (transaction.isPaid) {
+          currentMonthData.expenses += transaction.amount;
+        }
+      });
+
+      const sortedMonthKeys = Array.from(balancesMap.keys()).sort();
+      const calculatedBalances: MonthlyBalance[] = [];
+      let previousMonthBalance = 0;
+
+      sortedMonthKeys.forEach(monthKey => {
+        const data = balancesMap.get(monthKey)!;
+        const balance = data.income - data.expenses;
+        calculatedBalances.push({
+          month: monthKey,
+          income: data.income,
+          expenses: data.expenses,
+          balance: balance + previousMonthBalance,
+          remainingBalanceFromPreviousMonth: previousMonthBalance,
+        });
+        previousMonthBalance = balance; // The balance for the next month's remaining
+      });
+      setMonthlyBalances(calculatedBalances);
+    };
+  }, [transactions]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [transactionsRes, goalsRes] = await Promise.all([
+          fetch(`${API_BASE_URL}/transactions`),
+          fetch(`${API_BASE_URL}/goals`),
+        ]);
+
+        if (!transactionsRes.ok || !goalsRes.ok) {
+          throw new Error('Failed to fetch data');
+        }
+
+        const transactionsData = await transactionsRes.json();
+        const goalsData = await goalsRes.json();
+
+        setTransactions(transactionsData);
+        setSavingsGoals(goalsData);
+      } catch (error) {
+        console.error('Error fetching financial data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    calculateMonthlyBalances();
+  }, [transactions, calculateMonthlyBalances]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -255,5 +323,6 @@ export const useFinancialData = () => {
     deleteSavingsGoal,
     importData,
     clearAllData,
+    monthlyBalances,
   };
 };

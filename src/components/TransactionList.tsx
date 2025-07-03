@@ -7,9 +7,12 @@ import ConfirmationModal from './ConfirmationModal';
 import { format, addMonths, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
+import { MonthlyBalance } from '../types';
+
 interface TransactionListProps {
   type: 'expense' | 'income';
   transactions: Transaction[];
+  monthlyBalances: MonthlyBalance[];
   onAdd: (transaction: Omit<Transaction, 'id' | 'createdAt'>) => void;
   onUpdate: (id: string, updates: Partial<Transaction>) => void;
   onDelete: (id: string) => void;
@@ -19,6 +22,7 @@ interface TransactionListProps {
 const TransactionList: React.FC<TransactionListProps> = ({
   type,
   transactions,
+  monthlyBalances,
   onAdd,
   onUpdate,
   onDelete,
@@ -62,6 +66,13 @@ const TransactionList: React.FC<TransactionListProps> = ({
     : transactionsForMonth;
 
   const total = sortedTransactions.reduce((sum, t) => sum + t.amount, 0);
+
+  const currentMonthKey = format(currentMonth, 'yyyy-MM');
+  const currentMonthBalanceData = monthlyBalances.find(mb => mb.month === currentMonthKey);
+  const remainingFromPreviousMonth = currentMonthBalanceData?.remainingBalanceFromPreviousMonth ?? 0;
+
+  const totalIncomeWithRemaining = total + remainingFromPreviousMonth;
+
   const paidTotal = sortedTransactions.filter(t => t.isPaid).reduce((sum, t) => sum + t.amount, 0);
   const pendingTotal = sortedTransactions.filter(t => !t.isPaid).reduce((sum, t) => sum + t.amount, 0);
 
@@ -125,9 +136,15 @@ const TransactionList: React.FC<TransactionListProps> = ({
             </button>
           </div>
           <div className="text-sm text-slate-600 space-y-1">
-            <p className="truncate">Total: <span className="font-medium">{formatCurrency(total)}</span></p>
-            {type === 'expense' && (
+            {type === 'income' ? (
               <>
+                <p className="truncate">Remanescente Mês Anterior: <span className="font-medium text-blue-600">{formatCurrency(remainingFromPreviousMonth)}</span></p>
+                <p className="truncate">Total Receitas Mês Atual: <span className="font-medium text-green-600">{formatCurrency(total)}</span></p>
+                <p className="truncate">Total Geral (c/ remanescente): <span className="font-medium text-purple-600">{formatCurrency(totalIncomeWithRemaining)}</span></p>
+              </>
+            ) : (
+              <>
+                <p className="truncate">Total: <span className="font-medium">{formatCurrency(total)}</span></p>
                 <p className="truncate">Pago: <span className="font-medium text-green-600">{formatCurrency(paidTotal)}</span></p>
                 <p className="truncate">Pendente: <span className="font-medium text-orange-600">{formatCurrency(pendingTotal)}</span></p>
               </>
