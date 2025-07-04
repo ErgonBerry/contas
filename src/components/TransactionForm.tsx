@@ -26,7 +26,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, transaction, on
     category: '',
     date: getBrazilDateString(),
     dueDate: '',
-    isPaid: type === 'income', // Receitas são marcadas como pagas por padrão
+    isPaid: false, // Receitas e despesas são marcadas como não pagas/recebidas por padrão
     recurrence: 'none' as Transaction['recurrence'],
     notes: '',
   });

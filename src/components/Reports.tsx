@@ -54,7 +54,7 @@ const Reports: React.FC<ReportsProps> = ({ transactions, savingsGoals = [] }) =>
       },
       tooltip: {
         callbacks: {
-          label: function(context: any) {
+          label: function(context: { dataset: { label: string; }; parsed: { y: number; }; }) {
             let label = context.dataset.label || '';
             if (label) {
               label += ': ';
@@ -71,7 +71,7 @@ const Reports: React.FC<ReportsProps> = ({ transactions, savingsGoals = [] }) =>
       y: {
         beginAtZero: true,
         ticks: {
-          callback: function(value: string | number) {
+          callback: function(value: number) {
             return formatCurrency(value as number);
           }
         }
@@ -100,7 +100,7 @@ const Reports: React.FC<ReportsProps> = ({ transactions, savingsGoals = [] }) =>
       },
       tooltip: {
         callbacks: {
-          label: function(context: any) {
+          label: function(context: { label: string; parsed: number; }) {
             const label = context.label || '';
             const value = context.parsed || 0;
             const percentage = categoryData.find(c => c.category === label)?.percentage || 0;

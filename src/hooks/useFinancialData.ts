@@ -20,9 +20,9 @@ export const useFinancialData = () => {
           balancesMap.set(monthKey, { income: 0, expenses: 0 });
         }
         const currentMonthData = balancesMap.get(monthKey)!;
-        if (transaction.type === 'income') {
+        if (transaction.type === 'income' && transaction.isPaid) {
           currentMonthData.income += transaction.amount;
-        } else if (transaction.isPaid) {
+        } else if (transaction.type === 'expense' && transaction.isPaid) {
           currentMonthData.expenses += transaction.amount;
         }
       });
@@ -278,29 +278,31 @@ export const useFinancialData = () => {
     // This function might need a dedicated backend endpoint for bulk import
     // For now, it will clear existing data and then add new data one by one
     await clearAllData();
-    // @ts-ignore
+    // @ts-expect-error: The imported transactions might contain _id or id properties, which are not expected by the addTransaction function's type definition. These properties are handled by the backend.
     for (const transaction of newTransactions) {
       await addTransaction(transaction);
     }
-    // @ts-ignore
+    // @ts-expect-error: Imported goals might have _id/id, which are omitted in addSavingsGoal's type. The _id, id, and createdAt properties are handled by the backend and are not needed for adding a new goal.
     for (const goal of newSavingsGoals) {
-      await addSavingsGoal(goal);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { _id, id, createdAt, ...rest } = goal;
+      await addSavingsGoal(rest);
     }
   };
 
   const clearAllData = async () => {
     try {
       // Delete all transactions
-      // @ts-ignore
-      for (const transaction of transactions) {
-        await fetch(`${API_BASE_URL}/transactions/\${transaction._id}`, { method: 'DELETE' });
+      // @ts-expect-error: Mongoose _id is used for deletion.
+      for (const { _id } of transactions) {
+        await fetch(`${API_BASE_URL}/transactions/${_id}`, { method: 'DELETE' });
       }
       setTransactions([]);
 
       // Delete all savings goals
-      // @ts-ignore
-      for (const goal of savingsGoals) {
-        await fetch(`${API_BASE_URL}/goals/\${goal._id}`, { method: 'DELETE' });
+      // @ts-expect-error: Mongoose _id is used for deletion.
+      for (const { _id } of savingsGoals) {
+        await fetch(`${API_BASE_URL}/goals/${_id}`, { method: 'DELETE' });
       }
       setSavingsGoals([]);
     } catch (error) {

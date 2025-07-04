@@ -306,7 +306,7 @@ export const calculateMonthlyBalance = (transactions: Transaction[], date?: Date
 // FIXED: Helper function to calculate balance from a list of transactions
 const calculateBalanceFromTransactionList = (transactions: Transaction[]): number => {
   return transactions.reduce((balance, transaction) => {
-    if (transaction.type === 'income') {
+    if (transaction.type === 'income' && transaction.isPaid) {
       return balance + transaction.amount;
     } else {
       // CRITICAL FIX: For expenses, ALWAYS deduct if paid, regardless of due date
@@ -335,7 +335,7 @@ export const getMonthlyData = (
     const monthTransactions = filterTransactionsByMonth(transactions, date);
     
     const income = monthTransactions
-      .filter(t => t.type === 'income')
+      .filter(t => t.type === 'income' && t.isPaid)
       .reduce((sum, t) => sum + t.amount, 0);
     
     const expenses = monthTransactions
@@ -362,12 +362,12 @@ export const getCategoryData = (transactions: Transaction[], date: Date = getCur
   const end = endOfMonth(date);
   const currentMonthTransactions = getTransactionsWithRecurrence(transactions, start, end, true);
   
-  // FIXED: Only consider paid expenses for category analysis
-  const expenses = currentMonthTransactions.filter(t => t.type === 'expense' && t.isPaid);
+  // Consider only paid expenses and paid incomes for category analysis
+  const paidTransactions = currentMonthTransactions.filter(t => t.isPaid);
   
-  const totalExpenses = expenses.reduce((sum, t) => sum + t.amount, 0);
+  const totalOverall = paidTransactions.reduce((sum, t) => sum + t.amount, 0);
   
-  const categoryTotals = expenses.reduce((acc, transaction) => {
+  const categoryTotals = paidTransactions.reduce((acc, transaction) => {
     const category = transaction.category;
     acc[category] = (acc[category] || 0) + transaction.amount;
     return acc;
@@ -382,7 +382,7 @@ export const getCategoryData = (transactions: Transaction[], date: Date = getCur
     .map(([category, amount], index) => ({
       category,
       amount,
-      percentage: totalExpenses > 0 ? (amount / totalExpenses) * 100 : 0,
+      percentage: totalOverall > 0 ? (amount / totalOverall) * 100 : 0,
       color: colors[index % colors.length],
     }))
     .sort((a, b) => b.amount - a.amount);

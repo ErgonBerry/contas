@@ -270,18 +270,16 @@ const TransactionList: React.FC<TransactionListProps> = ({
                       <h3 className="font-medium text-slate-900 truncate">
                         {transaction.description}
                       </h3>
-                      {type === 'expense' && (
-                        <button
-                          onClick={() => onUpdatePaymentStatus(transaction.id, !transaction.isPaid)}
-                          className={`p-1 rounded-full transition-colors flex-shrink-0 ${
-                            transaction.isPaid 
-                              ? 'bg-green-100 text-green-600 hover:bg-green-200' 
-                              : 'bg-slate-100 text-slate-400 hover:bg-slate-200'
-                          }`}
-                        >
-                          {transaction.isPaid ? <Check className="w-4 h-4" /> : <Clock className="w-4 h-4" />}
-                        </button>
-                      )}
+                      <button
+                        onClick={() => onUpdatePaymentStatus(transaction.id, !transaction.isPaid)}
+                        className={`p-1 rounded-full transition-colors flex-shrink-0 ${
+                          transaction.isPaid 
+                            ? 'bg-green-100 text-green-600 hover:bg-green-200' 
+                            : 'bg-slate-100 text-slate-400 hover:bg-slate-200'
+                        }`}
+                      >
+                        {transaction.isPaid ? <Check className="w-4 h-4" /> : <Clock className="w-4 h-4" />}
+                      </button>
                     </div>
                     
                     <div className="flex flex-wrap gap-2 text-sm text-slate-600 mb-2">
@@ -304,34 +302,37 @@ const TransactionList: React.FC<TransactionListProps> = ({
                     </div>
 
                     {/* Payment Status and Due Date Info */}
-                    {type === 'expense' && (
-                      <div className="flex flex-wrap gap-2 text-xs">
-                        <span className={`px-2 py-1 rounded-full whitespace-nowrap ${
+                    <div className="flex flex-wrap gap-2 text-xs">
+                      <span 
+                        onClick={() => onUpdatePaymentStatus(transaction.id, !transaction.isPaid)}
+                        className={`px-2 py-1 rounded-full whitespace-nowrap cursor-pointer ${
                           transaction.isPaid 
                             ? 'bg-green-100 text-green-700' 
                             : 'bg-orange-100 text-orange-700'
                         }`}>
-                          {transaction.isPaid ? '✓ Pago' : '⏳ Pendente'}
-                        </span>
-                        
-                        {transaction.dueDate && (
-                          <span className={`px-2 py-1 rounded-full flex items-center gap-1 whitespace-nowrap ${
-                            overdue ? 'bg-red-100 text-red-700' :
-                            daysUntilDue !== null && daysUntilDue <= 3 ? 'bg-yellow-100 text-yellow-700' :
-                            'bg-blue-100 text-blue-700'
-                          }`}>
-                            <Calendar className="w-3 h-3 flex-shrink-0" />
-                            <span className="truncate">
-                              {overdue ? 'Vencido' : 
-                               daysUntilDue === 0 ? 'Vence hoje' : 
-                               daysUntilDue === 1 ? 'Vence amanhã' :
-                               daysUntilDue !== null && daysUntilDue > 0 ? `${daysUntilDue} dias` :
-                               formatBrazilDate(transaction.dueDate)}
-                            </span>
+                        {type === 'expense' 
+                          ? (transaction.isPaid ? '✓ Pago' : '⏳ Pendente')
+                          : (transaction.isPaid ? '✓ Recebido' : '⏳ Não Recebido')
+                        }
+                      </span>
+                      
+                      {type === 'expense' && transaction.dueDate && (
+                        <span className={`px-2 py-1 rounded-full flex items-center gap-1 whitespace-nowrap ${
+                          overdue ? 'bg-red-100 text-red-700' :
+                          daysUntilDue !== null && daysUntilDue <= 3 ? 'bg-yellow-100 text-yellow-700' :
+                          'bg-blue-100 text-blue-700'
+                        }`}>
+                          <Calendar className="w-3 h-3 flex-shrink-0" />
+                          <span className="truncate">
+                            {overdue ? 'Vencido' : 
+                             daysUntilDue === 0 ? 'Vence hoje' : 
+                             daysUntilDue === 1 ? 'Vence amanhã' :
+                             daysUntilDue !== null && daysUntilDue > 0 ? `${daysUntilDue} dias` :
+                             formatBrazilDate(transaction.dueDate)}
                           </span>
-                        )}
-                      </div>
-                    )}
+                        </span>
+                      )}
+                    </div>
                   </div>
                   
                   <div className="flex items-center gap-2 flex-shrink-0">

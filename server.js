@@ -10,7 +10,6 @@ const __dirname = path.dirname(__filename);
 
 dotenv.config();
 
-// Helper function to convert YYYY-MM-DD string to a UTC Date object at the start of the day
 const createLocalDateForStorage = (dateString) => {
   if (!dateString) return undefined;
   const [year, month, day] = dateString.split('-').map(Number);
@@ -33,7 +32,7 @@ mongoose.connect(process.env.MONGO_URI, {
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.error('MongoDB connection error:', err));
 
-// Schemas e Models
+
 
 // Schema para as contribuições dentro de uma meta de poupança
 const savingsContributionSchema = new mongoose.Schema({
@@ -142,6 +141,7 @@ app.post('/api/transactions', async (req, res) => {
     ...req.body,
     date: createLocalDateForStorage(req.body.date),
     dueDate: req.body.dueDate ? createLocalDateForStorage(req.body.dueDate) : undefined,
+    isPaid: req.body.type === 'income' ? (req.body.isPaid || false) : req.body.isPaid,
   };
   const transaction = new Transaction(transactionData);
   try {
@@ -306,10 +306,10 @@ app.delete('/api/goals/:goalId/contributions/:contributionId', async (req, res) 
   }
 });
 
-// Serve static files from the 'dist' directory
+
 app.use(express.static(path.join(__dirname, 'dist')));
 
-// Fallback for all other requests to serve index.html
+
 app.use((req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
