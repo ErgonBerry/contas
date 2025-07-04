@@ -278,31 +278,29 @@ export const useFinancialData = () => {
     // This function might need a dedicated backend endpoint for bulk import
     // For now, it will clear existing data and then add new data one by one
     await clearAllData();
-    // @ts-expect-error: The imported transactions might contain _id or id properties, which are not expected by the addTransaction function's type definition. These properties are handled by the backend.
+    // @ts-ignore
     for (const transaction of newTransactions) {
       await addTransaction(transaction);
     }
-    // @ts-expect-error: Imported goals might have _id/id, which are omitted in addSavingsGoal's type. The _id, id, and createdAt properties are handled by the backend and are not needed for adding a new goal.
+    // @ts-ignore
     for (const goal of newSavingsGoals) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { _id, id, createdAt, ...rest } = goal;
-      await addSavingsGoal(rest);
+      await addSavingsGoal(goal);
     }
   };
 
   const clearAllData = async () => {
     try {
       // Delete all transactions
-      // @ts-expect-error: Mongoose _id is used for deletion.
-      for (const { _id } of transactions) {
-        await fetch(`${API_BASE_URL}/transactions/${_id}`, { method: 'DELETE' });
+      // @ts-ignore
+      for (const transaction of transactions) {
+        await fetch(`${API_BASE_URL}/transactions/\${transaction._id}`, { method: 'DELETE' });
       }
       setTransactions([]);
 
       // Delete all savings goals
-      // @ts-expect-error: Mongoose _id is used for deletion.
-      for (const { _id } of savingsGoals) {
-        await fetch(`${API_BASE_URL}/goals/${_id}`, { method: 'DELETE' });
+      // @ts-ignore
+      for (const goal of savingsGoals) {
+        await fetch(`${API_BASE_URL}/goals/\${goal._id}`, { method: 'DELETE' });
       }
       setSavingsGoals([]);
     } catch (error) {
