@@ -137,7 +137,7 @@ const Calendar: React.FC<CalendarProps> = ({ transactions, onUpdatePaymentStatus
           date: getBrazilDateString(parseLocalDate(t.date)),
           category: t.category,
           type: 'income' as const,
-          isPaid: true,
+          isPaid: t.isPaid,
           isRecurring,
           originalId: t.id.includes('_') ? t.id.split('_')[0] : undefined,
         };

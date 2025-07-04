@@ -59,14 +59,12 @@ const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({ transac
               <span className="text-slate-800">{formatBrazilDate(parseLocalDate(transaction.dueDate))}</span>
             </div>
           )}
-          {isExpense && (
-            <div className="flex items-center justify-between">
-              <span className="text-slate-700 font-medium flex items-center gap-1"><Info className="w-4 h-4" /> Status:</span>
-              <span className={`font-medium ${isPaid ? 'text-green-600' : 'text-red-600'}`}>
-                {isPaid ? 'Pago' : 'Pendente'}
-              </span>
-            </div>
-          )}
+          <div className="flex items-center justify-between">
+            <span className="text-slate-700 font-medium flex items-center gap-1"><Info className="w-4 h-4" /> Status:</span>
+            <span className={`font-medium ${isPaid ? 'text-green-600' : 'text-red-600'}`}>
+              {isPaid ? (isIncome ? 'Recebido' : 'Pago') : (isIncome ? 'A Receber' : 'Pendente')}
+            </span>
+          </div>
           {isRecurring && (
             <div className="flex items-center justify-between">
               <span className="text-slate-700 font-medium flex items-center gap-1"><Repeat className="w-4 h-4" /> Recorrência:</span>

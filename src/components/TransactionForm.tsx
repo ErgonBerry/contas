@@ -26,7 +26,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, transaction, on
     category: '',
     date: getBrazilDateString(),
     dueDate: '',
-    isPaid: type === 'income', // Receitas são marcadas como pagas por padrão
+    isPaid: type === 'expense' ? false : false, // Receitas e despesas são marcadas como não pagas por padrão
     recurrence: 'none' as Transaction['recurrence'],
     notes: '',
   });
@@ -254,23 +254,24 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, transaction, on
                   </span>
                 </p>
               </div>
-
-              <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-xl">
-                <input
-                  type="checkbox"
-                  id="isPaid"
-                  name="isPaid"
-                  checked={formData.isPaid}
-                  onChange={handleChange}
-                  className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
-                />
-                <label htmlFor="isPaid" className="flex items-center gap-2 text-sm font-medium text-slate-700">
-                  <CreditCard className="w-4 h-4" />
-                  Já foi pago
-                </label>
-              </div>
             </>
           )}
+
+          {/* Checkbox para "Pago" ou "Recebido" */}
+          <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-xl">
+            <input
+              type="checkbox"
+              id="isPaid"
+              name="isPaid"
+              checked={formData.isPaid}
+              onChange={handleChange}
+              className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
+            />
+            <label htmlFor="isPaid" className="flex items-center gap-2 text-sm font-medium text-slate-700">
+              <CreditCard className="w-4 h-4" />
+              {type === 'expense' ? 'Já foi pago' : 'Já foi recebido'}
+            </label>
+          </div>
 
           <div className="flex gap-3 pt-4">
             <button

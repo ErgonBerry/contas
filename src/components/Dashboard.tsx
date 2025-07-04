@@ -31,7 +31,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, savingsGoals, month
   const currentBalance = currentMonthBalanceData?.balance ?? 0;
   
   const currentIncome = transactionsForSelectedMonth
-    .filter(t => t.type === 'income')
+    .filter(t => t.type === 'income' && t.isPaid)
     .reduce((sum, t) => sum + t.amount, 0);
   
   const currentExpenses = transactionsForSelectedMonth
@@ -294,11 +294,9 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, savingsGoals, month
                   }`}>
                     {transaction.type === 'income' ? '+' : '-'}{formatCurrency(transaction.amount)}
                   </p>
-                  {transaction.type === 'expense' && (
-                    <span className={`w-2 h-2 rounded-full flex-shrink-0 ${
-                      transaction.isPaid ? 'bg-green-500' : 'bg-orange-500'
-                    }`} />
-                  )}
+                  <span className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                    transaction.isPaid ? 'bg-green-500' : 'bg-orange-500'
+                  }`} />
                 </div>
               </div>
             ))}

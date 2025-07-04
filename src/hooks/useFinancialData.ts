@@ -20,9 +20,9 @@ export const useFinancialData = () => {
           balancesMap.set(monthKey, { income: 0, expenses: 0 });
         }
         const currentMonthData = balancesMap.get(monthKey)!;
-        if (transaction.type === 'income') {
+        if (transaction.type === 'income' && transaction.isPaid) {
           currentMonthData.income += transaction.amount;
-        } else if (transaction.isPaid) {
+        } else if (transaction.type === 'expense' && transaction.isPaid) {
           currentMonthData.expenses += transaction.amount;
         }
       });
