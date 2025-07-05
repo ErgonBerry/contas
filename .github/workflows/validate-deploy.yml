@@ -1,0 +1,39 @@
+name: Validate Render Deploy
+
+on:
+  push:
+    branches:
+      - develop # Or 'main', depending on your Render auto-deploy branch
+
+jobs:
+  validate-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Wait for Render service to be available
+        env:
+          SERVICE_URL: ${{ secrets.RENDER_SERVICE_URL }}
+        run: |
+          echo "Waiting for service at $SERVICE_URL to be available..."
+          for i in $(seq 1 30); do # Try for up to 5 minutes (30 * 10 seconds)
+            STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" $SERVICE_URL || true)
+            if [ "$STATUS_CODE" -eq 200 ]; then
+              echo "Service is up!"
+              exit 0
+            else
+              echo "Attempt $i: Service not yet available (HTTP $STATUS_CODE). Waiting 10 seconds..."
+              sleep 10
+            fi
+          done
+          echo "Service did not become available within the timeout."
+          exit 1
+
+      - name: Validate deployed application
+        env:
+          SERVICE_URL: ${{ secrets.RENDER_SERVICE_URL }}
+        run: |
+          echo "Performing final validation on $SERVICE_URL..."
+          curl -f $SERVICE_URL # -f makes curl fail on HTTP errors (4xx/5xx)
+          echo "Deployment validated successfully!"
