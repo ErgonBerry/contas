@@ -26,4 +26,4 @@ jobs:
         run: npm install mocha chai
 
       - name: Run unit tests
-        run: npx mocha tests/server.test.js
+        run: NODE_ENV=test npx mocha tests/server.test.js
