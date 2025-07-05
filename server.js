@@ -11,7 +11,7 @@ const __dirname = path.dirname(__filename);
 dotenv.config();
 
 // Helper function to convert YYYY-MM-DD string to a UTC Date object at the start of the day
-const createLocalDateForStorage = (dateString) => {
+export const createLocalDateForStorage = (dateString) => {
   if (!dateString) return undefined;
   const [year, month, day] = dateString.split('-').map(Number);
   // Create a Date object in local time (Brazil) at noon to avoid timezone issues
