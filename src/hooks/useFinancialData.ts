@@ -278,30 +278,32 @@ export const useFinancialData = () => {
     // This function might need a dedicated backend endpoint for bulk import
     // For now, it will clear existing data and then add new data one by one
     await clearAllData();
-    // @ts-expect-error
-    for (const t of newTransactions) {
+    await Promise.all(newTransactions.map(async (t) => {
+      // @ts-expect-error TS(2345): Type 'Omit<Transaction, "id" | "createdAt">' is not assignable to type 'Transaction'.
       await addTransaction(t);
-    }
-    // @ts-expect-error
-    for (const g of newSavingsGoals) {
+    }));
+    await Promise.all(newSavingsGoals.map(async (g) => {
+      // @ts-expect-error TS(2345): Type 'Omit<SavingsGoal, "id" | "createdAt">' is not assignable to type 'SavingsGoal'.
       await addSavingsGoal(g);
-    }
+    }));
   };
 
   const clearAllData = async () => {
     try {
       // Delete all transactions
-      // @ts-expect-error
-      for (const transaction of transactions) {
-        await fetch(`${API_BASE_URL}/transactions/\${transaction._id}`, { method: 'DELETE' });
-      }
+      await Promise.all(transactions.map(async (_transaction) => {
+        if (_transaction._id) {
+          await fetch(`${API_BASE_URL}/transactions/\${_transaction._id}`, { method: 'DELETE' });
+        }
+      }));
       setTransactions([]);
 
       // Delete all savings goals
-      // @ts-expect-error
-      for (const goal of savingsGoals) {
-        await fetch(`${API_BASE_URL}/goals/\${goal._id}`, { method: 'DELETE' });
-      }
+      await Promise.all(savingsGoals.map(async (_goal) => {
+        if (_goal._id) {
+          await fetch(`${API_BASE_URL}/goals/\${_goal._id}`, { method: 'DELETE' });
+        }
+      }));
       setSavingsGoals([]);
     } catch (error) {
       console.error('Error clearing all data:', error);
