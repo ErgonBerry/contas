@@ -2,6 +2,7 @@
 
 [![Lint Status](https://github.com/ErgonBerry/contas/actions/workflows/lint.yml/badge.svg?branch=feature/actions)](https://github.com/rodolfo/contas/actions/workflows/lint.yml)
 [![Backend Tests Status](https://github.com/ErgonBerry/contas/actions/workflows/test-backend.yml/badge.svg?branch=feature/actions)](https://github.com/rodolfo/contas/actions/workflows/test-backend.yml)
+[![Frontend Tests Status](https://github.com/ErgonBerry/contas/actions/workflows/test-frontend.yml/badge.svg?branch=feature/actions)](https://github.com/rodolfo/contas/actions/workflows/test-frontend.yml)
 
 Aplicativo web moderno para gerenciamento financeiro doméstico, otimizado para dispositivos móveis Android.
 
