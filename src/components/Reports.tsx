@@ -54,7 +54,7 @@ const Reports: React.FC<ReportsProps> = ({ transactions, savingsGoals = [] }) =>
       },
       tooltip: {
         callbacks: {
-          label: function(context: any) {
+          label: function(context: import('chart.js').TooltipItem<'bar'>) {
             let label = context.dataset.label || '';
             if (label) {
               label += ': ';
@@ -100,7 +100,7 @@ const Reports: React.FC<ReportsProps> = ({ transactions, savingsGoals = [] }) =>
       },
       tooltip: {
         callbacks: {
-          label: function(context: any) {
+          label: function(context: import('chart.js').TooltipItem<'doughnut'>) {
             const label = context.label || '';
             const value = context.parsed || 0;
             const percentage = categoryData.find(c => c.category === label)?.percentage || 0;
