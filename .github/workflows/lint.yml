@@ -25,3 +25,9 @@ jobs:
 
       - name: Run npm lint in Docker
         run: docker run contas-frontend npm run lint
+
+      - name: Run TypeScript type check in Docker
+        run: docker run contas-frontend npx tsc --noEmit
+
+      - name: Run npm audit in Docker
+        run: docker run contas-frontend npm audit
