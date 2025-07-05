@@ -279,11 +279,9 @@ export const useFinancialData = () => {
     // For now, it will clear existing data and then add new data one by one
     await clearAllData();
     await Promise.all(newTransactions.map(async (t) => {
-      // @ts-expect-error TS(2345): Type 'Omit<Transaction, "id" | "createdAt">' is not assignable to type 'Transaction'.
       await addTransaction(t);
     }));
     await Promise.all(newSavingsGoals.map(async (g) => {
-      // @ts-expect-error TS(2345): Type 'Omit<SavingsGoal, "id" | "createdAt">' is not assignable to type 'SavingsGoal'.
       await addSavingsGoal(g);
     }));
   };
