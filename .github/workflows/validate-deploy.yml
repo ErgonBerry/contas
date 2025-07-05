@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - develop # Or 'main', depending on your Render auto-deploy branch
+      - feature/**
 
 jobs:
   validate-deploy:
