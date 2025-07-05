@@ -1,7 +1,7 @@
 # 💰 Controle Financeiro v0
 
-[![Lint Status](https://github.com/rodolfo/contas/actions/workflows/lint.yml/badge.svg?branch=feature/actions)](https://github.com/rodolfo/contas/actions/workflows/lint.yml)
-[![Backend Tests Status](https://github.com/rodolfo/contas/actions/workflows/test-backend.yml/badge.svg?branch=feature/actions)](https://github.com/rodolfo/contas/actions/workflows/test-backend.yml)
+[![Lint Status](https://github.com/ErgonBerry/contas/actions/workflows/lint.yml/badge.svg?branch=feature/actions)](https://github.com/rodolfo/contas/actions/workflows/lint.yml)
+[![Backend Tests Status](https://github.com/ErgonBerry/contas/actions/workflows/test-backend.yml/badge.svg?branch=feature/actions)](https://github.com/rodolfo/contas/actions/workflows/test-backend.yml)
 
 Aplicativo web moderno para gerenciamento financeiro doméstico, otimizado para dispositivos móveis Android.
 
