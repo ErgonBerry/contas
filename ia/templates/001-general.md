@@ -14,10 +14,10 @@ Criar [funcionalidade desejada: ex. sistema de login com JWT, CRUD de estabeleci
 - [Autenticação? Protegido por token? Sessões?] (caso necessário)
 - sempre testar localmente primeiro com o comando docker-compose up --build
 
-📄 DETALHES:
+📄 IMPORTANTE:
 0. Sempre Analisar de ponta a ponta possíveis conhecidos erros na pasta @ia/errors/** para incrementar contexto.
 1. Nunca sair alterando os arquivos antes de criar um template de plano de ação na pasta @ia/templates/ com o nome amigável da tarefa e data.
-2. 
+2. Sempre validar os imports quando houver alterações/remoções do use deles, nao pode haver imports sem estarem sendo usados.
 3. 
 4. 
 

@@ -17,7 +17,7 @@ Remover os cards de transações recentes e debug da página de Resumo Financeir
 📄 IMPORTANTE:
 0. Sempre Analisar de ponta a ponta possíveis conhecidos erros na pasta @ia/errors/** para incrementar contexto.
 1. Nunca sair alterando os arquivos antes de criar um plano de ação em markdown na pasta @ia/templates/ com o nome amigável da tarefa e data.
-2. 
+2. Sempre validar os imports quando houver alterações/remoções do use deles, nao pode haver imports sem estarem sendo usados.
 3. 
 4. 
 
