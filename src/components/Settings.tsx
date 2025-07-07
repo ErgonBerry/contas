@@ -177,7 +177,7 @@ const Settings: React.FC<SettingsProps> = ({
         
         <div className="space-y-3 text-sm text-slate-600">
           <p>
-            <strong>Controle Financeiro</strong> - Versão 1.0
+            <strong>Controle Financeiro</strong> - Versão {import.meta.env.APP_VERSION}
           </p>
           <p>
             Os dados são armazenados localmente no seu navegador e não são enviados para nenhum servidor externo.
