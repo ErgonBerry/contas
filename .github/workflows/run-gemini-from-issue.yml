@@ -51,6 +51,7 @@ jobs:
           TASK_DESCRIPTION="${{ github.event.issue.body }}"
           TEMPLATE_CONTENT=$(cat ia/templates/001-general.md)
           PLAN_CONTENT="${TEMPLATE_CONTENT//<DESCRICAO_AQUI_CHANGE_ME>/$TASK_DESCRIPTION}"
+          PLAN_CONTENT+="\n\nPor favor, implemente esta tarefa agora, sem pedir confirmação. Faça as alterações diretamente no código e comitar na branch $BRANCH_NAME."
           
           # Salvar o novo plano de ação
           echo "$PLAN_CONTENT" > $PLAN_FILE_PATH
