@@ -30,10 +30,7 @@ jobs:
         with:
           node-version: '20'
 
-      - name: "Instalar gemini-cli e adicionar ao PATH"
-        run: |
-          npm install -g @google/gemini-cli
-          echo "$(npm bin -g)" >> $GITHUB_PATH
+      
 
       - name: "Configurar Git"
         run: |
@@ -68,8 +65,8 @@ jobs:
       - name: "Executar Gemini-CLI com o Plano de Ação"
         id: gemini_run
         run: |
-          # Executa o gemini-cli com o conteúdo do plano como prompt
-          RESULT=$(gemini-cli "${{ steps.prepare_branch.outputs.plan_content }}")
+          # Executa o gemini-cli usando npx, que lida com o download e a execução
+          RESULT=$(npx @google/gemini-cli "${{ steps.prepare_branch.outputs.plan_content }}")
           
           echo "result<<EOF" >> $GITHUB_OUTPUT
           echo "$RESULT" >> $GITHUB_OUTPUT
