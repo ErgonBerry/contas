@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.34](https://github.com/ErgonBerry/contas/compare/v0.1.33...v0.1.34) (2025-07-08)
+
+
+### Bug Fixes
+
+* swipe smooth ([7694630](https://github.com/ErgonBerry/contas/commit/7694630c2c8e11e97e83cc4b2ea29b44b44fe405))
+
 ### [0.1.33](https://github.com/ErgonBerry/contas/compare/v0.1.32...v0.1.33) (2025-07-08)
 
 
