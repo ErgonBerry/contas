@@ -67,8 +67,12 @@ jobs:
         env:
           GEMINI_PROMPT: "${{ steps.prepare_branch.outputs.plan_content }}"
         run: |
-          # Passar o prompt via variável de ambiente evita problemas de parsing do shell
-          RESULT=$(npx @google/gemini-cli "$GEMINI_PROMPT")
+          # Sanetiza o prompt para remover caracteres de controle invisíveis que quebram o parser de argumentos.
+          # A expressão regular [^[:print:]\t\n\r] remove tudo que não for imprimível, tab, newline ou carriage return.
+          SANITIZED_PROMPT=$(echo "$GEMINI_PROMPT" | sed 's/[^[:print:]\t\n\r]//g')
+
+          # Passa o prompt sanetizado para o CLI.
+          RESULT=$(npx @google/gemini-cli "$SANITIZED_PROMPT")
           
           echo "result<<EOF" >> $GITHUB_OUTPUT
           echo "$RESULT" >> $GITHUB_OUTPUT
