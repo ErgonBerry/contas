@@ -30,9 +30,10 @@ jobs:
         with:
           node-version: '20'
 
-      - name: "Instalar gemini-cli"
-        # ATENÇÃO: Substitua pelo comando de instalação real
-        run: npm install -g @google/gemini-cli
+      - name: "Instalar gemini-cli e adicionar ao PATH"
+        run: |
+          npm install -g @google/gemini-cli
+          echo "$(npm bin -g)" >> $GITHUB_PATH
 
       - name: "Configurar Git"
         run: |
