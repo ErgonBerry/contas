@@ -1,5 +1,3 @@
-
-
 # .github/workflows/run-gemini-from-issue.yml
 name: "IA-Driven Development Workflow"
 
@@ -9,93 +7,89 @@ on:
 
 permissions:
   issues: write
-  contents: write # Permissão para criar branch, commitar e fazer push
-  pull-requests: write # Permissão para criar Pull Requests
+  contents: write
+  pull-requests: write
 
 jobs:
   ia_driven_task:
     runs-on: ubuntu-latest
-    # Executa apenas se a issue tiver o label 'ia-driven'
     if: contains(github.event.issue.labels.*.name, 'ia-driven')
 
     steps:
-      - name: "Checkout da branch feature/ia"
+      - name: "🔄 Checkout da branch base"
         uses: actions/checkout@v4
         with:
-          ref: 'feature/ia' # Faz o checkout da branch específica
+          ref: 'feature/ia'
           fetch-depth: 0
 
-      - name: "Setup Node.js"
+      - name: "📦 Setup Node.js"
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      
-
-      - name: "Configurar Git"
+      - name: "🔧 Configurar Git"
         run: |
           git config user.name "Gemini-CLI Bot"
           git config user.email "github-actions-bot@users.noreply.github.com"
 
-      - name: "Criar Branch e Preparar Plano de Ação"
+      - name: "📁 Validar template base"
+        run: |
+          if [ ! -s ia/templates/001-general.md ]; then
+            echo "❌ Template 'ia/templates/001-general.md' está ausente ou vazio."; exit 1;
+          fi
+
+      - name: "🌱 Criar branch e gerar plano de ação"
         id: prepare_branch
         run: |
           TIMESTAMP=$(date +%Y%m%d%H%M%S)
           BRANCH_NAME="ia/driven-$TIMESTAMP"
           PLAN_FILE_PATH="ia/templates/$TIMESTAMP.md"
           
-          # Criar e mudar para a nova branch
           git checkout -b $BRANCH_NAME
-          
-          # Ler o template e substituir o placeholder
+
           TASK_DESCRIPTION="${{ github.event.issue.body }}"
           TEMPLATE_CONTENT=$(cat ia/templates/001-general.md)
-          PLAN_CONTENT="${TEMPLATE_CONTENT//<DESCRICAO_AQUI_CHANGE_ME>/$TASK_DESCRIPTION}"
-          PLAN_CONTENT+="\n\nPor favor, implemente esta tarefa agora, sem pedir confirmação. Faça as alterações diretamente no código e comitar na branch $BRANCH_NAME."
-          
-          # Salvar o novo plano de ação
-          echo "$PLAN_CONTENT" > $PLAN_FILE_PATH
-          
-          # Passar as variáveis para os próximos steps
+
+          PLAN_CONTENT="# 🧠 Plano de Ação Gerado por IA\n\n## Tarefa\n$TASK_DESCRIPTION\n\n## Etapas Sugeridas\n\n${TEMPLATE_CONTENT//<DESCRICAO_AQUI_CHANGE_ME>/$TASK_DESCRIPTION}"
+          PLAN_CONTENT+="\n\nPor favor, implemente esta tarefa agora, sem pedir confirmação. Faça as alterações diretamente no código e comite na branch \`$BRANCH_NAME\`."
+
+          echo "$PLAN_CONTENT" > "$PLAN_FILE_PATH"
+
           echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
           echo "plan_file_path=$PLAN_FILE_PATH" >> $GITHUB_OUTPUT
           echo "plan_content<<EOF" >> $GITHUB_OUTPUT
           echo "$PLAN_CONTENT" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
-      - name: "Executar Gemini-CLI com o Plano de Ação via Stdin"
+      - name: "🧠 Executar Gemini-CLI com o plano de ação"
         id: gemini_run
         env:
           GEMINI_PROMPT: "${{ steps.prepare_branch.outputs.plan_content }}"
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
-          # Passar o prompt via stdin (entrada padrão) é a forma mais robusta
-          # de evitar problemas de parsing de argumentos do shell.
+          echo "Executando Gemini-CLI com prompt:"
+          echo "$GEMINI_PROMPT"
           RESULT=$(npx @google/gemini-cli <<< "$GEMINI_PROMPT")
-          
+
           echo "result<<EOF" >> $GITHUB_OUTPUT
           echo "$RESULT" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
-      - name: "Fazer Commit e Push das Alterações"
+      - name: "💾 Commit e Push das alterações"
         run: |
-          # Adicionar o novo plano de ação e quaisquer outras alterações
           git add .
-          
-          # Verificar se há algo para commitar
-          if git diff --staged --quiet; then
-            echo "Nenhuma alteração de código detectada pelo Gemini-CLI. Apenas o plano de ação será commitado."
-            git commit -m "feat(ia): criar plano de ação para issue #${{ github.event.issue.number }}" -m "Issue: ${{ github.event.issue.html_url }}"
-          else
-            echo "Alterações de código detectadas. Commitando plano e código."
-            git commit -m "feat(ia): implementar tarefa da issue #${{ github.event.issue.number }}" -m "Plano de ação e alterações de código gerados por IA.
 
-            Issue: ${{ github.event.issue.html_url }}"
+          if git diff --staged --quiet; then
+            echo "ℹ️ Nenhuma alteração de código detectada. Comitando apenas plano de ação."
+            git commit -m "docs(ia): plano de ação da issue #${{ github.event.issue.number }}" -m "Issue: ${{ github.event.issue.html_url }}" || true
+          else
+            echo "✅ Alterações detectadas. Comitando tudo."
+            git commit -m "feat(ia): implementar tarefa da issue #${{ github.event.issue.number }}" -m "Issue: ${{ github.event.issue.html_url }}" || true
           fi
-          
+
           git push origin ${{ steps.prepare_branch.outputs.branch_name }}
 
-      - name: "Criar Pull Request em Draft"
+      - name: "📬 Criar Pull Request em modo draft"
         id: create_pr
         uses: actions/github-script@v7
         with:
@@ -115,12 +109,10 @@ jobs:
                 body: `Este PR foi gerado automaticamente pela IA para resolver a issue #${issueNumber}.\n\n- **Plano de Ação**: [${{ steps.prepare_branch.outputs.plan_file_path }}](${context.payload.repository.html_url}/blob/${headBranch}/${{ steps.prepare_branch.outputs.plan_file_path }})\n- **Issue Original**: #${issueNumber}`,
                 draft: true
               });
-              console.log(`Pull Request criado: ${pr.data.html_url}`);
+              console.log(`✅ Pull Request criado: ${pr.data.html_url}`);
               return pr.data;
             } catch (error) {
-              console.error(`Erro ao criar Pull Request: ${error.message}`);
-              console.error(`Verifique se a branch '${baseBranch}' existe no repositório.`);
-              // Posta um comentário de erro se a criação do PR falhar
+              console.error(`❌ Erro ao criar Pull Request: ${error.message}`);
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
@@ -130,53 +122,46 @@ jobs:
               return null;
             }
 
-      - name: "Postar Resultado na Issue"
+      - name: "🗣️ Postar resultado na issue"
         uses: actions/github-script@v7
         with:
           script: |
             const prResult = ${{ toJSON(steps.create_pr.outputs.result) }};
+            const branchName = "${{ steps.prepare_branch.outputs.branch_name }}";
+            const repoUrl = context.payload.repository.html_url;
             let prUrl = null;
+
             if (prResult && typeof prResult === 'object' && prResult.html_url) {
               prUrl = prResult.html_url;
             } else if (typeof prResult === 'string') {
               try {
-                const parsedResult = JSON.parse(prResult);
-                if (parsedResult && parsedResult.html_url) {
-                  prUrl = parsedResult.html_url;
-                }
-              } catch (e) {
-                console.error("Failed to parse prResult as JSON string:", e);
-              }
+                const parsed = JSON.parse(prResult);
+                if (parsed && parsed.html_url) prUrl = parsed.html_url;
+              } catch (e) {}
             }
 
-            const branchName = "${{ steps.prepare_branch.outputs.branch_name }}";
-            const repoUrl = context.payload.repository.html_url;
-            let output;
-
-            if (prUrl) {
-              output = `
+            const output = prUrl
+              ? `
               ### 🤖✨ Fluxo de Trabalho de IA Concluído
               
               Um Pull Request em modo draft foi criado com as alterações geradas pela IA.
               
               - **Pull Request**: [${{ github.event.issue.title }}](${prUrl})
-              - **Branch**: `[${branchName}](${repoUrl}/tree/${branchName})`
+              - **Branch**: [${branchName}](${repoUrl}/tree/${branchName})
               - **Plano de Ação**: [${{ steps.prepare_branch.outputs.plan_file_path }}](${repoUrl}/blob/${branchName}/${{ steps.prepare_branch.outputs.plan_file_path }})
               
               #### Resultado da Execução do Gemini-CLI:
-              ```
+              \`\`\`
               ${{ steps.gemini_run.outputs.result }}
-              ```
-              `;
-            } else {
-              output = `
-              ### 🤖⚠️ Fluxo de Trabalho de IA Concluído com Aviso
+              \`\`\`
+              `
+              : `
+              ### 🤖⚠️ Fluxo de Trabalho Concluído com Aviso
 
-              A branch **${branchName}** foi criada e as alterações foram aplicadas, mas **não foi possível criar o Pull Request** (verifique o log da Action para detalhes).
+              A branch **${branchName}** foi criada e as alterações foram aplicadas, mas **não foi possível criar o Pull Request** automaticamente.
 
-              Consulte o log da Action para mais detalhes. O motivo mais comum é a branch de destino (`feature/ia`) não existir.
+              Verifique o log da Action. Provável motivo: a branch base \`feature/ia\` não existe.
               `;
-            }
 
             github.rest.issues.createComment({
               owner: context.repo.owner,
