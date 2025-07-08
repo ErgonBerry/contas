@@ -66,6 +66,7 @@ jobs:
         id: gemini_run
         env:
           GEMINI_PROMPT: "${{ steps.prepare_branch.outputs.plan_content }}"
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
           # Passar o prompt via stdin (entrada padrão) é a forma mais robusta
           # de evitar problemas de parsing de argumentos do shell.
