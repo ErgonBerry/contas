@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.30](https://github.com/ErgonBerry/contas/compare/v0.1.29...v0.1.30) (2025-07-08)
+
+
+### Features
+
+* calc ([89b3df5](https://github.com/ErgonBerry/contas/commit/89b3df5de19af05ee0e5d95351fe59ed2cc3b955))
+* replication ([eb0e205](https://github.com/ErgonBerry/contas/commit/eb0e205f0f223ce69788bcfa2d7f16b0a26caa65))
+
 ### [0.1.29](https://github.com/ErgonBerry/contas/compare/v0.1.28...v0.1.29) (2025-07-08)
 
 ### [0.1.28](https://github.com/ErgonBerry/contas/compare/v0.1.27...v0.1.28) (2025-07-08)
