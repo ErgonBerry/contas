@@ -51,7 +51,8 @@ jobs:
           TEMPLATE_CONTENT=$(cat ia/templates/001-general.md)
 
           PLAN_CONTENT="# 🧠 Plano de Ação Gerado por IA\n\n## Tarefa\n$TASK_DESCRIPTION\n\n## Etapas Sugeridas\n\n${TEMPLATE_CONTENT//<DESCRICAO_AQUI_CHANGE_ME>/$TASK_DESCRIPTION}"
-          PLAN_CONTENT+="\n\nPor favor, implemente esta tarefa agora, sem pedir confirmação. Faça as alterações diretamente no código e comite na branch \`$BRANCH_NAME\`."
+          PLAN_CONTENT+="\n\nPor favor, apenas gere o código necessário como texto. Não execute ferramentas como write_file ou replace. Não modifique arquivos diretamente, apenas sugira o conteúdo."
+
 
           echo "$PLAN_CONTENT" > "$PLAN_FILE_PATH"
 
