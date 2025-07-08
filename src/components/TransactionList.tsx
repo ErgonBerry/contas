@@ -65,7 +65,7 @@ const TransactionList: React.FC<TransactionListProps> = ({
       })
     : transactionsForMonth;
 
-  const total = sortedTransactions.reduce((sum, t) => sum + t.amount, 0);
+  const total = sortedTransactions.filter(t => t.isPaid).reduce((sum, t) => sum + t.amount, 0);
 
   const currentMonthKey = format(currentMonth, 'yyyy-MM');
   const currentMonthBalanceData = monthlyBalances.find(mb => mb.month === currentMonthKey);

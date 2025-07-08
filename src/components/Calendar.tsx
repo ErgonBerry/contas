@@ -231,7 +231,7 @@ const Calendar: React.FC<CalendarProps> = ({ transactions, onUpdatePaymentStatus
   const currentMonthEvents = getTransactionsWithRecurrence(transactions, monthStart, monthEnd, false);
   
   const monthlyIncome = currentMonthEvents
-    .filter(e => e.type === 'income')
+    .filter(e => e.type === 'income' && e.isPaid)
     .reduce((sum, e) => sum + e.amount, 0);
   
   const monthlyExpensesPending = currentMonthEvents

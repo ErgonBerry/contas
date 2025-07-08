@@ -335,7 +335,7 @@ export const getMonthlyData = (
     const monthTransactions = filterTransactionsByMonth(transactions, date);
     
     const income = monthTransactions
-      .filter(t => t.type === 'income')
+      .filter(t => t.type === 'income' && t.isPaid)
       .reduce((sum, t) => sum + t.amount, 0);
     
     const expenses = monthTransactions
