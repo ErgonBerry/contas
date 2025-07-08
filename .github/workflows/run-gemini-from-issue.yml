@@ -62,15 +62,14 @@ jobs:
           echo "$PLAN_CONTENT" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
-      - name: "Executar Gemini-CLI com o Plano de Ação"
+      - name: "Executar Gemini-CLI com o Plano de Ação via Stdin"
         id: gemini_run
+        env:
+          GEMINI_PROMPT: "${{ steps.prepare_branch.outputs.plan_content }}"
         run: |
-          # Usa o caminho do arquivo do plano de ação como parte do prompt.
-          PLAN_FILE_PATH="${{ steps.prepare_branch.outputs.plan_file_path }}"
-          PROMPT_COMMAND="criar o plano de ação para o arquivo @${PLAN_FILE_PATH}"
-
-          echo "Executando comando: $PROMPT_COMMAND"
-          RESULT=$(npx @google/gemini-cli "$PROMPT_COMMAND")
+          # Passar o prompt via stdin (entrada padrão) é a forma mais robusta
+          # de evitar problemas de parsing de argumentos do shell.
+          RESULT=$(npx @google/gemini-cli <<< "$GEMINI_PROMPT")
           
           echo "result<<EOF" >> $GITHUB_OUTPUT
           echo "$RESULT" >> $GITHUB_OUTPUT
