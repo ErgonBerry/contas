@@ -128,7 +128,7 @@ const TransactionList: React.FC<TransactionListProps> = ({
     pressTimer.current = setTimeout(() => {
       setTransactionToReplicate(transaction);
       setShowForm(true);
-    }, 500); // 500ms for long press
+    }, 3000); // 3000ms for long press
   };
 
   const handlePressEnd = () => {
