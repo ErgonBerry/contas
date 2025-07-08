@@ -32,6 +32,8 @@ const TransactionList: React.FC<TransactionListProps> = ({
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const [transactionToReplicate, setTransactionToReplicate] = useState<Transaction | null>(null);
   const pressTimer = React.useRef<NodeJS.Timeout | null>(null);
+  const [longPressActive, setLongPressActive] = useState<string | null>(null); // Stores the ID of the transaction being long-pressed
+  const [countdown, setCountdown] = useState<number>(0);
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [paymentFilter, setPaymentFilter] = useState('all');
   const [currentMonth, setCurrentMonth] = useState<Date>(getCurrentBrazilDate());
@@ -123,19 +125,38 @@ const TransactionList: React.FC<TransactionListProps> = ({
   };
 
   const handlePressStart = (e: React.MouseEvent | React.TouchEvent, transaction: Transaction) => {
-    // Prevent default to avoid text selection on long press
     e.preventDefault();
+    setLongPressActive(transaction.id);
+    setCountdown(3); // Start countdown from 3
+
     pressTimer.current = setTimeout(() => {
-      setTransactionToReplicate(transaction);
-      setShowForm(true);
-    }, 3000); // 3000ms for long press
+      // After initial long press detection (e.g., 500ms), start countdown
+      let currentCount = 3;
+      const countdownInterval = setInterval(() => {
+        currentCount -= 1;
+        setCountdown(currentCount);
+        if (currentCount === 0) {
+          clearInterval(countdownInterval);
+          setTransactionToReplicate(transaction);
+          setShowForm(true);
+          setLongPressActive(null); // Reset after opening form
+        }
+      }, 1000);
+      // Store the interval ID to clear it later
+      (pressTimer.current as any).countdownInterval = countdownInterval;
+    }, 500); // Time to detect a long press before starting countdown
   };
 
   const handlePressEnd = () => {
     if (pressTimer.current) {
       clearTimeout(pressTimer.current);
+      if ((pressTimer.current as any).countdownInterval) {
+        clearInterval((pressTimer.current as any).countdownInterval);
+      }
       pressTimer.current = null;
     }
+    setLongPressActive(null);
+    setCountdown(0);
   };
 
   return (
@@ -277,10 +298,12 @@ const TransactionList: React.FC<TransactionListProps> = ({
             return (
               <div
                 key={`${transaction.id}-${index}`}
-                className={`bg-white border rounded-xl p-4 hover:shadow-md transition-shadow ${
-                  overdue ? 'border-red-300 bg-red-50' : 
+                className={`bg-white border rounded-xl p-4 hover:shadow-md transition-shadow relative overflow-hidden ${
+                  overdue ? 'border-red-300 bg-red-50' :
                   !transaction.isPaid && type === 'expense' ? 'border-orange-200 bg-orange-50' :
                   'border-slate-200'
+                } ${
+                  longPressActive === transaction.id ? 'animate-pulse-once' : ''
                 }`}
                 onMouseDown={(e) => handlePressStart(e, transaction)}
                 onMouseUp={handlePressEnd}
@@ -289,6 +312,11 @@ const TransactionList: React.FC<TransactionListProps> = ({
                 onTouchEnd={handlePressEnd}
                 onTouchCancel={handlePressEnd}
               >
+                {longPressActive === transaction.id && countdown > 0 && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 text-white text-4xl font-bold z-10">
+                    {countdown}
+                  </div>
+                )}
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
