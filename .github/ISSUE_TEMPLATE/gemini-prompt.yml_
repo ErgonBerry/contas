@@ -1,4 +1,3 @@
-# .github/ISSUE_TEMPLATE/gemini-prompt.yml
 name: "🚀 Executar Prompt com Gemini-CLI"
 description: "Crie uma issue para executar um comando no gemini-cli via automação."
 title: "[Gemini-CLI] "
