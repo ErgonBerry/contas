@@ -6,11 +6,12 @@ import { Plus, X, Calendar, CreditCard, Repeat, AlertCircle } from 'lucide-react
 interface TransactionFormProps {
   type: 'expense' | 'income';
   transaction?: Transaction | null;
+  replicateTransaction?: Transaction | null; // New prop for replication
   onSubmit: (transaction: Omit<Transaction, 'id' | 'createdAt'>) => void;
   onClose: () => void;
 }
 
-const TransactionForm: React.FC<TransactionFormProps> = ({ type, transaction, onSubmit, onClose }) => {
+const TransactionForm: React.FC<TransactionFormProps> = ({ type, transaction, replicateTransaction, onSubmit, onClose }) => {
   const [formData, setFormData] = useState<{
     amount: string;
     description: string;
@@ -44,8 +45,31 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, transaction, on
         recurrence: transaction.recurrence || 'none',
         notes: transaction.notes || ''
       });
+    } else if (replicateTransaction) {
+      setFormData({
+        amount: replicateTransaction.amount.toString(),
+        description: replicateTransaction.description,
+        category: replicateTransaction.category,
+        date: getBrazilDateString(), // Current date for replication
+        dueDate: replicateTransaction.dueDate ? getBrazilDateString() : '', // Current date for replication
+        isPaid: false, // Replicated transactions are initially unpaid
+        recurrence: replicateTransaction.recurrence || 'none',
+        notes: replicateTransaction.notes || ''
+      });
+    } else {
+      // Reset form for new transaction
+      setFormData({
+        amount: '',
+        description: '',
+        category: '',
+        date: getBrazilDateString(),
+        dueDate: '',
+        isPaid: type === 'expense' ? false : false,
+        recurrence: 'none',
+        notes: '',
+      });
     }
-  }, [transaction]);
+  }, [transaction, replicateTransaction, type]);
 
   const categories = type === 'expense' ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
 

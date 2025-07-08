@@ -30,6 +30,8 @@ const TransactionList: React.FC<TransactionListProps> = ({
 }) => {
   const [showForm, setShowForm] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
+  const [transactionToReplicate, setTransactionToReplicate] = useState<Transaction | null>(null);
+  const pressTimer = React.useRef<NodeJS.Timeout | null>(null);
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [paymentFilter, setPaymentFilter] = useState('all');
   const [currentMonth, setCurrentMonth] = useState<Date>(getCurrentBrazilDate());
@@ -84,6 +86,7 @@ const TransactionList: React.FC<TransactionListProps> = ({
   const handleCloseForm = () => {
     setShowForm(false);
     setEditingTransaction(null);
+    setTransactionToReplicate(null);
   };
 
   const handleSubmit = (transactionData: Omit<Transaction, 'id' | 'createdAt'>) => {
@@ -117,6 +120,22 @@ const TransactionList: React.FC<TransactionListProps> = ({
 
   const handleNextMonth = () => {
     setCurrentMonth(prevMonth => addMonths(prevMonth, 1));
+  };
+
+  const handlePressStart = (e: React.MouseEvent | React.TouchEvent, transaction: Transaction) => {
+    // Prevent default to avoid text selection on long press
+    e.preventDefault();
+    pressTimer.current = setTimeout(() => {
+      setTransactionToReplicate(transaction);
+      setShowForm(true);
+    }, 500); // 500ms for long press
+  };
+
+  const handlePressEnd = () => {
+    if (pressTimer.current) {
+      clearTimeout(pressTimer.current);
+      pressTimer.current = null;
+    }
   };
 
   return (
@@ -263,6 +282,12 @@ const TransactionList: React.FC<TransactionListProps> = ({
                   !transaction.isPaid && type === 'expense' ? 'border-orange-200 bg-orange-50' :
                   'border-slate-200'
                 }`}
+                onMouseDown={(e) => handlePressStart(e, transaction)}
+                onMouseUp={handlePressEnd}
+                onMouseLeave={handlePressEnd}
+                onTouchStart={(e) => handlePressStart(e, transaction)}
+                onTouchEnd={handlePressEnd}
+                onTouchCancel={handlePressEnd}
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
@@ -361,6 +386,7 @@ const TransactionList: React.FC<TransactionListProps> = ({
         <TransactionForm
           type={type}
           transaction={editingTransaction}
+          replicateTransaction={transactionToReplicate}
           onSubmit={handleSubmit}
           onClose={handleCloseForm}
         />
