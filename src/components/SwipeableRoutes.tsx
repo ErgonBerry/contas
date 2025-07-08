@@ -31,23 +31,37 @@ const SwipeableRoutes: React.FC<SwipeableRoutesProps> = ({ children }) => {
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
-    if (!isMobile) return;
+    console.log('handleTouchEnd triggered');
+    console.log('isMobile:', isMobile);
+    console.log('Current Path:', location.pathname);
+
+    if (!isMobile) {
+      console.log('Not a mobile device, returning.');
+      return;
+    }
 
     const endX = e.changedTouches[0].clientX;
     const diffX = startX.current - endX;
     const threshold = 50; // Minimum swipe distance
 
+    console.log('startX:', startX.current, 'endX:', endX, 'diffX:', diffX);
+
     const currentIndex = pageOrder.indexOf(location.pathname);
+    console.log('currentIndex:', currentIndex);
 
     if (diffX > threshold) {
       // Swiped left (next page)
       if (currentIndex < pageOrder.length - 1) {
-        navigate(pageOrder[currentIndex + 1]);
+        const nextPage = pageOrder[currentIndex + 1];
+        console.log('Swiped left, navigating to:', nextPage);
+        navigate(nextPage);
       }
     } else if (diffX < -threshold) {
       // Swiped right (previous page)
       if (currentIndex > 0) {
-        navigate(pageOrder[currentIndex - 1]);
+        const prevPage = pageOrder[currentIndex - 1];
+        console.log('Swiped right, navigating to:', prevPage);
+        navigate(prevPage);
       }
     }
   };
