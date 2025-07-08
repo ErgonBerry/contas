@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Transaction } from '../types';
 import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, getBrazilDateString } from '../utils/helpers';
-import { Plus, X, Calendar, CreditCard, Repeat, AlertCircle } from 'lucide-react';
+import { Plus, X, Calendar, CreditCard, Repeat, AlertCircle, Calculator } from 'lucide-react';
 
 interface TransactionFormProps {
   type: 'expense' | 'income';
@@ -31,6 +31,10 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, transaction, re
     recurrence: 'none' as Transaction['recurrence'],
     notes: '',
   });
+
+  const [showCalculator, setShowCalculator] = useState(false);
+  const [calculatorInput, setCalculatorInput] = useState('');
+  const [currentSum, setCurrentSum] = useState(0);
 
   // Populate form when editing
   useEffect(() => {
@@ -68,6 +72,8 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, transaction, re
         recurrence: 'none',
         notes: '',
       });
+      setCurrentSum(0);
+      setCalculatorInput('');
     }
   }, [transaction, replicateTransaction, type]);
 
@@ -107,6 +113,25 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, transaction, re
       ...prev,
       [name]: inputType === 'checkbox' ? (e.target as HTMLInputElement).checked : value,
     }));
+  };
+
+  const handleCalculatorInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCalculatorInput(e.target.value);
+  };
+
+  const handleAddNumber = () => {
+    const value = parseFloat(calculatorInput.replace(',', '.')); // Handle comma as decimal separator
+    if (!isNaN(value)) {
+      setCurrentSum(prevSum => prevSum + value);
+      setCalculatorInput('');
+    }
+  };
+
+  const handleApplyCalculation = () => {
+    setFormData(prev => ({ ...prev, amount: currentSum.toFixed(2) }));
+    setCurrentSum(0);
+    setCalculatorInput('');
+    setShowCalculator(false);
   };
 
   const getRecurrenceDescription = () => {
@@ -149,17 +174,61 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, transaction, re
             <label className="block text-sm font-medium text-slate-700 mb-2">
               Valor (R$)
             </label>
-            <input
-              type="number"
-              name="amount"
-              value={formData.amount}
-              onChange={handleChange}
-              step="0.01"
-              min="0"
-              placeholder="0,00"
-              className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              required
-            />
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                name="amount"
+                value={formData.amount}
+                onChange={handleChange}
+                step="0.01"
+                min="0"
+                placeholder="0,00"
+                className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowCalculator(!showCalculator)}
+                className="p-3 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-colors flex-shrink-0"
+                title="Abrir Calculadora"
+              >
+                <Calculator className="w-5 h-5" />
+              </button>
+            </div>
+
+            {showCalculator && (
+              <div className="mt-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                <h4 className="text-md font-semibold text-slate-800 mb-3">Calculadora de Soma</h4>
+                <div className="flex items-center gap-2 mb-3">
+                  <input
+                    type="number"
+                    value={calculatorInput}
+                    onChange={handleCalculatorInputChange}
+                    step="0.01"
+                    min="0"
+                    placeholder="Adicionar valor"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddNumber}
+                    className="p-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                  >
+                    <Plus className="w-5 h-5" />
+                  </button>
+                </div>
+                <div className="text-right text-lg font-bold text-slate-800 mb-3">
+                  Soma Atual: {currentSum.toFixed(2).replace('.', ',')}
+                </div>
+                <button
+                  type="button"
+                  onClick={handleApplyCalculation}
+                  className="w-full px-4 py-2 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-colors"
+                >
+                  Aplicar ao Valor
+                </button>
+              </div>
+            )}
           </div>
 
           <div>
