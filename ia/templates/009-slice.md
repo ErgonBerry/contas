@@ -4,7 +4,7 @@ Estou desenvolvendo um projeto pessoal para controle financeiro. Se trata de um 
 
 🔍 OBJETIVO DA TAREFA:
 
-Criar [funcionalidade desejada: ex. sistema de login com JWT, CRUD de estabelecimentos, tela de agendamentos, etc].
+Se o usuário estiver usando o navegador no celular, usar slice para os lados como se fosse um app, para alternar entre as páginas (resumo, calendario, relatorios, gastos, receitas)
 
 📦 REQUISITOS TÉCNICOS:
 
