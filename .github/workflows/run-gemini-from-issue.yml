@@ -64,9 +64,11 @@ jobs:
 
       - name: "Executar Gemini-CLI com o Plano de Ação"
         id: gemini_run
+        env:
+          GEMINI_PROMPT: "${{ steps.prepare_branch.outputs.plan_content }}"
         run: |
-          # Executa o gemini-cli usando npx, que lida com o download e a execução
-          RESULT=$(npx @google/gemini-cli "${{ steps.prepare_branch.outputs.plan_content }}")
+          # Passar o prompt via variável de ambiente evita problemas de parsing do shell
+          RESULT=$(npx @google/gemini-cli "$GEMINI_PROMPT")
           
           echo "result<<EOF" >> $GITHUB_OUTPUT
           echo "$RESULT" >> $GITHUB_OUTPUT
