@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.28](https://github.com/ErgonBerry/contas/compare/v0.1.27...v0.1.28) (2025-07-08)
+
+
+### Bug Fixes
+
+* incomes improvemtns ([51e2f06](https://github.com/ErgonBerry/contas/commit/51e2f0626afff453cbb6850eaf4f4b4644a9699b))
+
 ### [0.1.27](https://github.com/ErgonBerry/contas/compare/v0.1.26...v0.1.27) (2025-07-07)
 
 ### [0.1.26](https://github.com/ErgonBerry/contas/compare/v0.1.2...v0.1.26) (2025-07-07)
