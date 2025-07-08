@@ -44,15 +44,13 @@ jobs:
           TIMESTAMP=$(date +%Y%m%d%H%M%S)
           BRANCH_NAME="ia/driven-$TIMESTAMP"
           PLAN_FILE_PATH="ia/templates/$TIMESTAMP.md"
-          
+
           git checkout -b $BRANCH_NAME
 
           TASK_DESCRIPTION="${{ github.event.issue.body }}"
           TEMPLATE_CONTENT=$(cat ia/templates/001-general.md)
 
-          PLAN_CONTENT="# 🧠 Plano de Ação Gerado por IA\n\n## Tarefa\n$TASK_DESCRIPTION\n\n## Etapas Sugeridas\n\n${TEMPLATE_CONTENT//<DESCRICAO_AQUI_CHANGE_ME>/$TASK_DESCRIPTION}"
-          PLAN_CONTENT+="\n\nPor favor, apenas gere o código necessário como texto. Não execute ferramentas como write_file ou replace. Não modifique arquivos diretamente, apenas sugira o conteúdo."
-
+          PLAN_CONTENT=$(printf "# 🧠 Plano de Ação Gerado por IA\n\n## 🎯 Descrição da Tarefa\n\n%s\n\n## 📋 Etapas Sugeridas\n\n%s\n\n🛑 *Não use ferramentas como write_file ou replace. Apenas gere o código como texto.*\n" "$TASK_DESCRIPTION" "$TEMPLATE_CONTENT")
 
           echo "$PLAN_CONTENT" > "$PLAN_FILE_PATH"
 
@@ -61,6 +59,7 @@ jobs:
           echo "plan_content<<EOF" >> $GITHUB_OUTPUT
           echo "$PLAN_CONTENT" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
+
 
       - name: "🧠 Executar Gemini-CLI com o plano de ação"
         id: gemini_run
