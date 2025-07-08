@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Transaction } from '../types';
 import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, getBrazilDateString } from '../utils/helpers';
 import { Plus, X, Calendar, CreditCard, Repeat, AlertCircle, Calculator } from 'lucide-react';
+import { addMonths } from 'date-fns';
 
 interface TransactionFormProps {
   type: 'expense' | 'income';
@@ -50,12 +51,19 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, transaction, re
         notes: transaction.notes || ''
       });
     } else if (replicateTransaction) {
+      const originalDate = new Date(replicateTransaction.date);
+      const nextMonthDate = addMonths(originalDate, 1);
+      const nextMonthDateString = getBrazilDateString(nextMonthDate);
+
+      const originalDueDate = replicateTransaction.dueDate ? new Date(replicateTransaction.dueDate) : null;
+      const nextMonthDueDateString = originalDueDate ? getBrazilDateString(addMonths(originalDueDate, 1)) : '';
+
       setFormData({
         amount: replicateTransaction.amount.toString(),
         description: replicateTransaction.description,
         category: replicateTransaction.category,
-        date: getBrazilDateString(), // Current date for replication
-        dueDate: replicateTransaction.dueDate ? getBrazilDateString() : '', // Current date for replication
+        date: nextMonthDateString, // Next month's date for replication
+        dueDate: nextMonthDueDateString, // Next month's due date for replication
         isPaid: false, // Replicated transactions are initially unpaid
         recurrence: replicateTransaction.recurrence || 'none',
         notes: replicateTransaction.notes || ''

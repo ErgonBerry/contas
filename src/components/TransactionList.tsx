@@ -123,8 +123,14 @@ const TransactionList: React.FC<TransactionListProps> = ({
   };
 
   const handlePressStart = (e: React.MouseEvent | React.TouchEvent, transaction: Transaction) => {
-    // Prevent default to avoid text selection on long press
-    e.preventDefault();
+    // Prevent default to avoid text selection on long press for MouseEvent
+    if ('button' in e) { // Check if it's a MouseEvent
+      e.preventDefault();
+    } else { // It's a TouchEvent
+      e.preventDefault(); // Prevent default touch behavior (like scrolling, zooming)
+      e.stopPropagation(); // Stop event propagation to prevent text selection on some devices
+    }
+
     pressTimer.current = setTimeout(() => {
       setTransactionToReplicate(transaction);
       setShowForm(true);
@@ -277,7 +283,7 @@ const TransactionList: React.FC<TransactionListProps> = ({
             return (
               <div
                 key={`${transaction.id}-${index}`}
-                className={`bg-white border rounded-xl p-4 hover:shadow-md transition-shadow ${
+                className={`bg-white border rounded-xl p-4 hover:shadow-md transition-shadow no-select ${
                   overdue ? 'border-red-300 bg-red-50' : 
                   !transaction.isPaid && type === 'expense' ? 'border-orange-200 bg-orange-50' :
                   'border-slate-200'
