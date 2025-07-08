@@ -133,7 +133,21 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const prUrl = ${{ toJSON(steps.create_pr.outputs.result) }}.html_url;
+            const prResult = ${{ toJSON(steps.create_pr.outputs.result) }};
+            let prUrl = null;
+            if (prResult && typeof prResult === 'object' && prResult.html_url) {
+              prUrl = prResult.html_url;
+            } else if (typeof prResult === 'string') {
+              try {
+                const parsedResult = JSON.parse(prResult);
+                if (parsedResult && parsedResult.html_url) {
+                  prUrl = parsedResult.html_url;
+                }
+              } catch (e) {
+                console.error("Failed to parse prResult as JSON string:", e);
+              }
+            }
+
             const branchName = "${{ steps.prepare_branch.outputs.branch_name }}";
             const repoUrl = context.payload.repository.html_url;
             let output;
@@ -157,7 +171,7 @@ jobs:
               output = `
               ### 🤖⚠️ Fluxo de Trabalho de IA Concluído com Aviso
 
-              A branch **${branchName}** foi criada e as alterações foram aplicadas, mas **não foi possível criar o Pull Request**.
+              A branch **${branchName}** foi criada e as alterações foram aplicadas, mas **não foi possível criar o Pull Request** (verifique o log da Action para detalhes).
 
               Consulte o log da Action para mais detalhes. O motivo mais comum é a branch de destino (`feature/ia`) não existir.
               `;
