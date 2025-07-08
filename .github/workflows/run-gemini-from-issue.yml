@@ -64,15 +64,13 @@ jobs:
 
       - name: "Executar Gemini-CLI com o Plano de Ação"
         id: gemini_run
-        env:
-          GEMINI_PROMPT: "${{ steps.prepare_branch.outputs.plan_content }}"
         run: |
-          # Sanetiza o prompt para remover caracteres de controle invisíveis que quebram o parser de argumentos.
-          # A expressão regular [^[:print:]\t\n\r] remove tudo que não for imprimível, tab, newline ou carriage return.
-          SANITIZED_PROMPT=$(echo "$GEMINI_PROMPT" | sed 's/[^[:print:]\t\n\r]//g')
+          # Usa o caminho do arquivo do plano de ação como parte do prompt.
+          PLAN_FILE_PATH="${{ steps.prepare_branch.outputs.plan_file_path }}"
+          PROMPT_COMMAND="criar o plano de ação para o arquivo @${PLAN_FILE_PATH}"
 
-          # Passa o prompt sanetizado para o CLI.
-          RESULT=$(npx @google/gemini-cli "$SANITIZED_PROMPT")
+          echo "Executando comando: $PROMPT_COMMAND"
+          RESULT=$(npx @google/gemini-cli "$PROMPT_COMMAND")
           
           echo "result<<EOF" >> $GITHUB_OUTPUT
           echo "$RESULT" >> $GITHUB_OUTPUT
