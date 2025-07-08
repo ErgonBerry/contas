@@ -36,7 +36,7 @@ function App() {
         <Header />
         <Navigation />
 
-        <main className="max-w-md mx-auto p-4 pb-20">
+        <main className="max-w-md mx-auto p-4 pb-20 lg:ml-64 lg:max-w-none">
           <Routes>
             <Route path="/" element={<Dashboard transactions={transactions} savingsGoals={savingsGoals} monthlyBalances={monthlyBalances} />} />
             <Route path="/expenses" element={<TransactionList type="expense" transactions={transactions} onAdd={addTransaction} onUpdate={updateTransaction} onDelete={deleteTransaction} onUpdatePaymentStatus={updatePaymentStatus} monthlyBalances={monthlyBalances} />} />
