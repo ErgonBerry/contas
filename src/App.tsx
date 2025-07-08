@@ -9,8 +9,6 @@ import Calendar from './components/Calendar';
 import Settings from './components/Settings';
 import Navigation from './components/Navigation';
 import Header from './components/Header';
-import SwipeableRoutes from './components/SwipeableRoutes';
-
 function App() {
   const {
     transactions,
@@ -32,7 +30,6 @@ function App() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <SwipeableRoutes>
         <Header />
         <Navigation />
 
@@ -47,7 +44,6 @@ function App() {
             <Route path="/settings" element={<Settings transactions={transactions} savingsGoals={savingsGoals} onImportData={importData} onClearAllData={clearAllData} />} />
           </Routes>
         </main>
-      </SwipeableRoutes>
     </div>
   );
 }
