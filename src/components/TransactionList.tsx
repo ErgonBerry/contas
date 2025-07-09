@@ -32,6 +32,10 @@ const TransactionList: React.FC<TransactionListProps> = ({
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const [transactionToReplicate, setTransactionToReplicate] = useState<Transaction | null>(null);
   const pressTimer = React.useRef<NodeJS.Timeout | null>(null);
+  const countdownTimer = React.useRef<NodeJS.Timeout | null>(null);
+  const longPressTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+  const [countdown, setCountdown] = useState<number | null>(null);
+  const [activeTransactionId, setActiveTransactionId] = useState<string | null>(null);
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [paymentFilter, setPaymentFilter] = useState('all');
   const [currentMonth, setCurrentMonth] = useState<Date>(getCurrentBrazilDate());
@@ -123,25 +127,70 @@ const TransactionList: React.FC<TransactionListProps> = ({
   };
 
   const handlePressStart = (e: React.MouseEvent | React.TouchEvent, transaction: Transaction) => {
-    // Prevent default to avoid text selection on long press for MouseEvent
-    if ('button' in e) { // Check if it's a MouseEvent
-      e.preventDefault();
-    } else { // It's a TouchEvent
-      e.preventDefault(); // Prevent default touch behavior (like scrolling, zooming)
-      e.stopPropagation(); // Stop event propagation to prevent text selection on some devices
+    // If the event target is a button or an element inside a button, do not initiate long press logic
+    if ((e.target as HTMLElement).tagName === 'BUTTON' || (e.target as HTMLElement).closest('button')) {
+      return;
     }
 
-    pressTimer.current = setTimeout(() => {
-      setTransactionToReplicate(transaction);
-      setShowForm(true);
-    }, 3000); // 3000ms for long press
+    // Clear any existing long press timeout to prevent multiple triggers
+    if (longPressTimeoutRef.current) {
+      clearTimeout(longPressTimeoutRef.current);
+    }
+
+    // Set a timeout to initiate the long press after a delay
+    longPressTimeoutRef.current = setTimeout(() => {
+      // Prevent default only when long press is confirmed
+      if ('button' in e) { // Check if it's a MouseEvent
+        e.preventDefault();
+      } else { // It's a TouchEvent
+        e.preventDefault(); // Prevent default touch behavior (like scrolling, zooming)
+        e.stopPropagation(); // Stop event propagation to prevent text selection on some devices
+      }
+
+      setActiveTransactionId(transaction.id);
+      setCountdown(3);
+
+      countdownTimer.current = setInterval(() => {
+        setCountdown(prev => {
+          if (prev === null || prev <= 1) {
+            if (countdownTimer.current) {
+              clearInterval(countdownTimer.current);
+              countdownTimer.current = null;
+            }
+            return null;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      pressTimer.current = setTimeout(() => {
+        if (countdownTimer.current) { // Ensure countdown completed naturally
+          clearInterval(countdownTimer.current);
+          countdownTimer.current = null;
+        }
+        setTransactionToReplicate(transaction);
+        setShowForm(true);
+        setCountdown(null); // Reset countdown after action
+        setActiveTransactionId(null); // Reset active transaction
+      }, 3000); // 3000ms for long press
+    }, 500); // 500ms delay for long press
   };
 
   const handlePressEnd = () => {
+    if (longPressTimeoutRef.current) { // Clear the initial long press timeout
+      clearTimeout(longPressTimeoutRef.current);
+      longPressTimeoutRef.current = null;
+    }
     if (pressTimer.current) {
       clearTimeout(pressTimer.current);
       pressTimer.current = null;
     }
+    if (countdownTimer.current) {
+      clearInterval(countdownTimer.current);
+      countdownTimer.current = null;
+    }
+    setCountdown(null);
+    setActiveTransactionId(null);
   };
 
   return (
@@ -283,7 +332,7 @@ const TransactionList: React.FC<TransactionListProps> = ({
             return (
               <div
                 key={`${transaction.id}-${index}`}
-                className={`bg-white border rounded-xl p-4 hover:shadow-md transition-shadow no-select ${
+                className={`relative bg-white border rounded-xl p-4 hover:shadow-md transition-shadow no-select ${
                   overdue ? 'border-red-300 bg-red-50' : 
                   !transaction.isPaid && type === 'expense' ? 'border-orange-200 bg-orange-50' :
                   'border-slate-200'
@@ -294,7 +343,13 @@ const TransactionList: React.FC<TransactionListProps> = ({
                 onTouchStart={(e) => handlePressStart(e, transaction)}
                 onTouchEnd={handlePressEnd}
                 onTouchCancel={handlePressEnd}
+                onTouchMove={handlePressEnd} // Added this line
               >
+                {activeTransactionId === transaction.id && countdown !== null && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-xl z-10">
+                    <span className="text-white text-4xl font-bold">{countdown}</span>
+                  </div>
+                )}
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">

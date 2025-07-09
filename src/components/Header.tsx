@@ -11,6 +11,7 @@ const Header: React.FC = () => {
     setIsPulsing(true);
     setTimeout(() => {
       setIsPulsing(false);
+      window.location.reload(); // Adicionado para recarregar a página
     }, 300); // Duração da animação
   };
 
@@ -19,8 +20,9 @@ const Header: React.FC = () => {
       className={`bg-gradient-to-r from-blue-600 to-blue-700 text-white p-4 shadow-lg transition-transform duration-300 ease-in-out ${
         isPulsing ? 'scale-105' : 'scale-100'
       }`}
+      onClick={handleHeaderClick}
     >
-      <Link to="/" onClick={handleHeaderClick} className="block cursor-pointer">
+      <Link to="/" className="block cursor-pointer">
         <div className="max-w-md mx-auto relative h-16 flex items-center justify-center">
           <div className="text-center">
             <h1 className="text-xl font-bold">💰 Controle Financeiro</h1>

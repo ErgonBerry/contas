@@ -4,7 +4,7 @@ Estou desenvolvendo um projeto pessoal para controle financeiro. Se trata de um 
 
 🔍 OBJETIVO DA TAREFA:
 
-<<CHANGE_ME>>
+animacao-long-press - quero que ao fazer um long press nos cards de incomes e expenses fazer uma contagem regressiva de 3 segundos até abrir a tela de inserir registro. nao alterar a lógica atual , apenas criar essa animação da contagem regressiva.
 
 📦 REQUISITOS TÉCNICOS:
 
