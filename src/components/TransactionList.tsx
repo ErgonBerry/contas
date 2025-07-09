@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Transaction } from '../types';
 import { formatCurrency, isTransactionOverdue, getDaysUntilDue, formatBrazilDate, getCurrentBrazilDate, filterTransactionsByMonth, parseLocalDate } from '../utils/helpers';
-import { Plus, Trash2, Filter, Check, Calendar, CreditCard, Clock, Edit3, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Plus, Trash2, Filter, Check, Calendar, CreditCard, Clock, Edit3, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import TransactionForm from './TransactionForm';
 import ConfirmationModal from './ConfirmationModal';
 import DailyDateSlider from './DailyDateSlider';
@@ -43,15 +43,28 @@ const TransactionList: React.FC<TransactionListProps> = ({
   const [currentMonth, setCurrentMonth] = useState<Date>(getCurrentBrazilDate());
   const [startDateFilter, setStartDateFilter] = useState<Date | null>(null);
   const [endDateFilter, setEndDateFilter] = useState<Date | null>(null);
+  const [isDailyFilterActive, setIsDailyFilterActive] = useState(false);
   const { theme } = useTheme();
 
   useEffect(() => {
     setCategoryFilter('all');
     setPaymentFilter('all'); // Reset payment filter when type changes
     // Reset daily filters when month or type changes
-    setStartDateFilter(startOfMonth(currentMonth));
-    setEndDateFilter(endOfMonth(currentMonth));
+    const start = startOfMonth(currentMonth);
+    const end = endOfMonth(currentMonth);
+    setStartDateFilter(start);
+    setEndDateFilter(end);
   }, [type, currentMonth]);
+
+  useEffect(() => {
+    const start = startOfMonth(currentMonth);
+    const end = endOfMonth(currentMonth);
+    if (startDateFilter && endDateFilter && (!isSameDay(startDateFilter, start) || !isSameDay(endDateFilter, end))) {
+      setIsDailyFilterActive(true);
+    } else {
+      setIsDailyFilterActive(false);
+    }
+  }, [startDateFilter, endDateFilter, currentMonth]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [transactionToDelete, setTransactionToDelete] = useState<string | null>(null);
   
@@ -145,6 +158,11 @@ const TransactionList: React.FC<TransactionListProps> = ({
   const handleDailyFilterChange = (newStartDate: Date, newEndDate: Date) => {
     setStartDateFilter(newStartDate);
     setEndDateFilter(newEndDate);
+  };
+
+  const handleClearDailyFilter = () => {
+    setStartDateFilter(startOfMonth(currentMonth));
+    setEndDateFilter(endOfMonth(currentMonth));
   };
 
   const handlePressStart = (e: React.MouseEvent | React.TouchEvent, transaction: Transaction) => {
@@ -333,6 +351,14 @@ const TransactionList: React.FC<TransactionListProps> = ({
               endDate={endDateFilter}
               onChange={handleDailyFilterChange}
             />
+            {isDailyFilterActive && (
+              <button
+                onClick={handleClearDailyFilter}
+                className="px-3 py-1 rounded-full bg-orange-500 text-white text-sm whitespace-nowrap transition-colors hover:bg-orange-600 select-none"
+              >
+                Limpar
+              </button>
+            )}
           </div>
         )}
       </div>

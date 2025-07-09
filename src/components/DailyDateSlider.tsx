@@ -126,7 +126,7 @@ const DailyDateSlider: React.FC<DailyDateSliderProps> = ({
           zIndex: 1,
         }}
       >
-        <span className="text-xs font-bold text-white">{startDay}</span>
+        <span className="text-xs font-bold text-white select-none">{startDay}</span>
       </div>
 
       {/* End Thumb */}
@@ -138,7 +138,7 @@ const DailyDateSlider: React.FC<DailyDateSliderProps> = ({
           zIndex: 1,
         }}
       >
-        <span className="text-xs font-bold text-white">{endDay}</span>
+        <span className="text-xs font-bold text-white select-none">{endDay}</span>
       </div>
     </div>
   );
