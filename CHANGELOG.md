@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.1](https://github.com/ErgonBerry/contas/compare/v0.2.6...v0.3.1) (2025-07-09)
+
+
+### Bug Fixes
+
+* slice on mobile (touch) ([da19b1b](https://github.com/ErgonBerry/contas/commit/da19b1b1a59832cdd2e18ecfcef206e34f27c5b7))
+
 ### [0.2.6](https://github.com/ErgonBerry/contas/compare/v0.2.5...v0.2.6) (2025-07-09)
 
 
