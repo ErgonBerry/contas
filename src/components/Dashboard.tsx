@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Transaction, SavingsGoal, MonthlyBalance } from '../types';
-import { formatCurrency, filterTransactionsByMonth, calculateGoalsImpact, getCurrentBrazilDate, formatBrazilDate, parseLocalDate } from '../utils/helpers';
+import { formatCurrency, filterTransactionsByMonth, calculateGoalsImpact, getCurrentBrazilDate } from '../utils/helpers';
 import { TrendingUp, TrendingDown, Wallet, Target, AlertTriangle, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
 import Confetti from 'react-confetti';
 import useWindowSize from '../hooks/useWindowSize';
@@ -255,78 +255,9 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, savingsGoals, month
         </div>
       )}
 
-      {/* Recent Transactions - NOT CLICKABLE */}
-      {transactionsForSelectedMonth.length > 0 && (
-        <div className="bg-white rounded-xl border border-slate-200 p-4">
-          <h3 className="text-lg font-semibold text-slate-800 mb-3">
-            Transações Recentes
-          </h3>
-          <div className="space-y-3">
-            {transactionsForSelectedMonth.slice(0, 5).map((transaction) => (
-              <div key={transaction.id} className="flex items-center justify-between py-2 gap-3">
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-slate-900 text-sm truncate">
-                    {transaction.description}
-                    {(transaction.id.includes('_') || transaction.recurrence !== 'none') && (
-                      <span className="ml-2 text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
-                        Recorrente
-                      </span>
-                    )}
-                  </p>
-                  <p className="text-xs text-slate-500 break-words">
-                    <span className="truncate">
-                      {transaction.category}
-                    </span>
-                    {' • '}
-                    <span className="whitespace-nowrap">
-                      {transaction.type === 'income' 
-                        ? formatBrazilDate(parseLocalDate(transaction.date))
-                        : transaction.dueDate 
-                        ? `Vence: ${formatBrazilDate(parseLocalDate(transaction.dueDate))}`
-                        : 'Sem vencimento'
-                      }
-                    </span>
-                  </p>
-                </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  <p className={`font-semibold text-sm sm:text-base break-words ${
-                    transaction.type === 'income' ? 'text-green-600' : 'text-red-600'
-                  }`}>
-                    {transaction.type === 'income' ? '+' : '-'}{formatCurrency(transaction.amount)}
-                  </p>
-                  <span className={`w-2 h-2 rounded-full flex-shrink-0 ${
-                    transaction.isPaid ? 'bg-green-500' : 'bg-orange-500'
-                  }`} />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      
 
-      {/* ENHANCED DEBUG INFO */}
-      <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-xs">
-        <h4 className="font-semibold text-green-800 mb-2">🔧 DEBUG - Transações Recorrentes</h4>
-        <div className="space-y-1 text-green-700">
-          <p><strong>Total transações do mês:</strong> {transactionsForSelectedMonth.length}</p>
-          <p><strong>Transações recorrentes:</strong> {transactionsForSelectedMonth.filter(t => t.id.includes('_') || t.recurrence !== 'none').length}</p>
-          <p><strong>Despesas pagas (recorrentes):</strong> {transactionsForSelectedMonth.filter(t => (t.id.includes('_') || t.recurrence !== 'none') && t.type === 'expense' && t.isPaid).length}</p>
-          <p><strong>Despesas pendentes (recorrentes):</strong> {transactionsForSelectedMonth.filter(t => (t.id.includes('_') || t.recurrence !== 'none') && t.type === 'expense' && !t.isPaid).length}</p>
-          <p><strong>Receitas:</strong> {formatCurrency(currentIncome)}</p>
-          <p><strong>Despesas pagas:</strong> {formatCurrency(currentExpenses)}</p>
-          <p><strong>Saldo final:</strong> {formatCurrency(adjustedBalance)}</p>
-          {transactionsForSelectedMonth.filter(t => t.id.includes('_') || t.recurrence !== 'none').length > 0 && (
-            <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded">
-              <p className="font-semibold text-blue-800 mb-1">Detalhes das Recorrentes:</p>
-              {transactionsForSelectedMonth.filter(t => t.id.includes('_') || t.recurrence !== 'none').slice(0, 3).map(t => (
-                <p key={t.id} className="text-blue-700 text-xs">
-                  • {t.description}: {formatCurrency(t.amount)} ({t.isPaid ? 'Pago' : 'Pendente'})
-                </p>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
+      
     </div>
   );
 };

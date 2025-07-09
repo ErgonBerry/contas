@@ -2,6 +2,52 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.2](https://github.com/ErgonBerry/contas/compare/v0.2.1...v0.2.2) (2025-07-08)
+
+
+### Bug Fixes
+
+* long press ([e62b8a4](https://github.com/ErgonBerry/contas/commit/e62b8a4a0851949d77632d131a6ffccb9c07e142))
+
+### [0.2.1](https://github.com/ErgonBerry/contas/compare/v0.1.31...v0.2.1) (2025-07-08)
+
+
+### Bug Fixes
+
+* 3 segundos para swipe ([403d977](https://github.com/ErgonBerry/contas/commit/403d977080baa8dcb650cf6f817aadb1d19fb79a))
+
+### [0.1.31](https://github.com/ErgonBerry/contas/compare/v0.1.30...v0.1.31) (2025-07-08)
+
+
+### Features
+
+* swipe ([9757c80](https://github.com/ErgonBerry/contas/commit/9757c8029fac9d893dfda6a34136da72ab772c37))
+
+### [0.1.30](https://github.com/ErgonBerry/contas/compare/v0.1.29...v0.1.30) (2025-07-08)
+
+
+### Features
+
+* calc ([89b3df5](https://github.com/ErgonBerry/contas/commit/89b3df5de19af05ee0e5d95351fe59ed2cc3b955))
+* replication ([eb0e205](https://github.com/ErgonBerry/contas/commit/eb0e205f0f223ce69788bcfa2d7f16b0a26caa65))
+
+### [0.1.29](https://github.com/ErgonBerry/contas/compare/v0.1.28...v0.1.29) (2025-07-08)
+
+### [0.1.28](https://github.com/ErgonBerry/contas/compare/v0.1.27...v0.1.28) (2025-07-08)
+
+
+### Bug Fixes
+
+* incomes improvemtns ([51e2f06](https://github.com/ErgonBerry/contas/commit/51e2f0626afff453cbb6850eaf4f4b4644a9699b))
+
+### [0.1.27](https://github.com/ErgonBerry/contas/compare/v0.1.26...v0.1.27) (2025-07-07)
+
+### [0.1.26](https://github.com/ErgonBerry/contas/compare/v0.1.2...v0.1.26) (2025-07-07)
+
+### [0.1.10](https://github.com/ErgonBerry/contas/compare/v0.1.2...v0.1.10) (2025-07-07)
+
+### [0.1.2](https://github.com/ErgonBerry/contas/compare/v0.1.1...v0.1.2) (2025-07-07)
+
 ### [0.1.1](https://github.com/ErgonBerry/contas/compare/v0.1.0...v0.1.1) (2025-07-03)
 
 ### [0.0.9](https://github.com/ErgonBerry/contas/compare/v0.0.8...v0.0.9) (2025-07-03)

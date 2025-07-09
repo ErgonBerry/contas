@@ -30,6 +30,8 @@ const TransactionList: React.FC<TransactionListProps> = ({
 }) => {
   const [showForm, setShowForm] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
+  const [transactionToReplicate, setTransactionToReplicate] = useState<Transaction | null>(null);
+  const pressTimer = React.useRef<NodeJS.Timeout | null>(null);
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [paymentFilter, setPaymentFilter] = useState('all');
   const [currentMonth, setCurrentMonth] = useState<Date>(getCurrentBrazilDate());
@@ -65,7 +67,7 @@ const TransactionList: React.FC<TransactionListProps> = ({
       })
     : transactionsForMonth;
 
-  const total = sortedTransactions.reduce((sum, t) => sum + t.amount, 0);
+  const total = sortedTransactions.filter(t => t.isPaid).reduce((sum, t) => sum + t.amount, 0);
 
   const currentMonthKey = format(currentMonth, 'yyyy-MM');
   const currentMonthBalanceData = monthlyBalances.find(mb => mb.month === currentMonthKey);
@@ -84,6 +86,7 @@ const TransactionList: React.FC<TransactionListProps> = ({
   const handleCloseForm = () => {
     setShowForm(false);
     setEditingTransaction(null);
+    setTransactionToReplicate(null);
   };
 
   const handleSubmit = (transactionData: Omit<Transaction, 'id' | 'createdAt'>) => {
@@ -117,6 +120,28 @@ const TransactionList: React.FC<TransactionListProps> = ({
 
   const handleNextMonth = () => {
     setCurrentMonth(prevMonth => addMonths(prevMonth, 1));
+  };
+
+  const handlePressStart = (e: React.MouseEvent | React.TouchEvent, transaction: Transaction) => {
+    // Prevent default to avoid text selection on long press for MouseEvent
+    if ('button' in e) { // Check if it's a MouseEvent
+      e.preventDefault();
+    } else { // It's a TouchEvent
+      e.preventDefault(); // Prevent default touch behavior (like scrolling, zooming)
+      e.stopPropagation(); // Stop event propagation to prevent text selection on some devices
+    }
+
+    pressTimer.current = setTimeout(() => {
+      setTransactionToReplicate(transaction);
+      setShowForm(true);
+    }, 3000); // 3000ms for long press
+  };
+
+  const handlePressEnd = () => {
+    if (pressTimer.current) {
+      clearTimeout(pressTimer.current);
+      pressTimer.current = null;
+    }
   };
 
   return (
@@ -258,11 +283,17 @@ const TransactionList: React.FC<TransactionListProps> = ({
             return (
               <div
                 key={`${transaction.id}-${index}`}
-                className={`bg-white border rounded-xl p-4 hover:shadow-md transition-shadow ${
+                className={`bg-white border rounded-xl p-4 hover:shadow-md transition-shadow no-select ${
                   overdue ? 'border-red-300 bg-red-50' : 
                   !transaction.isPaid && type === 'expense' ? 'border-orange-200 bg-orange-50' :
                   'border-slate-200'
                 }`}
+                onMouseDown={(e) => handlePressStart(e, transaction)}
+                onMouseUp={handlePressEnd}
+                onMouseLeave={handlePressEnd}
+                onTouchStart={(e) => handlePressStart(e, transaction)}
+                onTouchEnd={handlePressEnd}
+                onTouchCancel={handlePressEnd}
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
@@ -361,6 +392,7 @@ const TransactionList: React.FC<TransactionListProps> = ({
         <TransactionForm
           type={type}
           transaction={editingTransaction}
+          replicateTransaction={transactionToReplicate}
           onSubmit={handleSubmit}
           onClose={handleCloseForm}
         />
