@@ -2,6 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --color-primary: #2563eb;
+  --color-secondary: #1d4ed8;
+  --color-accent: #60a5fa;
+  --color-background: #f8fafc;
+  --color-text: #1e293b;
+  --color-card-background: #ffffff;
+  --color-card-border: #e2e8f0;
+}
+
+
 .no-select {
   -webkit-touch-callout: none; /* iOS Safari */
   -webkit-user-select: none;   /* Safari */

@@ -1,4 +1,3 @@
-
 import { Route, Routes } from 'react-router-dom';
 import { useFinancialData } from './hooks/useFinancialData';
 import Dashboard from './components/Dashboard';
@@ -9,6 +8,9 @@ import Calendar from './components/Calendar';
 import Settings from './components/Settings';
 import Navigation from './components/Navigation';
 import Header from './components/Header';
+import { useTheme } from './contexts/ThemeContext';
+import { Moon, Sun } from 'lucide-react';
+
 function App() {
   const {
     transactions,
@@ -28,10 +30,23 @@ function App() {
     monthlyBalances,
   } = useFinancialData();
 
+  const { theme, isDarkMode, toggleTheme } = useTheme();
+
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen" style={{ backgroundColor: theme.background }}>
         <Header />
         <Navigation />
+
+        <button
+          onClick={toggleTheme}
+          className="fixed top-20 right-4 z-50 p-2 rounded-full bg-card-background text-text shadow-lg"
+          style={{ 
+            backgroundColor: theme.cardBackground,
+            color: theme.text
+          }}
+        >
+          {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+        </button>
 
         <main className="max-w-md mx-auto p-4 pb-20">
           <Routes>
@@ -49,4 +64,3 @@ function App() {
 }
 
 export default App;
-
