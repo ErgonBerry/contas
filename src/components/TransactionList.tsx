@@ -38,7 +38,7 @@ const TransactionList: React.FC<TransactionListProps> = ({
   const longPressTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
   const [countdown, setCountdown] = useState<number | null>(null);
   const [activeTransactionId, setActiveTransactionId] = useState<string | null>(null);
-  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [categoryFilter, setCategoryFilter] = useState<string[]>(['all']);
   const [paymentFilter, setPaymentFilter] = useState('all');
   const [currentMonth, setCurrentMonth] = useState<Date>(getCurrentBrazilDate());
   const [startDateFilter, setStartDateFilter] = useState<Date | null>(null);
@@ -47,7 +47,7 @@ const TransactionList: React.FC<TransactionListProps> = ({
   const { theme } = useTheme();
 
   useEffect(() => {
-    setCategoryFilter('all');
+    setCategoryFilter(['all']);
     setPaymentFilter('all'); // Reset payment filter when type changes
     // Reset daily filters when month or type changes
     const start = startOfMonth(currentMonth);
@@ -55,6 +55,23 @@ const TransactionList: React.FC<TransactionListProps> = ({
     setStartDateFilter(start);
     setEndDateFilter(end);
   }, [type, currentMonth]);
+
+  const handleCategoryFilterChange = (category: string) => {
+    if (category === 'all') {
+      setCategoryFilter(['all']);
+    } else {
+      setCategoryFilter(prev => {
+        if (prev.includes('all')) {
+          return [category];
+        } else if (prev.includes(category)) {
+          const newFilter = prev.filter(c => c !== category);
+          return newFilter.length === 0 ? ['all'] : newFilter;
+        } else {
+          return [...prev, category];
+        }
+      });
+    }
+  };
 
   useEffect(() => {
     const start = startOfMonth(currentMonth);
@@ -70,7 +87,7 @@ const TransactionList: React.FC<TransactionListProps> = ({
   
   const filteredTransactions = transactions
     .filter(t => t.type === type)
-    .filter(t => categoryFilter === 'all' || t.category === categoryFilter)
+    .filter(t => categoryFilter.includes('all') || categoryFilter.includes(t.category))
     .filter(t => {
       if (paymentFilter === 'all') return true;
       if (paymentFilter === 'paid') return t.isPaid;
@@ -279,9 +296,9 @@ const TransactionList: React.FC<TransactionListProps> = ({
           <div className="flex items-center gap-2 overflow-x-auto pb-2">
             <Filter className="w-4 h-4 text-text opacity-70 flex-shrink-0" />
             <button
-              onClick={() => setCategoryFilter('all')}
+              onClick={() => handleCategoryFilterChange('all')}
               className={`px-3 py-1 rounded-full text-sm whitespace-nowrap transition-colors ${
-                categoryFilter === 'all' 
+                categoryFilter.includes('all') 
                   ? 'bg-primary text-white' 
                   : 'bg-cardBackground text-text hover:bg-cardBorder'
               }`}
@@ -291,9 +308,9 @@ const TransactionList: React.FC<TransactionListProps> = ({
             {categories.map(category => (
               <button
                 key={category}
-                onClick={() => setCategoryFilter(category)}
+                onClick={() => handleCategoryFilterChange(category)}
                 className={`px-3 py-1 rounded-full text-sm whitespace-nowrap transition-colors ${
-                  categoryFilter === category 
+                  categoryFilter.includes(category) && !categoryFilter.includes('all')
                     ? 'bg-primary text-white' 
                     : 'bg-cardBackground text-text hover:bg-cardBorder'
                 }`}
@@ -343,7 +360,7 @@ const TransactionList: React.FC<TransactionListProps> = ({
 
         {/* Daily Filter for Income/Expense */}
         {startDateFilter && endDateFilter && (
-          <div className="flex items-center gap-2 overflow-x-auto pb-2">
+          <div className="flex items-center gap-3 overflow-x-auto pb-2">
             <Calendar className="w-4 h-4 text-text opacity-70 flex-shrink-0" />
             <DailyDateSlider
               currentMonth={currentMonth}
@@ -354,7 +371,7 @@ const TransactionList: React.FC<TransactionListProps> = ({
             {isDailyFilterActive && (
               <button
                 onClick={handleClearDailyFilter}
-                className="px-3 py-1 rounded-full bg-orange-500 text-white text-sm whitespace-nowrap transition-colors hover:bg-orange-600 select-none"
+                className="px-3 py-1 rounded-full bg-cardBorder text-text text-sm whitespace-nowrap transition-colors hover:bg-cardBackground select-none"
               >
                 Limpar
               </button>
