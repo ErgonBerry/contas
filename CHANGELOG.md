@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.5](https://github.com/ErgonBerry/contas/compare/v0.2.4...v0.2.5) (2025-07-09)
+
+
+### Features
+
+* melhoria filter ([fb3b3f0](https://github.com/ErgonBerry/contas/commit/fb3b3f0a225d79d10e456b37c2e0107b86313feb))
+* slice filter 2 ([4ec06b2](https://github.com/ErgonBerry/contas/commit/4ec06b24bc3697a79e897b822945105fc3c13b00))
+* slice filter 3 ([128f1cf](https://github.com/ErgonBerry/contas/commit/128f1cf227cac00cb8af9aa48fbe01f31b8b3e9e))
+
 ### [0.2.4](https://github.com/ErgonBerry/contas/compare/v0.2.3...v0.2.4) (2025-07-09)
 
 
