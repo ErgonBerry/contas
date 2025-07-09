@@ -327,9 +327,6 @@ const TransactionList: React.FC<TransactionListProps> = ({
         {startDateFilter && endDateFilter && (
           <div className="flex items-center gap-2 overflow-x-auto pb-2">
             <Calendar className="w-4 h-4 text-text opacity-70 flex-shrink-0" />
-            <span className="text-sm text-text whitespace-nowrap">
-              {formatBrazilDate(startDateFilter, 'dd/MM')} - {formatBrazilDate(endDateFilter, 'dd/MM')}
-            </span>
             <DailyDateSlider
               currentMonth={currentMonth}
               startDate={startDateFilter}
