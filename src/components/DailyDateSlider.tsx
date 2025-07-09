@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { format, getDaysInMonth, startOfMonth, endOfMonth, addDays, subDays, isSameDay } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
+import { getDaysInMonth, startOfMonth, addDays } from 'date-fns';
 import { useTheme } from '../contexts/ThemeContext';
 
 interface DailyDateSliderProps {
