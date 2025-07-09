@@ -38,10 +38,11 @@ const DailyDateSlider: React.FC<DailyDateSliderProps> = ({
     setEndDay(getDayNumber(endDate));
   }, [startDate, endDate, getDayNumber]);
 
-  const calculateDayFromMouseEvent = useCallback((e: MouseEvent | React.MouseEvent) => {
+  const calculateDayFromMouseEvent = useCallback((e: MouseEvent | React.MouseEvent | TouchEvent | React.TouchEvent) => {
     if (!sliderRef.current) return 0;
     const sliderRect = sliderRef.current.getBoundingClientRect();
-    const clickX = e.clientX - sliderRect.left;
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const clickX = clientX - sliderRect.left;
     const percentage = clickX / sliderRect.width;
     let day = Math.round(percentage * (daysInMonth - 1)) + 1; // 1-indexed day
     day = Math.max(1, Math.min(daysInMonth, day)); // Clamp between 1 and daysInMonth
@@ -49,6 +50,18 @@ const DailyDateSlider: React.FC<DailyDateSliderProps> = ({
   }, [daysInMonth]);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    const clickedDay = calculateDayFromMouseEvent(e);
+    const distanceToStart = Math.abs(clickedDay - startDay);
+    const distanceToEnd = Math.abs(clickedDay - endDay);
+
+    if (distanceToStart <= distanceToEnd) {
+      setIsDraggingStart(true);
+    } else {
+      setIsDraggingEnd(true);
+    }
+  }, [calculateDayFromMouseEvent, startDay, endDay]);
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
     const clickedDay = calculateDayFromMouseEvent(e);
     const distanceToStart = Math.abs(clickedDay - startDay);
     const distanceToEnd = Math.abs(clickedDay - endDay);
@@ -78,7 +91,30 @@ const DailyDateSlider: React.FC<DailyDateSliderProps> = ({
     }
   }, [isDraggingStart, isDraggingEnd, calculateDayFromMouseEvent, endDay, startDay, daysInMonth, monthStart, onChange]);
 
+  const handleTouchMove = useCallback((e: TouchEvent) => {
+    if (!isDraggingStart && !isDraggingEnd) return;
+
+    const newDay = calculateDayFromMouseEvent(e);
+
+    if (isDraggingStart) {
+      let newStart = Math.min(newDay, endDay);
+      newStart = Math.max(1, newStart);
+      setStartDay(newStart);
+      onChange(addDays(monthStart, newStart - 1), addDays(monthStart, endDay - 1));
+    } else if (isDraggingEnd) {
+      let newEnd = Math.max(newDay, startDay);
+      newEnd = Math.min(daysInMonth, newEnd);
+      setEndDay(newEnd);
+      onChange(addDays(monthStart, startDay - 1), addDays(monthStart, newEnd - 1));
+    }
+  }, [isDraggingStart, isDraggingEnd, calculateDayFromMouseEvent, endDay, startDay, daysInMonth, monthStart, onChange]);
+
   const handleMouseUp = useCallback(() => {
+    setIsDraggingStart(false);
+    setIsDraggingEnd(false);
+  }, []);
+
+  const handleTouchEnd = useCallback(() => {
     setIsDraggingStart(false);
     setIsDraggingEnd(false);
   }, []);
@@ -86,12 +122,16 @@ const DailyDateSlider: React.FC<DailyDateSliderProps> = ({
   useEffect(() => {
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
+    document.addEventListener('touchmove', handleTouchMove);
+    document.addEventListener('touchend', handleTouchEnd);
 
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [handleMouseMove, handleMouseUp]);
+  }, [handleMouseMove, handleMouseUp, handleTouchMove, handleTouchEnd]);
 
   const startPercentage = ((startDay - 1) / (daysInMonth - 1)) * 100;
   const endPercentage = ((endDay - 1) / (daysInMonth - 1)) * 100;
@@ -105,6 +145,7 @@ const DailyDateSlider: React.FC<DailyDateSliderProps> = ({
       className="relative w-5/6 h-4 rounded-full cursor-pointer flex items-center"
       style={{ backgroundColor: theme.cardBorder }}
       onMouseDown={handleMouseDown}
+      onTouchStart={handleTouchStart}
     >
       {/* Track */}
       <div

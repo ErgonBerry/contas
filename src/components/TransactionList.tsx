@@ -368,14 +368,15 @@ const TransactionList: React.FC<TransactionListProps> = ({
               endDate={endDateFilter}
               onChange={handleDailyFilterChange}
             />
-            {isDailyFilterActive && (
-              <button
-                onClick={handleClearDailyFilter}
-                className="px-3 py-1 rounded-full bg-cardBorder text-text text-sm whitespace-nowrap transition-colors hover:bg-cardBackground select-none"
-              >
-                Limpar
-              </button>
-            )}
+            <button
+              onClick={handleClearDailyFilter}
+              className={`px-3 py-1 rounded-full bg-cardBorder text-text text-sm whitespace-nowrap transition-colors select-none ${
+                isDailyFilterActive ? 'hover:bg-cardBackground' : 'opacity-50 cursor-not-allowed'
+              }`}
+              disabled={!isDailyFilterActive}
+            >
+              Limpar
+            </button>
           </div>
         )}
       </div>
