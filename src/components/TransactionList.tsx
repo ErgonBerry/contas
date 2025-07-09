@@ -4,7 +4,8 @@ import { formatCurrency, isTransactionOverdue, getDaysUntilDue, formatBrazilDate
 import { Plus, Trash2, Filter, Check, Calendar, CreditCard, Clock, Edit3, ChevronLeft, ChevronRight } from 'lucide-react';
 import TransactionForm from './TransactionForm';
 import ConfirmationModal from './ConfirmationModal';
-import { format, addMonths, subMonths } from 'date-fns';
+import DailyDateSlider from './DailyDateSlider';
+import { format, addMonths, subMonths, startOfMonth, endOfMonth, isSameDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -40,12 +41,17 @@ const TransactionList: React.FC<TransactionListProps> = ({
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [paymentFilter, setPaymentFilter] = useState('all');
   const [currentMonth, setCurrentMonth] = useState<Date>(getCurrentBrazilDate());
+  const [startDateFilter, setStartDateFilter] = useState<Date | null>(null);
+  const [endDateFilter, setEndDateFilter] = useState<Date | null>(null);
   const { theme } = useTheme();
 
   useEffect(() => {
     setCategoryFilter('all');
     setPaymentFilter('all'); // Reset payment filter when type changes
-  }, [type]);
+    // Reset daily filters when month or type changes
+    setStartDateFilter(startOfMonth(currentMonth));
+    setEndDateFilter(endOfMonth(currentMonth));
+  }, [type, currentMonth]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [transactionToDelete, setTransactionToDelete] = useState<string | null>(null);
   
@@ -62,16 +68,24 @@ const TransactionList: React.FC<TransactionListProps> = ({
   const categories = [...new Set(transactions.filter(t => t.type === type).map(t => t.category))];
   
   // Filter transactions by the current month
-  const transactionsForMonth = filterTransactionsByMonth(filteredTransactions, currentMonth);
+  let transactionsForDisplay = filterTransactionsByMonth(filteredTransactions, currentMonth);
+
+  // Apply daily filter if filters are set
+  if (startDateFilter && endDateFilter) {
+    transactionsForDisplay = transactionsForDisplay.filter(t => {
+      const transactionDate = parseLocalDate(t.date);
+      return transactionDate >= startDateFilter && transactionDate <= endDateFilter;
+    });
+  }
 
   // Sort expenses by due date
   const sortedTransactions = type === 'expense'
-    ? [...transactionsForMonth].sort((a, b) => {
+    ? [...transactionsForDisplay].sort((a, b) => {
         const dateA = a.dueDate ? parseLocalDate(a.dueDate) : new Date(8640000000000000); // Max Date
         const dateB = b.dueDate ? parseLocalDate(b.dueDate) : new Date(8640000000000000); // Max Date
         return dateA.getTime() - dateB.getTime();
       })
-    : transactionsForMonth;
+    : transactionsForDisplay;
 
   const total = sortedTransactions.filter(t => t.isPaid).reduce((sum, t) => sum + t.amount, 0);
 
@@ -126,6 +140,11 @@ const TransactionList: React.FC<TransactionListProps> = ({
 
   const handleNextMonth = () => {
     setCurrentMonth(prevMonth => addMonths(prevMonth, 1));
+  };
+
+  const handleDailyFilterChange = (newStartDate: Date, newEndDate: Date) => {
+    setStartDateFilter(newStartDate);
+    setEndDateFilter(newEndDate);
   };
 
   const handlePressStart = (e: React.MouseEvent | React.TouchEvent, transaction: Transaction) => {
@@ -301,6 +320,22 @@ const TransactionList: React.FC<TransactionListProps> = ({
             >
               Pendentes
             </button>
+          </div>
+        )}
+
+        {/* Daily Filter for Income/Expense */}
+        {startDateFilter && endDateFilter && (
+          <div className="flex items-center gap-2 overflow-x-auto pb-2">
+            <Calendar className="w-4 h-4 text-text opacity-70 flex-shrink-0" />
+            <span className="text-sm text-text whitespace-nowrap">
+              {formatBrazilDate(startDateFilter, 'dd/MM')} - {formatBrazilDate(endDateFilter, 'dd/MM')}
+            </span>
+            <DailyDateSlider
+              currentMonth={currentMonth}
+              startDate={startDateFilter}
+              endDate={endDateFilter}
+              onChange={handleDailyFilterChange}
+            />
           </div>
         )}
       </div>
