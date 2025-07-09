@@ -22,6 +22,8 @@ const DailyDateSlider: React.FC<DailyDateSliderProps> = ({
   const sliderRef = useRef<HTMLDivElement>(null);
   const [isDraggingStart, setIsDraggingStart] = useState(false);
   const [isDraggingEnd, setIsDraggingEnd] = useState(false);
+  const [activeThumb, setActiveThumb] = useState<'start' | 'end' | null>(null); // New state for active thumb
+  const longPressTimeoutRef = useRef<NodeJS.Timeout | null>(null); // Ref for long press timeout
 
   // Convert dates to day numbers (1-indexed)
   const getDayNumber = useCallback((date: Date) => date.getDate(), []);
@@ -66,7 +68,17 @@ const DailyDateSlider: React.FC<DailyDateSliderProps> = ({
     const distanceToStart = Math.abs(clickedDay - startDay);
     const distanceToEnd = Math.abs(clickedDay - endDay);
 
-    if (distanceToStart <= distanceToEnd) {
+    const targetThumb = distanceToStart <= distanceToEnd ? 'start' : 'end';
+
+    if (longPressTimeoutRef.current) {
+      clearTimeout(longPressTimeoutRef.current);
+    }
+
+    longPressTimeoutRef.current = setTimeout(() => {
+      setActiveThumb(targetThumb);
+    }, 300); // 300ms for long press
+
+    if (targetThumb === 'start') {
       setIsDraggingStart(true);
     } else {
       setIsDraggingEnd(true);
@@ -94,6 +106,11 @@ const DailyDateSlider: React.FC<DailyDateSliderProps> = ({
   const handleTouchMove = useCallback((e: TouchEvent) => {
     if (!isDraggingStart && !isDraggingEnd) return;
 
+    if (longPressTimeoutRef.current) {
+      clearTimeout(longPressTimeoutRef.current);
+      longPressTimeoutRef.current = null;
+    }
+
     const newDay = calculateDayFromMouseEvent(e);
 
     if (isDraggingStart) {
@@ -115,8 +132,13 @@ const DailyDateSlider: React.FC<DailyDateSliderProps> = ({
   }, []);
 
   const handleTouchEnd = useCallback(() => {
+    if (longPressTimeoutRef.current) {
+      clearTimeout(longPressTimeoutRef.current);
+      longPressTimeoutRef.current = null;
+    }
     setIsDraggingStart(false);
     setIsDraggingEnd(false);
+    setActiveThumb(null);
   }, []);
 
   useEffect(() => {
@@ -159,7 +181,7 @@ const DailyDateSlider: React.FC<DailyDateSliderProps> = ({
 
       {/* Start Thumb */}
       <div
-        className="absolute w-5 h-5 rounded-full shadow-md flex items-center justify-center"
+        className={`absolute w-5 h-5 rounded-full shadow-md flex items-center justify-center transform ${activeThumb === 'start' ? 'scale-150' : ''} transition-transform duration-200`}
         style={{
           left: `calc(${startPercentage}% - 10px)`,
           backgroundColor: theme.primary,
@@ -171,7 +193,7 @@ const DailyDateSlider: React.FC<DailyDateSliderProps> = ({
 
       {/* End Thumb */}
       <div
-        className="absolute w-5 h-5 rounded-full shadow-md flex items-center justify-center"
+        className={`absolute w-5 h-5 rounded-full shadow-md flex items-center justify-center transform ${activeThumb === 'end' ? 'scale-150' : ''} transition-transform duration-200`}
         style={{
           left: `calc(${endPercentage}% - 10px)`,
           backgroundColor: theme.primary,
