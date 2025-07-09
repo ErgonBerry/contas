@@ -2,6 +2,44 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.1](https://github.com/ErgonBerry/contas/compare/v0.2.6...v0.3.1) (2025-07-09)
+
+
+### Bug Fixes
+
+* slice on mobile (touch) ([da19b1b](https://github.com/ErgonBerry/contas/commit/da19b1b1a59832cdd2e18ecfcef206e34f27c5b7))
+
+### [0.2.6](https://github.com/ErgonBerry/contas/compare/v0.2.5...v0.2.6) (2025-07-09)
+
+
+### Bug Fixes
+
+* cleanup ([ba3d023](https://github.com/ErgonBerry/contas/commit/ba3d023d2f5255164b2a9f5dbf2d34ea8a04ec82))
+
+### [0.2.5](https://github.com/ErgonBerry/contas/compare/v0.2.4...v0.2.5) (2025-07-09)
+
+
+### Features
+
+* melhoria filter ([fb3b3f0](https://github.com/ErgonBerry/contas/commit/fb3b3f0a225d79d10e456b37c2e0107b86313feb))
+* slice filter 2 ([4ec06b2](https://github.com/ErgonBerry/contas/commit/4ec06b24bc3697a79e897b822945105fc3c13b00))
+* slice filter 3 ([128f1cf](https://github.com/ErgonBerry/contas/commit/128f1cf227cac00cb8af9aa48fbe01f31b8b3e9e))
+
+### [0.2.4](https://github.com/ErgonBerry/contas/compare/v0.2.3...v0.2.4) (2025-07-09)
+
+
+### Features
+
+* slice filter ([69caa52](https://github.com/ErgonBerry/contas/commit/69caa52e5648efa9230f4cb6b0893ab775fe3b64))
+
+### [0.2.3](https://github.com/ErgonBerry/contas/compare/v0.2.2...v0.2.3) (2025-07-09)
+
+
+### Features
+
+* darkmode ([5d1814b](https://github.com/ErgonBerry/contas/commit/5d1814bc24014a3d8339d1881ecdbe5c8ce1d605))
+* small stuff ([fbc95e5](https://github.com/ErgonBerry/contas/commit/fbc95e5f821db08137380c2dfec9fac7ba3a733d))
+
 ### [0.2.2](https://github.com/ErgonBerry/contas/compare/v0.2.1...v0.2.2) (2025-07-08)
 
 

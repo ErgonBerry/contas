@@ -3,6 +3,8 @@ import { SavingsGoal, SavingsContribution } from '../types';
 import { formatCurrency, formatBrazilDate, getBrazilDateString } from '../utils/helpers';
 import { Target, Plus, Trash2, Edit3, Calendar, TrendingUp, History, X } from 'lucide-react';
 import ConfirmationModal from './ConfirmationModal';
+import { useTheme } from '../contexts/ThemeContext';
+import { cn } from '../lib/utils';
 
 interface SavingsGoalsProps {
   goals: SavingsGoal[];
@@ -23,6 +25,7 @@ const SavingsGoals: React.FC<SavingsGoalsProps> = ({
   onUpdateContribution,
   onDeleteContribution
 }) => {
+  const { theme } = useTheme();
   const [showForm, setShowForm] = useState(false);
   const [editingGoal, setEditingGoal] = useState<string | null>(null);
   const [formData, setFormData] = useState({
@@ -96,18 +99,18 @@ const SavingsGoals: React.FC<SavingsGoalsProps> = ({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex-1 min-w-0">
-          <h2 className="text-xl font-semibold text-slate-800 mb-1 truncate">
+          <h2 className="text-xl font-semibold text-text mb-1 truncate">
             Metas de Economia
           </h2>
           {goals.length > 0 && (
-            <p className="text-sm text-slate-600 truncate">
+            <p className="text-sm text-text opacity-90 truncate">
               Total: <span className="font-medium">{formatCurrency(totalSaved)} / {formatCurrency(totalGoals)}</span>
             </p>
           )}
         </div>
         <button
           onClick={() => setShowForm(true)}
-          className="p-3 bg-amber-500 hover:bg-amber-600 text-white rounded-full shadow-lg transition-all hover:scale-105 flex-shrink-0"
+          className="p-3 text-white rounded-full shadow-lg transition-all hover:scale-105 flex-shrink-0 bg-primary hover:bg-secondary"
         >
           <Plus className="w-5 h-5" />
         </button>
@@ -117,13 +120,13 @@ const SavingsGoals: React.FC<SavingsGoalsProps> = ({
       <div className="space-y-4">
         {goals.length === 0 ? (
           <div className="text-center py-12">
-            <div className="w-16 h-16 mx-auto mb-4 bg-slate-100 rounded-full flex items-center justify-center">
-              <Target className="w-8 h-8 text-slate-400" />
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center" style={{ backgroundColor: theme.cardBorder }}>
+              <Target className="w-8 h-8 text-text opacity-70" />
             </div>
-            <p className="text-slate-600 mb-4">Nenhuma meta cadastrada</p>
+            <p className="text-text opacity-90 mb-4">Nenhuma meta cadastrada</p>
             <button
               onClick={() => setShowForm(true)}
-              className="px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-medium transition-colors"
+              className="px-6 py-3 text-white rounded-xl font-medium transition-colors bg-primary hover:bg-secondary"
             >
               Criar primeira meta
             </button>
@@ -153,9 +156,9 @@ const SavingsGoals: React.FC<SavingsGoalsProps> = ({
       {/* Form Modal */}
       {showForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl w-full max-w-md p-6">
+          <div className="rounded-2xl w-full max-w-md p-6" style={{ backgroundColor: theme.cardBackground }}>
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-semibold text-slate-800 truncate pr-2">
+              <h3 className="text-xl font-semibold text-text truncate pr-2">
                 {editingGoal ? 'Editar Meta' : 'Nova Meta'}
               </h3>
               <button
@@ -164,15 +167,15 @@ const SavingsGoals: React.FC<SavingsGoalsProps> = ({
                   setEditingGoal(null);
                   setFormData({ name: '', targetAmount: '', deadline: '' });
                 }}
-                className="p-2 hover:bg-slate-100 rounded-full transition-colors flex-shrink-0"
+                className="p-2 rounded-full transition-colors hover:bg-cardBorder"
               >
-                <X className="w-5 h-5 text-slate-600" />
+                <X className="w-5 h-5 text-text" />
               </button>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
+                <label className="block text-sm font-medium text-text mb-2">
                   Nome da Meta
                 </label>
                 <input
@@ -180,13 +183,14 @@ const SavingsGoals: React.FC<SavingsGoalsProps> = ({
                   value={formData.name}
                   onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                   placeholder="Ex: Viagem para o Japão"
-                  className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  className="w-full px-4 py-3 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
+                  style={{ border: `1px solid ${theme.cardBorder}`, color: theme.text, backgroundColor: theme.cardBackground }}
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
+                <label className="block text-sm font-medium text-text mb-2">
                   Valor da Meta (R$)
                 </label>
                 <input
@@ -196,20 +200,22 @@ const SavingsGoals: React.FC<SavingsGoalsProps> = ({
                   step="0.01"
                   min="0"
                   placeholder="0,00"
-                  className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  className="w-full px-4 py-3 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
+                  style={{ border: `1px solid ${theme.cardBorder}`, color: theme.text, backgroundColor: theme.cardBackground }}
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
+                <label className="block text-sm font-medium text-text mb-2">
                   Prazo (Opcional)
                 </label>
                 <input
                   type="date"
                   value={formData.deadline}
                   onChange={(e) => setFormData(prev => ({ ...prev, deadline: e.target.value }))}
-                  className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  className="w-full px-4 py-3 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
+                  style={{ border: `1px solid ${theme.cardBorder}`, color: theme.text, backgroundColor: theme.cardBackground }}
                 />
               </div>
 
@@ -221,13 +227,14 @@ const SavingsGoals: React.FC<SavingsGoalsProps> = ({
                     setEditingGoal(null);
                     setFormData({ name: '', targetAmount: '', deadline: '' });
                   }}
-                  className="flex-1 px-4 py-3 border border-slate-300 text-slate-700 rounded-xl hover:bg-slate-50 transition-colors"
+                  className="flex-1 px-4 py-3 rounded-xl transition-colors hover:bg-cardBorder"
+                  style={{ border: `1px solid ${theme.cardBorder}`, color: theme.text, backgroundColor: theme.cardBackground }}
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-medium transition-colors"
+                  className="flex-1 px-4 py-3 text-white rounded-xl font-medium transition-colors bg-primary hover:bg-secondary"
                 >
                   {editingGoal ? 'Salvar' : 'Criar Meta'}
                 </button>
@@ -270,6 +277,7 @@ const GoalCard: React.FC<GoalCardProps> = ({
   onUpdateContribution,
   onDeleteContribution
 }) => {
+  const { theme } = useTheme();
   const [showAddAmount, setShowAddAmount] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [addAmount, setAddAmount] = useState('');
@@ -324,16 +332,20 @@ const GoalCard: React.FC<GoalCardProps> = ({
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   return (
-    <div className={`bg-white border rounded-2xl p-6 transition-all ${
-      isComplete ? 'border-green-200 bg-green-50' : 'border-slate-200 hover:shadow-md'
-    }`}>
+    <div className={cn(`border rounded-2xl p-6 transition-all`)}
+      style={{ 
+        backgroundColor: theme.cardBackground,
+        borderColor: isComplete ? theme.primary : theme.cardBorder,
+        boxShadow: isComplete ? 'none' : '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)' // Default shadow
+      }}
+    >
       <div className="flex items-start justify-between mb-4 gap-3">
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-slate-800 mb-1 truncate">
+          <h3 className="font-semibold text-text mb-1 truncate">
             {goal.name}
           </h3>
           {goal.deadline && (
-            <p className="text-sm text-slate-600 truncate">
+            <p className="text-sm text-text opacity-90 truncate">
               Prazo: {formatBrazilDate(new Date(goal.deadline))}
             </p>
           )}
@@ -342,7 +354,7 @@ const GoalCard: React.FC<GoalCardProps> = ({
           {sortedContributions.length > 0 && (
             <button
               onClick={() => setShowHistory(!showHistory)}
-              className="p-2 text-slate-400 hover:text-purple-500 hover:bg-purple-50 rounded-lg transition-colors"
+              className="p-2 rounded-lg transition-colors text-text hover:text-primary hover:bg-cardBorder"
               title="Ver histórico de aportes"
             >
               <History className="w-4 h-4" />
@@ -350,13 +362,13 @@ const GoalCard: React.FC<GoalCardProps> = ({
           )}
           <button
             onClick={onEdit}
-            className="p-2 text-slate-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
+            className="p-2 rounded-lg transition-colors text-text hover:text-primary hover:bg-cardBorder"
           >
             <Edit3 className="w-4 h-4" />
           </button>
           <button
             onClick={onDelete}
-            className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+            className="p-2 rounded-lg transition-colors text-text hover:text-accent hover:bg-cardBorder"
           >
             <Trash2 className="w-4 h-4" />
           </button>
@@ -365,25 +377,26 @@ const GoalCard: React.FC<GoalCardProps> = ({
 
       <div className="mb-4">
         <div className="flex justify-between text-sm mb-2">
-          <span className="text-slate-600 truncate pr-2">Progresso</span>
-          <span className="font-medium flex-shrink-0">
+          <span className="text-text opacity-90 truncate pr-2">Progresso</span>
+          <span className="font-medium flex-shrink-0" style={{ color: theme.text }}>
             {formatCurrency(goal.currentAmount)} / {formatCurrency(goal.targetAmount)}
           </span>
         </div>
-        <div className="w-full bg-slate-200 rounded-full h-3">
+        <div className="w-full rounded-full h-3" style={{ backgroundColor: theme.cardBorder }}>
           <div 
-            className={`h-3 rounded-full transition-all duration-500 ${
-              isComplete ? 'bg-green-500' : 'bg-amber-500'
-            }`}
-            style={{ width: `${Math.min(progress, 100)}%` }}
+            className={`h-3 rounded-full transition-all duration-500`}
+            style={{ 
+              backgroundColor: isComplete ? theme.primary : theme.accent,
+              width: `${Math.min(progress, 100)}%` 
+            }}
           />
         </div>
         <div className="flex justify-between text-xs mt-1">
-          <span className={`font-medium ${isComplete ? 'text-green-600' : 'text-amber-600'}`}>
+          <span className={`font-medium ${isComplete ? 'text-primary' : 'text-accent'}`}>
             {progress.toFixed(1)}%
           </span>
           {!isComplete && (
-            <span className="text-slate-500 truncate pl-2">
+            <span className="text-text opacity-70 truncate pl-2">
               Faltam {formatCurrency(remainingAmount)}
             </span>
           )}
@@ -392,14 +405,14 @@ const GoalCard: React.FC<GoalCardProps> = ({
 
       {/* Contributions History */}
       {showHistory && sortedContributions.length > 0 && (
-        <div className="mb-4 border-t pt-4">
-          <h4 className="text-sm font-medium text-slate-700 mb-3 flex items-center gap-1">
+        <div className="mb-4 border-t pt-4" style={{ borderColor: theme.cardBorder }}>
+          <h4 className="text-sm font-medium text-text mb-3 flex items-center gap-1">
             <TrendingUp className="w-4 h-4" />
             Histórico Completo de Aportes
           </h4>
           <div className="space-y-2 max-h-48 overflow-y-auto">
             {sortedContributions.map(contribution => (
-              <div key={contribution.id} className="bg-slate-50 rounded-lg p-3">
+              <div key={contribution.id} className="rounded-lg p-3" style={{ backgroundColor: theme.cardBorder }}>
                 {editingContribution === contribution.id ? (
                   <div className="space-y-2">
                     <div className="flex gap-2">
@@ -409,19 +422,21 @@ const GoalCard: React.FC<GoalCardProps> = ({
                         onChange={(e) => setEditAmount(e.target.value)}
                         step="0.01"
                         min="0"
-                        className="flex-1 px-2 py-1 border border-slate-300 rounded text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                        className="flex-1 px-2 py-1 rounded text-sm focus:ring-2 focus:ring-primary focus:border-transparent"
+                        style={{ border: `1px solid ${theme.cardBorder}`, color: theme.text, backgroundColor: theme.cardBackground }}
                       />
                       <input
                         type="date"
                         value={editDate}
                         onChange={(e) => setEditDate(e.target.value)}
-                        className="flex-1 px-2 py-1 border border-slate-300 rounded text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                        className="flex-1 px-2 py-1 rounded text-sm focus:ring-2 focus:ring-primary focus:border-transparent"
+                        style={{ border: `1px solid ${theme.cardBorder}`, color: theme.text, backgroundColor: theme.cardBackground }}
                       />
                     </div>
                     <div className="flex gap-2">
                       <button
                         onClick={handleUpdateContribution}
-                        className="flex-1 px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600 transition-colors"
+                        className="flex-1 px-3 py-1 text-white rounded text-sm transition-colors bg-primary hover:bg-secondary"
                       >
                         Salvar
                       </button>
@@ -431,7 +446,8 @@ const GoalCard: React.FC<GoalCardProps> = ({
                           setEditAmount('');
                           setEditDate('');
                         }}
-                        className="flex-1 px-3 py-1 border border-slate-300 text-slate-600 rounded text-sm hover:bg-slate-100 transition-colors"
+                        className="flex-1 px-3 py-1 rounded text-sm transition-colors hover:bg-cardBorder"
+                        style={{ border: `1px solid ${theme.cardBorder}`, color: theme.text, backgroundColor: theme.cardBackground }}
                       >
                         Cancelar
                       </button>
@@ -441,10 +457,10 @@ const GoalCard: React.FC<GoalCardProps> = ({
                   <div className="flex justify-between items-center">
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between items-center mb-1">
-                        <span className="text-sm text-slate-600 truncate pr-2">
+                        <span className="text-sm text-text opacity-90 truncate pr-2">
                           {formatBrazilDate(new Date(contribution.date))}
                         </span>
-                        <span className="font-medium text-green-600 flex-shrink-0">
+                        <span className="font-medium text-primary flex-shrink-0">
                           +{formatCurrency(contribution.amount)}
                         </span>
                       </div>
@@ -452,14 +468,14 @@ const GoalCard: React.FC<GoalCardProps> = ({
                     <div className="flex items-center gap-1 ml-2 flex-shrink-0">
                       <button
                         onClick={() => handleEditContribution(contribution)}
-                        className="p-1 text-slate-400 hover:text-blue-500 hover:bg-blue-50 rounded transition-colors"
+                        className="p-1 rounded transition-colors text-text hover:text-primary hover:bg-cardBorder"
                         title="Editar aporte"
                       >
                         <Edit3 className="w-3 h-3" />
                       </button>
                       <button
                         onClick={() => handleDeleteContribution(contribution.id)}
-                        className="p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+                        className="p-1 rounded transition-colors text-text hover:text-accent hover:bg-cardBorder"
                         title="Excluir aporte"
                       >
                         <Trash2 className="w-3 h-3" />
@@ -476,17 +492,17 @@ const GoalCard: React.FC<GoalCardProps> = ({
       {/* Quick History Preview (when not showing full history) */}
       {!showHistory && sortedContributions.length > 0 && (
         <div className="mb-4">
-          <h4 className="text-sm font-medium text-slate-700 mb-2 flex items-center gap-1">
+          <h4 className="text-sm font-medium text-text mb-2 flex items-center gap-1">
             <TrendingUp className="w-4 h-4" />
             Últimos Aportes
           </h4>
           <div className="space-y-1">
             {sortedContributions.slice(0, 2).map(contribution => (
-              <div key={contribution.id} className="flex justify-between text-xs bg-slate-50 rounded p-2">
-                <span className="text-slate-600 truncate pr-2">
+              <div key={contribution.id} className="flex justify-between text-xs rounded p-2" style={{ backgroundColor: theme.cardBorder }}>
+                <span className="text-text opacity-90 truncate pr-2">
                   {formatBrazilDate(new Date(contribution.date))}
                 </span>
-                <span className="font-medium text-green-600 flex-shrink-0">
+                <span className="font-medium text-primary flex-shrink-0">
                   +{formatCurrency(contribution.amount)}
                 </span>
               </div>
@@ -494,7 +510,7 @@ const GoalCard: React.FC<GoalCardProps> = ({
             {sortedContributions.length > 2 && (
               <button
                 onClick={() => setShowHistory(true)}
-                className="w-full text-xs text-slate-500 hover:text-slate-700 text-center py-1 hover:bg-slate-100 rounded transition-colors"
+                className="w-full text-xs text-text opacity-70 text-center py-1 rounded transition-colors hover:bg-cardBorder"
               >
                 Ver todos os {sortedContributions.length} aportes
               </button>
@@ -505,14 +521,14 @@ const GoalCard: React.FC<GoalCardProps> = ({
 
       {isComplete ? (
         <div className="text-center py-2">
-          <span className="text-green-600 font-medium">🎉 Meta Concluída!</span>
+          <span className="text-primary font-medium">🎉 Meta Concluída!</span>
         </div>
       ) : (
         <div className="space-y-3">
           {!showAddAmount ? (
             <button
               onClick={() => setShowAddAmount(true)}
-              className="w-full py-2 px-4 bg-amber-100 text-amber-700 rounded-lg hover:bg-amber-200 transition-colors text-sm font-medium"
+              className="w-full py-2 px-4 rounded-lg transition-colors text-sm font-medium bg-primary/20 text-primary hover:bg-primary/30"
             >
               Adicionar Aporte
             </button>
@@ -526,12 +542,13 @@ const GoalCard: React.FC<GoalCardProps> = ({
                   placeholder="Valor"
                   step="0.01"
                   min="0"
-                  className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  className="flex-1 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-transparent"
+                  style={{ border: `1px solid ${theme.cardBorder}`, color: theme.text, backgroundColor: theme.cardBackground }}
                 />
                 <button
                   onClick={handleAddAmount}
                   disabled={!addAmount || parseFloat(addAmount) <= 0}
-                  className="px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors text-sm flex-shrink-0"
+                  className="px-4 py-2 text-white rounded-lg disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors text-sm flex-shrink-0 bg-primary hover:bg-secondary"
                 >
                   +
                 </button>
@@ -541,23 +558,25 @@ const GoalCard: React.FC<GoalCardProps> = ({
                     setAddAmount('');
                     setContributionDate(getBrazilDateString());
                   }}
-                  className="px-4 py-2 border border-slate-300 text-slate-600 rounded-lg hover:bg-slate-50 transition-colors text-sm flex-shrink-0"
+                  className="px-4 py-2 rounded-lg text-sm flex-shrink-0 transition-colors hover:bg-cardBorder"
+                  style={{ border: `1px solid ${theme.cardBorder}`, color: theme.text, backgroundColor: theme.cardBackground }}
                 >
                   ✕
                 </button>
               </div>
               
               <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-slate-500 flex-shrink-0" />
+                <Calendar className="w-4 h-4 text-text opacity-70 flex-shrink-0" />
                 <input
                   type="date"
                   value={contributionDate}
                   onChange={(e) => setContributionDate(e.target.value)}
-                  className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  className="flex-1 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-transparent"
+                  style={{ border: `1px solid ${theme.cardBorder}`, color: theme.text, backgroundColor: theme.cardBackground }}
                 />
               </div>
               
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-text opacity-70">
                 O valor será deduzido do saldo do mês correspondente à data selecionada
               </p>
             </div>
