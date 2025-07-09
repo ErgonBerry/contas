@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.4](https://github.com/ErgonBerry/contas/compare/v0.2.3...v0.2.4) (2025-07-09)
+
+
+### Features
+
+* slice filter ([69caa52](https://github.com/ErgonBerry/contas/commit/69caa52e5648efa9230f4cb6b0893ab775fe3b64))
+
 ### [0.2.3](https://github.com/ErgonBerry/contas/compare/v0.2.2...v0.2.3) (2025-07-09)
 
 
