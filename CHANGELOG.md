@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.2](https://github.com/ErgonBerry/contas/compare/v0.3.1...v0.3.2) (2025-07-10)
+
+
+### Features
+
+* cores melhores ([4493d65](https://github.com/ErgonBerry/contas/commit/4493d65420fa4ceb063f0d9cdaa935713cc1b167))
+
 ### [0.3.1](https://github.com/ErgonBerry/contas/compare/v0.2.6...v0.3.1) (2025-07-09)
 
 
