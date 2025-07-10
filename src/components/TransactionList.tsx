@@ -434,11 +434,11 @@ const TransactionList: React.FC<TransactionListProps> = ({
                         onClick={() => onUpdatePaymentStatus(transaction.id, !transaction.isPaid)}
                         className={`p-1 rounded-full transition-colors flex-shrink-0 ${
                           transaction.isPaid 
-                            ? 'bg-primary text-white hover:bg-secondary' 
-                            : 'bg-cardBorder text-text hover:bg-cardBackground'
+                            ? 'bg-[#D4EDDA]' 
+                            : 'bg-[#FFE0B2]'
                         }`}
                       >
-                        {transaction.isPaid ? <Check className="w-4 h-4" /> : <Clock className="w-4 h-4" />}
+                        {transaction.isPaid ? <Check className="w-4 h-4 text-black" /> : <Clock className="w-4 h-4 text-black" />}
                       </button>
                     </div>
                     
@@ -463,8 +463,8 @@ const TransactionList: React.FC<TransactionListProps> = ({
                     <div className="flex flex-wrap gap-2 text-xs">
                       <span className={`px-2 py-1 rounded-full whitespace-nowrap`}
                         style={{ 
-                          backgroundColor: transaction.isPaid ? theme.primary : theme.accent,
-                          color: 'white'
+                          backgroundColor: transaction.isPaid ? '#D4EDDA' : '#FFE0B2',
+                          color: '#000000'
                         }}>
                         {transaction.isPaid 
                           ? (type === 'expense' ? '✓ Pago' : '✓ Recebido') 
@@ -474,8 +474,8 @@ const TransactionList: React.FC<TransactionListProps> = ({
                       {type === 'expense' && transaction.dueDate && (
                         <span className={`px-2 py-1 rounded-full flex items-center gap-1 whitespace-nowrap`}
                           style={{
-                            backgroundColor: overdue ? theme.primary : (daysUntilDue !== null && daysUntilDue <= 3 ? theme.accent : theme.primary),
-                            color: 'white'
+                            backgroundColor: '#FFE0B2',
+                            color: '#000000'
                           }}>
                           <Calendar className="w-3 h-3 flex-shrink-0" />
                           <span className="truncate">

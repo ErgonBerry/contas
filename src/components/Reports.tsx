@@ -28,17 +28,17 @@ const Reports: React.FC<ReportsProps> = ({ transactions, savingsGoals = [] }) =>
       {
         label: 'Receitas',
         data: monthlyData.map(data => data.income),
-        backgroundColor: theme.primary,
+        backgroundColor: '#4CAF50',
       },
       {
         label: 'Despesas',
         data: monthlyData.map(data => data.expenses),
-        backgroundColor: theme.accent,
+        backgroundColor: '#FF5722',
       },
       {
         label: 'Metas',
         data: monthlyData.map(data => data.goalsImpact || 0),
-        backgroundColor: theme.secondary,
+        backgroundColor: '#673AB7',
       },
     ],
   };
@@ -255,8 +255,8 @@ const Reports: React.FC<ReportsProps> = ({ transactions, savingsGoals = [] }) =>
       {/* Monthly Trends */}
       <div className="rounded-2xl border p-6 relative" style={{ backgroundColor: theme.cardBackground, borderColor: theme.cardBorder }}>
         <div className="flex items-center gap-3 mb-6">
-          <div className="p-2 rounded-lg" style={{ backgroundColor: theme.primary, opacity: 0.2 }}>
-            <TrendingUp className="w-5 h-5 text-primary" />
+          <div className="p-2 rounded-lg" style={{ backgroundColor: '#E0E0E0' }}>
+            <TrendingUp className="w-5 h-5 text-black" />
           </div>
           <div className="flex-1 min-w-0">
             <h2 className="text-lg font-semibold text-text truncate">
@@ -279,8 +279,8 @@ const Reports: React.FC<ReportsProps> = ({ transactions, savingsGoals = [] }) =>
       {categoryData.length > 0 && (
         <div className="rounded-2xl border p-6" style={{ backgroundColor: theme.cardBackground, borderColor: theme.cardBorder }}>
           <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 rounded-lg" style={{ backgroundColor: theme.primary, opacity: 0.2 }}>
-              <PieChart className="w-5 h-5 text-primary" />
+            <div className="p-2 rounded-lg" style={{ backgroundColor: '#E0E0E0' }}>
+              <PieChart className="w-5 h-5 text-black" />
             </div>
             <div className="flex-1 min-w-0">
               <h2 className="text-lg font-semibold text-text truncate">

@@ -164,54 +164,54 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, savingsGoals, month
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div 
           className="rounded-xl p-4 cursor-pointer hover:shadow-md transition-shadow duration-200"
-          style={{ backgroundColor: theme.cardBackground, border: `1px solid ${theme.cardBorder}` }}
+          style={{ backgroundColor: '#D4EDDA', border: `1px solid #C3E6CB` }}
           onClick={() => handleCardClick('/income')}
         >
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2 min-w-0">
-              <TrendingUp className="w-4 h-4 text-primary flex-shrink-0" />
-              <h3 className="text-sm font-medium text-text truncate">Receitas</h3>
+              <TrendingUp className="w-4 h-4 text-black flex-shrink-0" />
+              <h3 className="text-sm font-medium text-black truncate">Receitas</h3>
             </div>
           </div>
-          <p className="text-xl sm:text-2xl font-bold text-text break-words">
+          <p className="text-xl sm:text-2xl font-bold text-black break-words">
             {formatCurrency(currentIncome)}
           </p>
         </div>
 
         <div 
           className="rounded-xl p-4 cursor-pointer hover:shadow-md transition-shadow duration-200"
-          style={{ backgroundColor: theme.cardBackground, border: `1px solid ${theme.cardBorder}` }}
+          style={{ backgroundColor: '#FFE0B2', border: `1px solid #FFCC80` }}
           onClick={() => handleCardClick('/expenses')}
         >
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2 min-w-0">
-              <TrendingDown className="w-4 h-4 text-primary flex-shrink-0" />
-              <h3 className="text-sm font-medium text-text truncate">Gastos Pagos</h3>
+              <TrendingDown className="w-4 h-4 text-black flex-shrink-0" />
+              <h3 className="text-sm font-medium text-black truncate">Gastos Pagos</h3>
             </div>
           </div>
-          <p className="text-xl sm:text-2xl font-bold text-text break-words">
+          <p className="text-xl sm:text-2xl font-bold text-black break-words">
             {formatCurrency(currentExpenses)}
           </p>
-          <p className="text-xs text-text mt-1 truncate opacity-80">
+          <p className="text-xs text-black mt-1 truncate opacity-80">
             Apenas despesas já pagas
           </p>
         </div>
 
         <div 
           className="rounded-xl p-4 cursor-pointer hover:shadow-md transition-shadow duration-200"
-          style={{ backgroundColor: theme.cardBackground, border: `1px solid ${theme.cardBorder}` }}
+          style={{ backgroundColor: '#FFFACD', border: `1px solid #FFECB3` }}
           onClick={() => handleCardClick('/goals')}
         >
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2 min-w-0">
-              <Target className="w-4 h-4 text-primary flex-shrink-0" />
-              <h3 className="text-sm font-medium text-text truncate">Metas</h3>
+              <Target className="w-4 h-4 text-black flex-shrink-0" />
+              <h3 className="text-sm font-medium text-black truncate">Metas</h3>
             </div>
           </div>
-          <p className="text-xl sm:text-2xl font-bold text-text break-words">
+          <p className="text-xl sm:text-2xl font-bold text-black break-words">
             {formatCurrency(goalsImpact)}
           </p>
-          <p className="text-xs text-text mt-1 truncate opacity-80">
+          <p className="text-xs text-black mt-1 truncate opacity-80">
             Aportes realizados no mês
           </p>
         </div>
