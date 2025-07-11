@@ -9,7 +9,11 @@ import Settings from './components/Settings';
 import Navigation from './components/Navigation';
 import Header from './components/Header';
 import { useTheme } from './contexts/ThemeContext';
+import { useState } from 'react';
 import { Moon, Sun } from 'lucide-react';
+import ShoppingCartButton from './components/ShoppingCartButton';
+import ShoppingListModal from './components/ShoppingListModal';
+import { useShoppingList } from './hooks/useShoppingList';
 
 function App() {
   const {
@@ -31,6 +35,8 @@ function App() {
   } = useFinancialData();
 
   const { theme, isDarkMode, toggleTheme } = useTheme();
+  const [isShoppingListOpen, setIsShoppingListOpen] = useState(false);
+  const { shoppingList, addItem, togglePurchased, removeItem, clearPurchased } = useShoppingList();
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: theme.background }}>
@@ -47,6 +53,23 @@ function App() {
         >
           {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
         </button>
+
+        <ShoppingCartButton
+          itemCount={Array.isArray(shoppingList) ? shoppingList.filter(item => !item.purchased).length : 0}
+          onClick={() => setIsShoppingListOpen(true)}
+          theme={theme}
+        />
+
+        <ShoppingListModal
+          isOpen={isShoppingListOpen}
+          onClose={() => setIsShoppingListOpen(false)}
+          shoppingList={shoppingList}
+          addItem={addItem}
+          togglePurchased={togglePurchased}
+          removeItem={removeItem}
+          clearPurchased={clearPurchased}
+          theme={theme}
+        />
 
         <main className="max-w-md mx-auto p-4 pb-20">
           <Routes>

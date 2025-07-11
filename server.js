@@ -2,6 +2,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import cors from 'cors';
+
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -30,8 +31,13 @@ mongoose.connect(process.env.MONGO_URI, {
   useUnifiedTopology: true,
   serverSelectionTimeoutMS: 5000
 })
-  .then(() => console.log('MongoDB connected'))
-  .catch(err => console.error('MongoDB connection error:', err));
+  .then(() => {
+    console.log('MongoDB connected successfully');
+  })
+  .catch(err => {
+    console.error('MongoDB connection error:', err);
+    process.exit(1); // Exit process if DB connection fails
+  });
 
 // Schemas e Models
 
@@ -126,6 +132,38 @@ const savingsGoalSchema = new mongoose.Schema({
 
 const Transaction = mongoose.model('Transaction', transactionSchema);
 const SavingsGoal = mongoose.model('SavingsGoal', savingsGoalSchema);
+
+const shoppingItemSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+  purchased: {
+    type: Boolean,
+    default: false,
+  },
+}, {
+  timestamps: true, // Adiciona createdAt e updatedAt
+  toJSON: {
+    virtuals: true,
+    transform: function(doc, ret) {
+      ret.id = ret._id;
+      delete ret._id;
+      delete ret.__v;
+    }
+  },
+  toObject: {
+    virtuals: true,
+    transform: function(doc, ret) {
+      ret.id = ret._id;
+      delete ret._id;
+      delete ret.__v;
+    }
+  }
+});
+
+const ShoppingItem = mongoose.model('ShoppingItem', shoppingItemSchema);
 
 // Rotas da API
 app.get('/api/transactions', async (req, res) => {
@@ -303,6 +341,66 @@ app.delete('/api/goals/:goalId/contributions/:contributionId', async (req, res) 
     res.json(goal);
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+});
+
+// Rotas da Lista de Compras
+app.get('/api/shopping-list', async (req, res) => {
+  try {
+    const items = await ShoppingItem.find();
+    res.json(items);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Add a new shopping list item
+app.post('/api/shopping-list', async (req, res) => {
+  const item = new ShoppingItem({
+    name: req.body.name,
+  });
+  try {
+    const newItem = await item.save();
+    res.status(201).json(newItem);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// Update a shopping list item (e.g., toggle purchased)
+app.put('/api/shopping-list/:id', async (req, res) => {
+  try {
+    const updatedItem = await ShoppingItem.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    );
+    if (!updatedItem) {
+      return res.status(404).json({ message: 'Shopping item not found' });
+    }
+    res.json(updatedItem);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// Delete a shopping list item
+app.delete('/api/shopping-list/:id', async (req, res) => {
+  try {
+    await ShoppingItem.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Shopping item deleted' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Clear all purchased items
+app.delete('/api/shopping-list/purchased', async (req, res) => {
+  try {
+    await ShoppingItem.deleteMany({ purchased: true });
+    res.json({ message: 'Purchased items cleared' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 });
 
