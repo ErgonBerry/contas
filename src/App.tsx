@@ -37,16 +37,18 @@ function App() {
   const { theme, isDarkMode, toggleTheme } = useTheme();
   const [isShoppingListOpen, setIsShoppingListOpen] = useState(false);
   const { shoppingList, addItem, togglePurchased, removeItem, clearPurchased } = useShoppingList();
-  const [animateShake, setAnimateShake] = useState(false);
+  const [animateCombined, setAnimateCombined] = useState(false);
 
   useEffect(() => {
     const hasItems = Array.isArray(shoppingList) && shoppingList.filter(item => !item.purchased).length > 0;
 
     if (hasItems) {
       const interval = setInterval(() => {
-        setAnimateShake(true);
-        setTimeout(() => setAnimateShake(false), 500); // Animate for 0.5 seconds
-      }, 5000); // Shake every 5 seconds
+        setAnimateCombined(true);
+        setTimeout(() => {
+          setAnimateCombined(false);
+        }, 500); // Animate for 0.5 seconds
+      }, 5000); // Shake and pulse every 5 seconds
 
       return () => clearInterval(interval);
     }
@@ -74,7 +76,7 @@ function App() {
             onClick={() => setIsShoppingListOpen(true)}
             theme={theme}
             className="ml-1" // Adiciona um pequeno espaço à esquerda
-            animateShake={animateShake}
+            animateCombined={animateCombined}
           />
         </div>
 

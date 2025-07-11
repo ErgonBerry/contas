@@ -6,7 +6,7 @@ interface ShoppingCartButtonProps {
   onClick: () => void;
   theme: any; // Adjust type as per your ThemeContext
   className?: string; // Add className prop
-  animateShake?: boolean; // New prop for animation
+  animateCombined?: boolean; // New prop for combined animation
 }
 
 const ShoppingCartButton: React.FC<ShoppingCartButtonProps> = ({
@@ -14,12 +14,12 @@ const ShoppingCartButton: React.FC<ShoppingCartButtonProps> = ({
   onClick,
   theme,
   className,
-  animateShake
+  animateCombined
 }) => {
   return (
     <button
       onClick={onClick}
-      className={`p-2 rounded-full shadow-lg flex items-center justify-center ${className} ${animateShake ? 'animate-shake' : ''}`}
+      className={`p-2 rounded-full shadow-lg flex items-center justify-center ${className} ${animateCombined ? 'animate-shake-and-pulse' : ''}`}
       style={{
         backgroundColor: theme.cardBackground,
         color: theme.text,
