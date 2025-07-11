@@ -384,21 +384,23 @@ app.put('/api/shopping-list/:id', async (req, res) => {
   }
 });
 
+// Clear all purchased items
+app.delete('/api/shopping-list/purchased', async (req, res) => {
+  console.log('Received DELETE request for /api/shopping-list/purchased');
+  try {
+    await ShoppingItem.deleteMany({ purchased: true });
+    res.json({ message: 'Purchased items cleared' });
+  } catch (err) {
+    console.error("Error clearing purchased items:", err);
+    res.status(500).json({ message: 'Failed to clear purchased items: ' + err.message });
+  }
+});
+
 // Delete a shopping list item
 app.delete('/api/shopping-list/:id', async (req, res) => {
   try {
     await ShoppingItem.findByIdAndDelete(req.params.id);
     res.json({ message: 'Shopping item deleted' });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-// Clear all purchased items
-app.delete('/api/shopping-list/purchased', async (req, res) => {
-  try {
-    await ShoppingItem.deleteMany({ purchased: true });
-    res.json({ message: 'Purchased items cleared' });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
