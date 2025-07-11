@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.4.103](https://github.com/ErgonBerry/contas/compare/v0.4.102...v0.4.103) (2025-07-11)
+
+
+### Features
+
+* animated combinade ([c6f264e](https://github.com/ErgonBerry/contas/commit/c6f264ed37ce6e313c54611fbd7fc2ea09e02098))
+* shake ([6e7f7d8](https://github.com/ErgonBerry/contas/commit/6e7f7d80851304b41866f04bb8835723311e0318))
+
 ### [0.4.102](https://github.com/ErgonBerry/contas/compare/v0.4.101...v0.4.102) (2025-07-11)
 
 
