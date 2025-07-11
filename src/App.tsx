@@ -9,7 +9,7 @@ import Settings from './components/Settings';
 import Navigation from './components/Navigation';
 import Header from './components/Header';
 import { useTheme } from './contexts/ThemeContext';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Moon, Sun } from 'lucide-react';
 import ShoppingCartButton from './components/ShoppingCartButton';
 import ShoppingListModal from './components/ShoppingListModal';
@@ -37,28 +37,46 @@ function App() {
   const { theme, isDarkMode, toggleTheme } = useTheme();
   const [isShoppingListOpen, setIsShoppingListOpen] = useState(false);
   const { shoppingList, addItem, togglePurchased, removeItem, clearPurchased } = useShoppingList();
+  const [animateShake, setAnimateShake] = useState(false);
+
+  useEffect(() => {
+    const hasItems = Array.isArray(shoppingList) && shoppingList.filter(item => !item.purchased).length > 0;
+
+    if (hasItems) {
+      const interval = setInterval(() => {
+        setAnimateShake(true);
+        setTimeout(() => setAnimateShake(false), 500); // Animate for 0.5 seconds
+      }, 5000); // Shake every 5 seconds
+
+      return () => clearInterval(interval);
+    }
+  }, [shoppingList]);
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: theme.background }}>
         <Header />
         <Navigation />
 
-        <button
-          onClick={toggleTheme}
-          className="fixed top-20 right-4 z-50 p-2 rounded-full bg-card-background text-text shadow-lg"
-          style={{ 
-            backgroundColor: theme.cardBackground,
-            color: theme.text
-          }}
-        >
-          {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
-        </button>
+        <div className="fixed top-20 right-4 z-50 flex items-center">
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-full bg-card-background text-text shadow-lg"
+            style={{ 
+              backgroundColor: theme.cardBackground,
+              color: theme.text
+            }}
+          >
+            {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+          </button>
 
-        <ShoppingCartButton
-          itemCount={Array.isArray(shoppingList) ? shoppingList.filter(item => !item.purchased).length : 0}
-          onClick={() => setIsShoppingListOpen(true)}
-          theme={theme}
-        />
+          <ShoppingCartButton
+            itemCount={Array.isArray(shoppingList) ? shoppingList.filter(item => !item.purchased).length : 0}
+            onClick={() => setIsShoppingListOpen(true)}
+            theme={theme}
+            className="ml-1" // Adiciona um pequeno espaço à esquerda
+            animateShake={animateShake}
+          />
+        </div>
 
         <ShoppingListModal
           isOpen={isShoppingListOpen}
