@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShoppingCart } from 'lucide-react';
+import { ShoppingBasket } from 'lucide-react';
 
 interface ShoppingCartButtonProps {
   itemCount: number;
@@ -19,13 +19,13 @@ const ShoppingCartButton: React.FC<ShoppingCartButtonProps> = ({
   return (
     <button
       onClick={onClick}
-      className={`p-2 rounded-full shadow-lg flex items-center justify-center ${className} ${animateCombined ? 'animate-shake-and-pulse' : ''}`}
+      className={`p-2 rounded-full shadow-lg flex items-center justify-center relative ${className} ${animateCombined ? 'animate-shake-and-pulse' : ''}`}
       style={{
         backgroundColor: theme.cardBackground,
         color: theme.text,
       }}
     >
-      <ShoppingCart size={20} />
+      <ShoppingBasket size={26} />
       {itemCount > 0 && (
         <span
           className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center"

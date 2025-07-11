@@ -60,9 +60,16 @@ function App() {
         <Navigation />
 
         <div className="fixed top-20 right-4 z-50 flex items-center">
+          <ShoppingCartButton
+            itemCount={Array.isArray(shoppingList) ? shoppingList.filter(item => !item.purchased).length : 0}
+            onClick={() => setIsShoppingListOpen(true)}
+            theme={theme}
+            animateCombined={animateCombined}
+          />
+
           <button
             onClick={toggleTheme}
-            className="p-2 rounded-full bg-card-background text-text shadow-lg"
+            className="p-2 rounded-full bg-card-background text-text shadow-lg ml-1" // Adiciona um pequeno espaço à esquerda
             style={{ 
               backgroundColor: theme.cardBackground,
               color: theme.text
@@ -70,14 +77,6 @@ function App() {
           >
             {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
           </button>
-
-          <ShoppingCartButton
-            itemCount={Array.isArray(shoppingList) ? shoppingList.filter(item => !item.purchased).length : 0}
-            onClick={() => setIsShoppingListOpen(true)}
-            theme={theme}
-            className="ml-1" // Adiciona um pequeno espaço à esquerda
-            animateCombined={animateCombined}
-          />
         </div>
 
         <ShoppingListModal
