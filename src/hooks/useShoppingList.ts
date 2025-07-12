@@ -4,7 +4,7 @@ interface ShoppingItem {
   id: string;
   name: string;
   purchased: boolean;
-  priority: boolean;
+  isPriority: boolean;
   createdAt: string;
 }
 
@@ -28,8 +28,8 @@ export const useShoppingList = () => {
   }, []);
 
   const sortedShoppingList = [...shoppingList].sort((a, b) => {
-    if (a.priority && !b.priority) return -1;
-    if (!a.priority && b.priority) return 1;
+    if (a.isPriority && !b.isPriority) return -1;
+    if (!a.isPriority && b.isPriority) return 1;
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
 
@@ -39,7 +39,7 @@ export const useShoppingList = () => {
       const response = await fetch(`${API_BASE_URL}/shopping-list`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name.trim(), priority: false, createdAt: new Date().toISOString() }),
+        body: JSON.stringify({ name: name.trim(), isPriority: false, createdAt: new Date().toISOString() }),
       });
       if (!response.ok) throw new Error('Failed to add item');
       const newItem = await response.json();
@@ -58,21 +58,17 @@ export const useShoppingList = () => {
         {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ priority: !itemToUpdate.priority }),
+          body: JSON.stringify({ isPriority: !itemToUpdate.isPriority }),
         });
 
       if (!response.ok) throw new Error('Failed to toggle priority');
-
-      // Optimistically update the UI
-      setShoppingList((prevList) =>
-        prevList.map((item) =>
-          item.id === id ? { ...item, priority: !itemToUpdate.priority } : item
-        )
-      );
-
-      // Await the actual response to confirm the change on the backend
       const updatedItem = await response.json();
       console.log("Backend confirmed update for item:", updatedItem);
+      setShoppingList((prevList) =>
+        prevList.map((item) =>
+          item.id === id ? updatedItem : item
+        )
+      );
 
     } catch (error) {
       console.error("Error toggling priority:", error);

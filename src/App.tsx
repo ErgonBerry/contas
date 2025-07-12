@@ -14,6 +14,7 @@ import { Moon, Sun } from 'lucide-react';
 import ShoppingCartButton from './components/ShoppingCartButton';
 import ShoppingListModal from './components/ShoppingListModal';
 import { useShoppingList } from './hooks/useShoppingList';
+// Force re-compilation
 
 function App() {
   const {

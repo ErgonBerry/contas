@@ -7,7 +7,7 @@ interface ShoppingItem {
   id: string;
   name: string;
   purchased: boolean;
-  priority: boolean;
+  isPriority: boolean;
   createdAt: string;
 }
 
@@ -134,7 +134,7 @@ const ShoppingListModal: React.FC<ShoppingListModalProps> = ({
                     <div className="flex items-center space-x-2">
                       <button
                         onClick={() => togglePriority(item.id)}
-                        className={`p-1 rounded-full ${item.priority ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-gray-300 hover:bg-gray-400'} text-white`}
+                        className={`p-1 rounded-full ${item.isPriority ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-gray-300 hover:bg-gray-400'} text-white`}
                       >
                         <Star size={18} />
                       </button>

@@ -143,6 +143,10 @@ const shoppingItemSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  isPriority: {
+    type: Boolean,
+    default: false,
+  },
 }, {
   timestamps: true, // Adiciona createdAt e updatedAt
   toJSON: {
@@ -358,6 +362,7 @@ app.get('/api/shopping-list', async (req, res) => {
 app.post('/api/shopping-list', async (req, res) => {
   const item = new ShoppingItem({
     name: req.body.name,
+    isPriority: req.body.isPriority || false, // Ensure isPriority is captured
   });
   try {
     const newItem = await item.save();
