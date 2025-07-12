@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement } from 'chart.js';
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement, TooltipItem } from 'chart.js';
 import { Bar, Doughnut } from 'react-chartjs-2';
 import { Transaction, SavingsGoal } from '../types';
 import { getMonthlyData, getCategoryData, formatCurrency, getCurrentBrazilDate } from '../utils/helpers';
@@ -59,7 +59,7 @@ const Reports: React.FC<ReportsProps> = ({ transactions, savingsGoals = [] }) =>
       },
       tooltip: {
         callbacks: {
-          label: function(context: any) {
+          label: function(context: TooltipItem<"bar">) {
             let label = context.dataset.label || '';
             if (label) {
               label += ': ';
@@ -125,11 +125,11 @@ const Reports: React.FC<ReportsProps> = ({ transactions, savingsGoals = [] }) =>
       },
       tooltip: {
         callbacks: {
-          label: function(context: any) {
+          label: function(context: TooltipItem<"doughnut">) {
             const label = context.label || '';
             const value = context.parsed || 0;
             const percentage = categoryData.find(c => c.category === label)?.percentage || 0;
-            return `${label}: ${formatCurrency(value)} (${percentage.toFixed(1)}%)`;
+            return `${label}: ${formatCurrency(value as number)} (${percentage.toFixed(1)}%)`;
           }
         },
         titleColor: theme.text,

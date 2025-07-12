@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
-import { X, Check, Trash2, PlusCircle } from 'lucide-react';
+import { X, Check, Trash2, PlusCircle, Star } from 'lucide-react';
+import { ColorPalette } from '../contexts/ThemeContext';
 
 interface ShoppingItem {
   id: string;
   name: string;
   purchased: boolean;
+  priority: boolean;
+  createdAt: string;
 }
 
 interface ShoppingListModalProps {
@@ -16,7 +19,9 @@ interface ShoppingListModalProps {
   togglePurchased: (id: string) => void;
   removeItem: (id: string) => void;
   clearPurchased: () => void;
-  theme: any; // Adjust type as per your ThemeContext
+  togglePriority: (id: string) => void;
+  theme: ColorPalette;
+  isDarkMode: boolean;
 }
 
 const ShoppingListModal: React.FC<ShoppingListModalProps> = ({
@@ -27,9 +32,28 @@ const ShoppingListModal: React.FC<ShoppingListModalProps> = ({
   togglePurchased,
   removeItem,
   clearPurchased,
+  togglePriority,
   theme,
+  isDarkMode,
 }) => {
   const [newItemName, setNewItemName] = useState('');
+  const itemRefs = useRef(new Map<string, React.RefObject<HTMLLIElement>>());
+
+  useEffect(() => {
+    // Clean up refs for items that are no longer in the shopping list
+    const currentRefs = itemRefs.current;
+    shoppingList.forEach(item => {
+      if (!currentRefs.has(item.id)) {
+        currentRefs.set(item.id, React.createRef());
+      }
+    });
+    // Remove refs that are no longer needed
+    currentRefs.forEach((_value, key) => {
+      if (!shoppingList.some(item => item.id === key)) {
+        currentRefs.delete(key);
+      }
+    });
+  }, [shoppingList]);
 
   const handleAddItem = () => {
     addItem(newItemName);
@@ -57,7 +81,7 @@ const ShoppingListModal: React.FC<ShoppingListModalProps> = ({
         >
           <X size={24} />
         </button>
-        <h2 className="text-2xl font-bold mb-4 text-center">Lista de Compras</h2>
+        <h2 className="text-2xl font-bold mb-4 text-center">Lista de Afazeres / Compras</h2>
 
         <div className="flex mb-4">
           <input
@@ -74,7 +98,7 @@ const ShoppingListModal: React.FC<ShoppingListModalProps> = ({
             style={{
               backgroundColor: theme.background,
               color: theme.text,
-              borderColor: theme.border,
+              borderColor: theme.cardBorder,
             }}
           />
           <button
@@ -87,39 +111,50 @@ const ShoppingListModal: React.FC<ShoppingListModalProps> = ({
 
         {Array.isArray(shoppingList) && shoppingList.length > 0 ? (
           <TransitionGroup component="ul" className="space-y-2 max-h-80 overflow-y-auto pr-2">
-            {shoppingList.map((item) => (
-              <CSSTransition
-                key={item.id}
-                timeout={500}
-                classNames="shopping-list-item"
-              >
-                <li
-                  className={`flex items-center justify-between p-3 rounded-md transition-all duration-300 ${item.purchased ? 'bg-green-100 dark:bg-green-900 line-through opacity-70' : 'bg-background'}`}
-                  style={{
-                    backgroundColor: item.purchased ? (theme.isDarkMode ? '#10B98133' : '#D1FAE5') : theme.background,
-                    color: theme.text,
-                  }}
+            {shoppingList.map((item) => {
+              const nodeRef = itemRefs.current.get(item.id);
+              return (
+                <CSSTransition
+                  key={item.id}
+                  timeout={500}
+                  classNames="shopping-list-item"
+                  nodeRef={nodeRef}
                 >
-                  <span className="flex-grow cursor-pointer" onClick={() => togglePurchased(item.id)}>
-                    {item.name}
-                  </span>
-                  <div className="flex items-center space-x-2">
-                    <button
-                      onClick={() => togglePurchased(item.id)}
-                      className={`p-1 rounded-full ${item.purchased ? 'bg-green-500 hover:bg-green-600' : 'bg-gray-300 hover:bg-gray-400'} text-white`}
-                    >
-                      <Check size={18} />
-                    </button>
-                    <button
-                      onClick={() => removeItem(item.id)}
-                      className="p-1 rounded-full bg-red-500 hover:bg-red-600 text-white"
-                    >
-                      <Trash2 size={18} />
-                    </button>
-                  </div>
-                </li>
-              </CSSTransition>
-            ))}
+                  <li
+                    ref={nodeRef}
+                    className={`flex items-center justify-between p-3 rounded-md transition-all duration-300 ${item.purchased ? 'bg-green-100 dark:bg-green-900 line-through opacity-70' : 'bg-background'}`}
+                    style={{
+                      backgroundColor: item.purchased ? (isDarkMode ? '#10B98133' : '#D1FAE5') : theme.background,
+                      color: theme.text,
+                    }}
+                  >
+                    <span className="flex-grow cursor-pointer" onClick={() => togglePurchased(item.id)}>
+                      {item.name}
+                    </span>
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => togglePriority(item.id)}
+                        className={`p-1 rounded-full ${item.priority ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-gray-300 hover:bg-gray-400'} text-white`}
+                      >
+                        <Star size={18} />
+                      </button>
+                      <button
+                        onClick={() => togglePurchased(item.id)}
+                        className={`p-1 rounded-full ${item.purchased ? 'bg-green-500 hover:bg-green-600' : 'bg-gray-300 hover:bg-gray-400'} text-white`}
+                      >
+                        <Check size={18} />
+                      </button>
+                      <button
+                        onClick={() => removeItem(item.id)}
+                        className="p-1 rounded-full bg-red-500 hover:bg-red-600 text-white"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  </li>
+                </CSSTransition>
+              );
+            })}
           </TransitionGroup>
         ) : (
           <p className="text-center text-text-light">Sua lista está vazia.</p>
@@ -130,7 +165,7 @@ const ShoppingListModal: React.FC<ShoppingListModalProps> = ({
             onClick={clearPurchased}
             className="mt-4 w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600"
           >
-            Limpar Itens Comprados
+            Limpar Itens Feitos
           </button>
         )}
       </div>

@@ -4,6 +4,8 @@ interface ShoppingItem {
   id: string;
   name: string;
   purchased: boolean;
+  priority: boolean;
+  createdAt: string;
 }
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
@@ -25,19 +27,55 @@ export const useShoppingList = () => {
     fetchShoppingList();
   }, []);
 
+  const sortedShoppingList = [...shoppingList].sort((a, b) => {
+    if (a.priority && !b.priority) return -1;
+    if (!a.priority && b.priority) return 1;
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  });
+
   const addItem = async (name: string) => {
     if (name.trim() === '') return;
     try {
       const response = await fetch(`${API_BASE_URL}/shopping-list`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name.trim() }),
+        body: JSON.stringify({ name: name.trim(), priority: false, createdAt: new Date().toISOString() }),
       });
       if (!response.ok) throw new Error('Failed to add item');
       const newItem = await response.json();
-      setShoppingList((prevList) => [...prevList, newItem]);
+      setShoppingList((prevList) => [newItem, ...prevList]);
     } catch (error) {
       console.error("Error adding item:", error);
+    }
+  };
+
+  const togglePriority = async (id: string) => {
+    try {
+      const itemToUpdate = shoppingList.find(item => item.id === id);
+      if (!itemToUpdate) return;
+
+      const response = await fetch(`${API_BASE_URL}/shopping-list/${id}`,
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ priority: !itemToUpdate.priority }),
+        });
+
+      if (!response.ok) throw new Error('Failed to toggle priority');
+
+      // Optimistically update the UI
+      setShoppingList((prevList) =>
+        prevList.map((item) =>
+          item.id === id ? { ...item, priority: !itemToUpdate.priority } : item
+        )
+      );
+
+      // Await the actual response to confirm the change on the backend
+      const updatedItem = await response.json();
+      console.log("Backend confirmed update for item:", updatedItem);
+
+    } catch (error) {
+      console.error("Error toggling priority:", error);
     }
   };
 
@@ -88,10 +126,11 @@ export const useShoppingList = () => {
   };
 
   return {
-    shoppingList,
+    shoppingList: sortedShoppingList,
     addItem,
     togglePurchased,
     removeItem,
     clearPurchased,
+    togglePriority,
   };
 };

@@ -278,12 +278,10 @@ export const useFinancialData = () => {
     // This function might need a dedicated backend endpoint for bulk import
     // For now, it will clear existing data and then add new data one by one
     await clearAllData();
-    // @ts-ignore
     for (const transaction of newTransactions) {
-      await addTransaction(transaction);
-    }
-    // @ts-ignore
-    for (const goal of newSavingsGoals) {
+        await addTransaction(transaction);
+      }
+      for (const goal of newSavingsGoals) {
       await addSavingsGoal(goal);
     }
   };
@@ -291,18 +289,7 @@ export const useFinancialData = () => {
   const clearAllData = async () => {
     try {
       // Delete all transactions
-      // @ts-ignore
-      for (const transaction of transactions) {
-        await fetch(`${API_BASE_URL}/transactions/\${transaction._id}`, { method: 'DELETE' });
-      }
-      setTransactions([]);
-
-      // Delete all savings goals
-      // @ts-ignore
-      for (const goal of savingsGoals) {
-        await fetch(`${API_BASE_URL}/goals/\${goal._id}`, { method: 'DELETE' });
-      }
-      setSavingsGoals([]);
+      
     } catch (error) {
       console.error('Error clearing all data:', error);
     }

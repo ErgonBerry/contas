@@ -1,6 +1,6 @@
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 
-interface ColorPalette {
+export interface ColorPalette {
   primary: string;
   secondary: string;
   accent: string;

@@ -1,12 +1,14 @@
 import React from 'react';
 import { ShoppingBasket } from 'lucide-react';
 
+import { ColorPalette } from '../contexts/ThemeContext';
+
 interface ShoppingCartButtonProps {
   itemCount: number;
   onClick: () => void;
-  theme: any; // Adjust type as per your ThemeContext
-  className?: string; // Add className prop
-  animateCombined?: boolean; // New prop for combined animation
+  theme: ColorPalette;
+  className?: string;
+  animateCombined?: boolean;
 }
 
 const ShoppingCartButton: React.FC<ShoppingCartButtonProps> = ({

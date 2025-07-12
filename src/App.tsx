@@ -36,7 +36,7 @@ function App() {
 
   const { theme, isDarkMode, toggleTheme } = useTheme();
   const [isShoppingListOpen, setIsShoppingListOpen] = useState(false);
-  const { shoppingList, addItem, togglePurchased, removeItem, clearPurchased } = useShoppingList();
+  const { shoppingList, addItem, togglePurchased, removeItem, clearPurchased, togglePriority } = useShoppingList();
   const [animateCombined, setAnimateCombined] = useState(false);
 
   useEffect(() => {
@@ -87,7 +87,9 @@ function App() {
           togglePurchased={togglePurchased}
           removeItem={removeItem}
           clearPurchased={clearPurchased}
+          togglePriority={togglePriority}
           theme={theme}
+          isDarkMode={isDarkMode}
         />
 
         <main className="max-w-md mx-auto p-4 pb-20">
