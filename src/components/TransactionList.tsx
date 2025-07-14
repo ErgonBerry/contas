@@ -19,6 +19,8 @@ interface TransactionListProps {
   onUpdate: (id: string, updates: Partial<Transaction>) => void;
   onDelete: (id: string) => void;
   onUpdatePaymentStatus: (id: string, isPaid: boolean) => void;
+  searchTerm?: string; // Make optional for income
+  onSearchChange?: (term: string) => void; // Make optional for income
 }
 
 const TransactionList: React.FC<TransactionListProps> = ({
@@ -28,7 +30,9 @@ const TransactionList: React.FC<TransactionListProps> = ({
   onAdd,
   onUpdate,
   onDelete,
-  onUpdatePaymentStatus
+  onUpdatePaymentStatus,
+  searchTerm,
+  onSearchChange
 }) => {
   const [showForm, setShowForm] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
@@ -355,6 +359,21 @@ const TransactionList: React.FC<TransactionListProps> = ({
             >
               Pendentes
             </button>
+          </div>
+        )}
+
+        {/* Search Input (only for expenses) */}
+        {type === 'expense' && onSearchChange && (
+          <div className="relative flex items-center w-full">
+            <input
+              type="text"
+              placeholder="Buscar despesas..."
+              value={searchTerm}
+              onChange={(e) => onSearchChange(e.target.value)}
+              className="flex-1 p-2 pl-10 rounded-lg bg-cardBackground text-text border border-cardBorder focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              style={{ paddingRight: '2.5rem' }} // Adjust padding for icon
+            />
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-search absolute left-3 text-text opacity-70"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
           </div>
         )}
 

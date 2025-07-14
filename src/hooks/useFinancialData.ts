@@ -5,7 +5,7 @@ import { format } from 'date-fns';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
-export const useFinancialData = () => {
+export const useFinancialData = (searchTerm: string = '') => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [savingsGoals, setSavingsGoals] = useState<SavingsGoal[]>([]);
   const [monthlyBalances, setMonthlyBalances] = useState<MonthlyBalance[]>([]);
@@ -47,11 +47,14 @@ export const useFinancialData = () => {
     };
   }, [transactions]);
 
+
+
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const transactionsUrl = `${API_BASE_URL}/transactions?${searchTerm ? `search=${searchTerm}&` : ''}type=expense`;
         const [transactionsRes, goalsRes] = await Promise.all([
-          fetch(`${API_BASE_URL}/transactions`),
+          fetch(transactionsUrl),
           fetch(`${API_BASE_URL}/goals`),
         ]);
 
@@ -70,36 +73,13 @@ export const useFinancialData = () => {
     };
 
     fetchData();
-  }, []);
+  }, [searchTerm]);
 
   useEffect(() => {
     calculateMonthlyBalances();
   }, [transactions, calculateMonthlyBalances]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [transactionsRes, goalsRes] = await Promise.all([
-          fetch(`${API_BASE_URL}/transactions`),
-          fetch(`${API_BASE_URL}/goals`),
-        ]);
 
-        if (!transactionsRes.ok || !goalsRes.ok) {
-          throw new Error('Failed to fetch data');
-        }
-
-        const transactionsData = await transactionsRes.json();
-        const goalsData = await goalsRes.json();
-
-        setTransactions(transactionsData);
-        setSavingsGoals(goalsData);
-      } catch (error) {
-        console.error('Error fetching financial data:', error);
-      }
-    };
-
-    fetchData();
-  }, []);
 
   const addTransaction = async (transaction: Omit<Transaction, 'id' | 'createdAt'>) => {
     try {

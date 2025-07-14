@@ -201,7 +201,18 @@ const ShoppingItem = mongoose.model('ShoppingItem', shoppingItemSchema);
 // Rotas da API
 app.get('/api/transactions', async (req, res) => {
   try {
-    const transactions = await Transaction.find();
+    const { search, type } = req.query;
+    let query = {};
+
+    if (type) {
+      query.type = type;
+    }
+
+    if (search) {
+      query.description = { $regex: search, $options: 'i' }; // Case-insensitive search
+    }
+
+    const transactions = await Transaction.find(query);
     res.json(transactions);
   } catch (err) {
     res.status(500).json({ message: err.message });
