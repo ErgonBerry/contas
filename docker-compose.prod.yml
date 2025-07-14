@@ -5,8 +5,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.frontend
+      args:
+        VITE_PIN_CODE: ${VITE_PIN_CODE}
+        VITE_VERIFICATION_COOKIE_NAME: ${VITE_VERIFICATION_COOKIE_NAME}
+        VITE_VERIFICATION_TIMEOUT_MS: ${VITE_VERIFICATION_TIMEOUT_MS}
     ports:
       - "80:80"
+    env_file:
+      - .env
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
     depends_on:
