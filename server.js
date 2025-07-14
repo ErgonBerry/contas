@@ -2,6 +2,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import cron from 'node-cron';
 
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -10,6 +11,34 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 dotenv.config();
+
+// Function to mark income as paid
+const markIncomeAsPaid = async () => {
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Set to start of today in local time
+
+    const result = await Transaction.updateMany(
+      {
+        type: 'income',
+        isPaid: false,
+        dueDate: { $lte: today }
+      },
+      { $set: { isPaid: true } }
+    );
+    console.log(`Cron job: Marked ${result.modifiedCount} income transactions as paid.`);
+  } catch (error) {
+    console.error('Cron job error marking income as paid:', error);
+  }
+};
+
+// Schedule the cron job to run daily at a specific time (e.g., 2 AM)
+cron.schedule('0 2 * * *', () => {
+  console.log('Running daily cron job to mark income as paid...');
+  markIncomeAsPaid();
+}, {
+  timezone: "America/Sao_Paulo" // Adjust timezone as needed
+});
 
 // Helper function to convert YYYY-MM-DD string to a UTC Date object at the start of the day
 const createLocalDateForStorage = (dateString) => {
