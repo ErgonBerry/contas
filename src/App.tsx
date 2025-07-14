@@ -9,6 +9,8 @@ import Settings from './components/Settings';
 import Navigation from './components/Navigation';
 import Header from './components/Header';
 import { useTheme } from './contexts/ThemeContext';
+import { VerificationProvider } from './contexts/VerificationContext';
+import VerificationModal from './components/VerificationModal';
 import { useState, useEffect } from 'react';
 import { Moon, Sun } from 'lucide-react';
 import ShoppingCartButton from './components/ShoppingCartButton';
@@ -56,55 +58,58 @@ function App() {
   }, [shoppingList]);
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: theme.background }}>
-        <Header />
-        <Navigation />
+    <VerificationProvider>
+      <div className="min-h-screen" style={{ backgroundColor: theme.background }}>
+          <Header />
+          <Navigation />
 
-        <div className="fixed top-20 right-4 z-50 flex items-center">
-          <ShoppingCartButton
-            itemCount={Array.isArray(shoppingList) ? shoppingList.filter(item => !item.purchased).length : 0}
-            onClick={() => setIsShoppingListOpen(true)}
+          <div className="fixed top-20 right-4 z-50 flex items-center">
+            <ShoppingCartButton
+              itemCount={Array.isArray(shoppingList) ? shoppingList.filter(item => !item.purchased).length : 0}
+              onClick={() => setIsShoppingListOpen(true)}
+              theme={theme}
+              animateCombined={animateCombined}
+            />
+
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-full bg-card-background text-text shadow-lg ml-1" // Adiciona um pequeno espaço à esquerda
+              style={{ 
+                backgroundColor: theme.cardBackground,
+                color: theme.text
+              }}
+            >
+              {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
+          </div>
+
+          <ShoppingListModal
+            isOpen={isShoppingListOpen}
+            onClose={() => setIsShoppingListOpen(false)}
+            shoppingList={shoppingList}
+            addItem={addItem}
+            togglePurchased={togglePurchased}
+            removeItem={removeItem}
+            clearPurchased={clearPurchased}
+            togglePriority={togglePriority}
             theme={theme}
-            animateCombined={animateCombined}
+            isDarkMode={isDarkMode}
           />
 
-          <button
-            onClick={toggleTheme}
-            className="p-2 rounded-full bg-card-background text-text shadow-lg ml-1" // Adiciona um pequeno espaço à esquerda
-            style={{ 
-              backgroundColor: theme.cardBackground,
-              color: theme.text
-            }}
-          >
-            {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
-          </button>
-        </div>
-
-        <ShoppingListModal
-          isOpen={isShoppingListOpen}
-          onClose={() => setIsShoppingListOpen(false)}
-          shoppingList={shoppingList}
-          addItem={addItem}
-          togglePurchased={togglePurchased}
-          removeItem={removeItem}
-          clearPurchased={clearPurchased}
-          togglePriority={togglePriority}
-          theme={theme}
-          isDarkMode={isDarkMode}
-        />
-
-        <main className="max-w-md mx-auto p-4 pb-20">
-          <Routes>
-            <Route path="/" element={<Dashboard transactions={transactions} savingsGoals={savingsGoals} monthlyBalances={monthlyBalances} />} />
-            <Route path="/expenses" element={<TransactionList type="expense" transactions={transactions} onAdd={addTransaction} onUpdate={updateTransaction} onDelete={deleteTransaction} onUpdatePaymentStatus={updatePaymentStatus} monthlyBalances={monthlyBalances} />} />
-            <Route path="/income" element={<TransactionList type="income" transactions={transactions} onAdd={addTransaction} onUpdate={updateTransaction} onDelete={deleteTransaction} onUpdatePaymentStatus={updatePaymentStatus} monthlyBalances={monthlyBalances} />} />
-            <Route path="/calendar" element={<Calendar transactions={transactions} onUpdatePaymentStatus={updatePaymentStatus} />} />
-            <Route path="/reports" element={<Reports transactions={transactions} savingsGoals={savingsGoals} />} />
-            <Route path="/goals" element={<SavingsGoals goals={savingsGoals} onAdd={addSavingsGoal} onUpdate={updateSavingsGoal} onDelete={deleteSavingsGoal} onAddContribution={addSavingsContribution} onUpdateContribution={updateSavingsContribution} onDeleteContribution={deleteSavingsContribution} />} />
-            <Route path="/settings" element={<Settings transactions={transactions} savingsGoals={savingsGoals} onImportData={importData} onClearAllData={clearAllData} />} />
-          </Routes>
-        </main>
-    </div>
+          <main className="max-w-md mx-auto p-4 pb-20">
+            <Routes>
+              <Route path="/" element={<Dashboard transactions={transactions} savingsGoals={savingsGoals} monthlyBalances={monthlyBalances} />} />
+              <Route path="/expenses" element={<TransactionList type="expense" transactions={transactions} onAdd={addTransaction} onUpdate={updateTransaction} onDelete={deleteTransaction} onUpdatePaymentStatus={updatePaymentStatus} monthlyBalances={monthlyBalances} />} />
+              <Route path="/income" element={<TransactionList type="income" transactions={transactions} onAdd={addTransaction} onUpdate={updateTransaction} onDelete={deleteTransaction} onUpdatePaymentStatus={updatePaymentStatus} monthlyBalances={monthlyBalances} />} />
+              <Route path="/calendar" element={<Calendar transactions={transactions} onUpdatePaymentStatus={updatePaymentStatus} />} />
+              <Route path="/reports" element={<Reports transactions={transactions} savingsGoals={savingsGoals} />} />
+              <Route path="/goals" element={<SavingsGoals goals={savingsGoals} onAdd={addSavingsGoal} onUpdate={updateSavingsGoal} onDelete={deleteSavingsGoal} onAddContribution={addSavingsContribution} onUpdateContribution={updateSavingsContribution} onDeleteContribution={deleteSavingsContribution} />} />
+              <Route path="/settings" element={<Settings transactions={transactions} savingsGoals={savingsGoals} onImportData={importData} onClearAllData={clearAllData} />} />
+            </Routes>
+          </main>
+      </div>
+      <VerificationModal />
+    </VerificationProvider>
   );
 }
 

@@ -37,6 +37,7 @@ export interface MonthlyData {
   expenses: number;
   balance: number;
   goalsImpact?: number;
+  unpaidExpenses?: number;
 }
 
 export interface MonthlyBalance {

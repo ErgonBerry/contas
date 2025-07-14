@@ -40,6 +40,11 @@ const Reports: React.FC<ReportsProps> = ({ transactions, savingsGoals = [] }) =>
         data: monthlyData.map(data => data.goalsImpact || 0),
         backgroundColor: '#673AB7',
       },
+      {
+        label: 'Despesas Não Pagas',
+        data: monthlyData.map(data => data.unpaidExpenses || 0),
+        backgroundColor: '#FFC107', // A distinct color for unpaid expenses
+      },
     ],
   };
 

@@ -342,12 +342,17 @@ export const getMonthlyData = (
       .filter(t => t.type === 'expense' && t.isPaid)
       .reduce((sum, t) => sum + t.amount, 0);
 
+    const unpaidExpenses = monthTransactions
+      .filter(t => t.type === 'expense' && !t.isPaid)
+      .reduce((sum, t) => sum + t.amount, 0);
+
     const goalsImpact = calculateGoalsImpactForMonth(savingsGoals, date);
 
     data.push({
       month: format(date, 'MMM', { locale: ptBR }),
       income,
       expenses,
+      unpaidExpenses,
       balance: income - expenses - goalsImpact,
       goalsImpact,
     });
