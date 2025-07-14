@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.4.105](https://github.com/ErgonBerry/contas/compare/v0.4.104...v0.4.105) (2025-07-14)
+
+
+### Features
+
+* reports and verification pin ([1487985](https://github.com/ErgonBerry/contas/commit/14879853a542a5015650ef1936bf1473d06ed6ed))
+
+
+### Bug Fixes
+
+* priority item ([ed55625](https://github.com/ErgonBerry/contas/commit/ed55625875458b5541a732e931e466cb33e1e79d))
+
 ### [0.4.104](https://github.com/ErgonBerry/contas/compare/v0.4.103...v0.4.104) (2025-07-12)
 
 ### [0.4.103](https://github.com/ErgonBerry/contas/compare/v0.4.102...v0.4.103) (2025-07-11)
