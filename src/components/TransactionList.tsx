@@ -156,13 +156,15 @@ const TransactionList: React.FC<TransactionListProps> = ({
     setTransactionToReplicate(null);
   };
 
-  const handleSubmit = (transactionData: Omit<Transaction, 'id' | 'createdAt'>) => {
+  const handleSubmit = async (transactionData: Omit<Transaction, 'id' | 'createdAt'>) => {
     if (editingTransaction) {
-      onUpdate(editingTransaction.id, transactionData);
+      await onUpdate(editingTransaction.id, transactionData);
     } else {
-      onAdd(transactionData);
+      const newTransaction = await onAdd(transactionData);
       // Trigger animation for newly added transaction
-      setAnimatedTransactionId(transactionData.id || null); // Assuming ID is generated after add
+      if (newTransaction && newTransaction.id) {
+        setAnimatedTransactionId(newTransaction.id);
+      }
     }
     handleCloseForm();
   };
