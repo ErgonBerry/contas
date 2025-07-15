@@ -94,8 +94,10 @@ export const useFinancialData = (searchTerm: string = '') => {
       if (!response.ok) throw new Error('Failed to add transaction');
       const newTransaction = await response.json();
       setTransactions(prev => [newTransaction, ...prev]);
+      return newTransaction;
     } catch (error) {
       console.error('Error adding transaction:', error);
+      throw error; // Re-throw to propagate the error
     }
   };
 

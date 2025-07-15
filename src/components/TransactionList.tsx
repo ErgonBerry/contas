@@ -15,7 +15,7 @@ interface TransactionListProps {
   type: 'expense' | 'income';
   transactions: Transaction[];
   monthlyBalances: MonthlyBalance[];
-  onAdd: (transaction: Omit<Transaction, 'id' | 'createdAt'>) => void;
+  onAdd: (transaction: Omit<Transaction, 'id' | 'createdAt'>) => Promise<Transaction>;
   onUpdate: (id: string, updates: Partial<Transaction>) => void;
   onDelete: (id: string) => void;
   onUpdatePaymentStatus: (id: string, isPaid: boolean) => void;
