@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.7.1](https://github.com/ErgonBerry/contas/compare/v0.7.0...v0.7.1) (2025-07-15)
+
+
+### Bug Fixes
+
+* total showing right ([9f30693](https://github.com/ErgonBerry/contas/commit/9f3069317a87eaa1e1afba9a70d50531a2f19465))
+
 ## [0.7.0](https://github.com/ErgonBerry/contas/compare/v0.6.0...v0.7.0) (2025-07-14)
 
 ## [0.6.0](https://github.com/ErgonBerry/contas/compare/v0.5.1...v0.6.0) (2025-07-14)
