@@ -54,3 +54,13 @@
 .animate-shake-and-pulse {
   animation: shake-and-pulse 0.5s ease-in-out;
 }
+
+@keyframes pulse-once {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.02); opacity: 0.8; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.animate-pulse-once {
+  animation: pulse-once 0.5s ease-out;
+}

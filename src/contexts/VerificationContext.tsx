@@ -55,7 +55,7 @@ export const VerificationProvider: React.FC<VerificationProviderProps> = ({ chil
   const verify = (code: string) => {
     const correctPin = import.meta.env.VITE_PIN_CODE;
     if (code === correctPin) {
-      Cookies.set(VERIFICATION_COOKIE_NAME, new Date().toISOString(), { expires: 1 }); // Expires in 1 day
+      Cookies.set(VERIFICATION_COOKIE_NAME, new Date().toISOString(), { expires: 3 }); // Expires in 3 days
       setIsVerified(true);
       setShowVerificationModal(false);
       return true;

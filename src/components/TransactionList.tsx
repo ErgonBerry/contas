@@ -48,6 +48,8 @@ const TransactionList: React.FC<TransactionListProps> = ({
   const [startDateFilter, setStartDateFilter] = useState<Date | null>(null);
   const [endDateFilter, setEndDateFilter] = useState<Date | null>(null);
   const [isDailyFilterActive, setIsDailyFilterActive] = useState(false);
+  const [animatedTransactionId, setAnimatedTransactionId] = useState<string | null>(null);
+  const [isSearching, setIsSearching] = useState(false);
   const { theme } = useTheme();
 
   useEffect(() => {
@@ -59,6 +61,17 @@ const TransactionList: React.FC<TransactionListProps> = ({
     setStartDateFilter(start);
     setEndDateFilter(end);
   }, [type, currentMonth]);
+
+  // Effect to trigger animation when search term changes
+  useEffect(() => {
+    if (searchTerm !== undefined) { // Only trigger if searchTerm is a controlled prop
+      setIsSearching(true);
+      const timer = setTimeout(() => {
+        setIsSearching(false);
+      }, 300); // Animation duration
+      return () => clearTimeout(timer);
+    }
+  }, [searchTerm]);
 
   const handleCategoryFilterChange = (category: string) => {
     if (category === 'all') {
@@ -148,6 +161,8 @@ const TransactionList: React.FC<TransactionListProps> = ({
       onUpdate(editingTransaction.id, transactionData);
     } else {
       onAdd(transactionData);
+      // Trigger animation for newly added transaction
+      setAnimatedTransactionId(transactionData.id || null); // Assuming ID is generated after add
     }
     handleCloseForm();
   };
@@ -251,6 +266,21 @@ const TransactionList: React.FC<TransactionListProps> = ({
     }
     setCountdown(null);
     setActiveTransactionId(null);
+  };
+
+  // Effect to trigger animation when a transaction is updated (e.g., payment status)
+  useEffect(() => {
+    if (animatedTransactionId) {
+      const timer = setTimeout(() => {
+        setAnimatedTransactionId(null);
+      }, 1000); // Animation duration
+      return () => clearTimeout(timer);
+    }
+  }, [animatedTransactionId]);
+
+  const handleUpdatePaymentStatusAndAnimate = async (id: string, isPaid: boolean) => {
+    await onUpdatePaymentStatus(id, isPaid);
+    setAnimatedTransactionId(id);
   };
 
   return (
@@ -401,7 +431,7 @@ const TransactionList: React.FC<TransactionListProps> = ({
       </div>
 
       {/* Transaction List */}
-      <div className="space-y-3">
+      <div className={`space-y-3 ${isSearching ? 'opacity-0 transition-opacity duration-300' : 'opacity-100 transition-opacity duration-300'}`}>
         {sortedTransactions.length === 0 ? (
           <div className="text-center py-12">
             <div className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center" style={{ backgroundColor: theme.cardBorder }}>
@@ -425,7 +455,7 @@ const TransactionList: React.FC<TransactionListProps> = ({
             return (
               <div
                 key={`${transaction.id}-${index}`}
-                className={`relative border rounded-xl p-4 hover:shadow-md transition-shadow no-select`}
+                className={`relative border rounded-xl p-4 hover:shadow-md transition-shadow no-select ${animatedTransactionId === transaction.id ? 'animate-pulse-once' : ''}`}
                 style={{ 
                   backgroundColor: theme.cardBackground,
                   borderColor: overdue ? theme.primary : (!transaction.isPaid && type === 'expense' ? theme.accent : theme.cardBorder)
@@ -450,7 +480,7 @@ const TransactionList: React.FC<TransactionListProps> = ({
                         {transaction.description}
                       </h3>
                       <button
-                        onClick={() => onUpdatePaymentStatus(transaction.id, !transaction.isPaid)}
+                        onClick={() => handleUpdatePaymentStatusAndAnimate(transaction.id, !transaction.isPaid)}
                         className={`p-1 rounded-full transition-colors flex-shrink-0 ${
                           transaction.isPaid 
                             ? 'bg-[#D4EDDA]' 
