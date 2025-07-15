@@ -18,7 +18,6 @@ import ShoppingListModal from './components/ShoppingListModal';
 import { useShoppingList } from './hooks/useShoppingList';
 
 function App() {
-  const [searchTerm, setSearchTerm] = useState('');
 
   const {
     transactions,
@@ -36,7 +35,7 @@ function App() {
     importData,
     clearAllData,
     monthlyBalances,
-  } = useFinancialData(searchTerm);
+  } = useFinancialData();
 
   const { theme, isDarkMode, toggleTheme } = useTheme();
   const [isShoppingListOpen, setIsShoppingListOpen] = useState(false);
@@ -100,7 +99,7 @@ function App() {
           <main className="max-w-md mx-auto p-4 pb-20">
             <Routes>
               <Route path="/" element={<Dashboard transactions={transactions} savingsGoals={savingsGoals} monthlyBalances={monthlyBalances} />} />
-              <Route path="/expenses" element={<TransactionList type="expense" transactions={transactions} onAdd={addTransaction} onUpdate={updateTransaction} onDelete={deleteTransaction} onUpdatePaymentStatus={updatePaymentStatus} monthlyBalances={monthlyBalances} searchTerm={searchTerm} onSearchChange={setSearchTerm} />} />
+              <Route path="/expenses" element={<TransactionList type="expense" transactions={transactions} onAdd={addTransaction} onUpdate={updateTransaction} onDelete={deleteTransaction} onUpdatePaymentStatus={updatePaymentStatus} monthlyBalances={monthlyBalances} />} />
               <Route path="/income" element={<TransactionList type="income" transactions={transactions} onAdd={addTransaction} onUpdate={updateTransaction} onDelete={deleteTransaction} onUpdatePaymentStatus={updatePaymentStatus} monthlyBalances={monthlyBalances} />} />
               <Route path="/calendar" element={<Calendar transactions={transactions} onUpdatePaymentStatus={updatePaymentStatus} />} />
               <Route path="/reports" element={<Reports transactions={transactions} savingsGoals={savingsGoals} />} />

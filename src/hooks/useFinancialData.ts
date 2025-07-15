@@ -5,7 +5,7 @@ import { format } from 'date-fns';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
-export const useFinancialData = (searchTerm: string = '') => {
+export const useFinancialData = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [savingsGoals, setSavingsGoals] = useState<SavingsGoal[]>([]);
   const [monthlyBalances, setMonthlyBalances] = useState<MonthlyBalance[]>([]);
@@ -52,9 +52,8 @@ export const useFinancialData = (searchTerm: string = '') => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const transactionsUrl = `${API_BASE_URL}/transactions?${searchTerm ? `search=${searchTerm}&` : ''}type=expense`;
         const [transactionsRes, goalsRes] = await Promise.all([
-          fetch(transactionsUrl),
+          fetch(`${API_BASE_URL}/transactions`),
           fetch(`${API_BASE_URL}/goals`),
         ]);
 
@@ -73,7 +72,7 @@ export const useFinancialData = (searchTerm: string = '') => {
     };
 
     fetchData();
-  }, [searchTerm]);
+  }, []);
 
   useEffect(() => {
     calculateMonthlyBalances();

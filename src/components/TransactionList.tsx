@@ -19,8 +19,6 @@ interface TransactionListProps {
   onUpdate: (id: string, updates: Partial<Transaction>) => void;
   onDelete: (id: string) => void;
   onUpdatePaymentStatus: (id: string, isPaid: boolean) => void;
-  searchTerm?: string; // Make optional for income
-  onSearchChange?: (term: string) => void; // Make optional for income
 }
 
 const TransactionList: React.FC<TransactionListProps> = ({
@@ -30,9 +28,7 @@ const TransactionList: React.FC<TransactionListProps> = ({
   onAdd,
   onUpdate,
   onDelete,
-  onUpdatePaymentStatus,
-  searchTerm,
-  onSearchChange
+  onUpdatePaymentStatus
 }) => {
   const [showForm, setShowForm] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
@@ -50,11 +46,13 @@ const TransactionList: React.FC<TransactionListProps> = ({
   const [isDailyFilterActive, setIsDailyFilterActive] = useState(false);
   const [animatedTransactionId, setAnimatedTransactionId] = useState<string | null>(null);
   const [isSearching, setIsSearching] = useState(false);
+  const [searchTerm, setSearchTerm] = useState(''); // Re-introduce searchTerm state
   const { theme } = useTheme();
 
   useEffect(() => {
     setCategoryFilter(['all']);
     setPaymentFilter('all'); // Reset payment filter when type changes
+    setSearchTerm(''); // Reset search term when type changes
     // Reset daily filters when month or type changes
     const start = startOfMonth(currentMonth);
     const end = endOfMonth(currentMonth);
@@ -109,6 +107,12 @@ const TransactionList: React.FC<TransactionListProps> = ({
       if (paymentFilter === 'all') return true;
       if (paymentFilter === 'paid') return t.isPaid;
       if (paymentFilter === 'pending') return !t.isPaid;
+      return true;
+    })
+    .filter(t => {
+      if (type === 'expense' && searchTerm) {
+        return t.description.toLowerCase().includes(searchTerm.toLowerCase());
+      }
       return true;
     });
 
@@ -395,13 +399,13 @@ const TransactionList: React.FC<TransactionListProps> = ({
         )}
 
         {/* Search Input (only for expenses) */}
-        {type === 'expense' && onSearchChange && (
+        {type === 'expense' && (
           <div className="relative flex items-center w-full">
             <input
               type="text"
               placeholder="Buscar despesas..."
               value={searchTerm}
-              onChange={(e) => onSearchChange(e.target.value)}
+              onChange={(e) => setSearchTerm(e.target.value)}
               className="flex-1 p-2 pl-10 rounded-lg bg-cardBackground text-text border border-cardBorder focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               style={{ paddingRight: '2.5rem' }} // Adjust padding for icon
             />
