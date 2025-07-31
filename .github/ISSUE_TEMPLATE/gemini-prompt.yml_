@@ -1,0 +1,19 @@
+name: "🚀 Executar Prompt com Gemini-CLI"
+description: "Crie uma issue para executar um comando no gemini-cli via automação."
+title: "[Gemini-CLI] "
+labels: ["automação", "gemini-cli"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Atenção:** O texto inserido no campo abaixo será executado diretamente pelo `gemini-cli`.
+        A automação postará o resultado como um comentário nesta issue.
+
+  - type: textarea
+    id: prompt
+    attributes:
+      label: "🤖 Prompt para o Gemini-CLI"
+      description: "Insira o comando completo que você deseja executar. A issue inteira será usada como prompt."
+      placeholder: "Ex: refatore o arquivo 'src/components/Header.tsx' para usar styled-components"
+    validations:
+      required: true

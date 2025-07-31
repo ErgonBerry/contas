@@ -4,7 +4,7 @@ Estou desenvolvendo um projeto pessoal para controle financeiro. Se trata de um 
 
 🔍 OBJETIVO DA TAREFA:
 
-<<CHANGE_ME>>
+<DESCRICAO_AQUI_CHANGE_ME>
 
 📦 REQUISITOS TÉCNICOS:
 
