@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { Transaction } from '../types';
 import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, getBrazilDateString } from '../utils/helpers';
-import { Plus, X, Calendar, CreditCard, Repeat, AlertCircle } from 'lucide-react';
+import { Plus, X, Calendar, CreditCard, Repeat, AlertCircle, Calculator } from 'lucide-react';
+import { addMonths } from 'date-fns';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface TransactionFormProps {
   type: 'expense' | 'income';
   transaction?: Transaction | null;
+  replicateTransaction?: Transaction | null; // New prop for replication
   onSubmit: (transaction: Omit<Transaction, 'id' | 'createdAt'>) => void;
   onClose: () => void;
 }
 
-const TransactionForm: React.FC<TransactionFormProps> = ({ type, transaction, onSubmit, onClose }) => {
+const TransactionForm: React.FC<TransactionFormProps> = ({ type, transaction, replicateTransaction, onSubmit, onClose }) => {
+  const { theme } = useTheme();
   const [formData, setFormData] = useState<{
     amount: string;
     description: string;
@@ -31,6 +35,10 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, transaction, on
     notes: '',
   });
 
+  const [showCalculator, setShowCalculator] = useState(false);
+  const [calculatorInput, setCalculatorInput] = useState('');
+  const [currentSum, setCurrentSum] = useState(0);
+
   // Populate form when editing
   useEffect(() => {
     if (transaction) {
@@ -44,8 +52,40 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, transaction, on
         recurrence: transaction.recurrence || 'none',
         notes: transaction.notes || ''
       });
+    } else if (replicateTransaction) {
+      const originalDate = new Date(replicateTransaction.date);
+      const nextMonthDate = addMonths(originalDate, 1);
+      const nextMonthDateString = getBrazilDateString(nextMonthDate);
+
+      const originalDueDate = replicateTransaction.dueDate ? new Date(replicateTransaction.dueDate) : null;
+      const nextMonthDueDateString = originalDueDate ? getBrazilDateString(addMonths(originalDueDate, 1)) : '';
+
+      setFormData({
+        amount: replicateTransaction.amount.toString(),
+        description: replicateTransaction.description,
+        category: replicateTransaction.category,
+        date: nextMonthDateString, // Next month's date for replication
+        dueDate: nextMonthDueDateString, // Next month's due date for replication
+        isPaid: false, // Replicated transactions are initially unpaid
+        recurrence: replicateTransaction.recurrence || 'none',
+        notes: replicateTransaction.notes || ''
+      });
+    } else {
+      // Reset form for new transaction
+      setFormData({
+        amount: '',
+        description: '',
+        category: '',
+        date: getBrazilDateString(),
+        dueDate: '',
+        isPaid: type === 'expense' ? false : false,
+        recurrence: 'none',
+        notes: '',
+      });
+      setCurrentSum(0);
+      setCalculatorInput('');
     }
-  }, [transaction]);
+  }, [transaction, replicateTransaction, type]);
 
   const categories = type === 'expense' ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
 
@@ -85,6 +125,25 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, transaction, on
     }));
   };
 
+  const handleCalculatorInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCalculatorInput(e.target.value);
+  };
+
+  const handleAddNumber = () => {
+    const value = parseFloat(calculatorInput.replace(',', '.')); // Handle comma as decimal separator
+    if (!isNaN(value)) {
+      setCurrentSum(prevSum => prevSum + value);
+      setCalculatorInput('');
+    }
+  };
+
+  const handleApplyCalculation = () => {
+    setFormData(prev => ({ ...prev, amount: currentSum.toFixed(2) }));
+    setCurrentSum(0);
+    setCalculatorInput('');
+    setShowCalculator(false);
+  };
+
   const getRecurrenceDescription = () => {
     switch (formData.recurrence) {
       case 'weekly':
@@ -107,39 +166,85 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, transaction, on
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl w-full max-w-md p-6 max-h-[90vh] overflow-y-auto">
+      <div className="rounded-2xl w-full max-w-md p-6 max-h-[90vh] overflow-y-auto" style={{ backgroundColor: theme.cardBackground }}>
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-slate-800">
+          <h2 className="text-xl font-semibold text-text">
             {transaction ? 'Editar' : 'Nova'} {type === 'expense' ? 'Despesa' : 'Receita'}
           </h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-slate-100 rounded-full transition-colors"
+            className="p-2 rounded-full transition-colors hover:bg-cardBorder"
           >
-            <X className="w-5 h-5 text-slate-600" />
+            <X className="w-5 h-5 text-text" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
+            <label className="block text-sm font-medium text-text mb-2">
               Valor (R$)
             </label>
-            <input
-              type="number"
-              name="amount"
-              value={formData.amount}
-              onChange={handleChange}
-              step="0.01"
-              min="0"
-              placeholder="0,00"
-              className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              required
-            />
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                name="amount"
+                value={formData.amount}
+                onChange={handleChange}
+                step="0.01"
+                min="0"
+                placeholder="0,00"
+                className="w-full px-4 py-3 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
+                style={{ border: `1px solid ${theme.cardBorder}`, color: theme.text, backgroundColor: theme.cardBackground }}
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowCalculator(!showCalculator)}
+                className="p-3 text-white rounded-xl bg-primary hover:bg-secondary transition-colors flex-shrink-0"
+                title="Abrir Calculadora"
+              >
+                <Calculator className="w-5 h-5" />
+              </button>
+            </div>
+
+            {showCalculator && (
+              <div className="mt-4 p-4 rounded-xl border" style={{ backgroundColor: theme.cardBackground, borderColor: theme.cardBorder }}>
+                <h4 className="text-md font-semibold text-text mb-3">Calculadora de Soma</h4>
+                <div className="flex items-center gap-2 mb-3">
+                  <input
+                    type="number"
+                    value={calculatorInput}
+                    onChange={handleCalculatorInputChange}
+                    step="0.01"
+                    min="0"
+                    placeholder="Adicionar valor"
+                    className="w-full px-3 py-2 rounded-lg focus:ring-1 focus:ring-primary focus:border-transparent"
+                    style={{ border: `1px solid ${theme.cardBorder}`, color: theme.text, backgroundColor: theme.cardBackground }}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddNumber}
+                    className="p-2 text-white rounded-lg bg-primary hover:bg-secondary transition-colors"
+                  >
+                    <Plus className="w-5 h-5" />
+                  </button>
+                </div>
+                <div className="text-right text-lg font-bold text-text mb-3">
+                  Soma Atual: {currentSum.toFixed(2).replace('.', ',')}
+                </div>
+                <button
+                  type="button"
+                  onClick={handleApplyCalculation}
+                  className="w-full px-4 py-2 text-white rounded-xl bg-primary hover:bg-secondary transition-colors"
+                >
+                  Aplicar ao Valor
+                </button>
+              </div>
+            )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
+            <label className="block text-sm font-medium text-text mb-2">
               Descrição
             </label>
             <input
@@ -148,20 +253,22 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, transaction, on
               value={formData.description}
               onChange={handleChange}
               placeholder="Ex: Compras no supermercado"
-              className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-3 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
+              style={{ border: `1px solid ${theme.cardBorder}`, color: theme.text, backgroundColor: theme.cardBackground }}
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
+            <label className="block text-sm font-medium text-text mb-2">
               Categoria
             </label>
             <select
               name="category"
               value={formData.category}
               onChange={handleChange}
-              className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-3 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
+              style={{ border: `1px solid ${theme.cardBorder}`, color: theme.text, backgroundColor: theme.cardBackground }}
               required
             >
               <option value="">Selecione uma categoria</option>
@@ -174,7 +281,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, transaction, on
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
+            <label className="block text-sm font-medium text-text mb-2">
               <Repeat className="w-4 h-4 inline mr-1" />
               Recorrência
             </label>
@@ -182,21 +289,22 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, transaction, on
               name="recurrence"
               value={formData.recurrence}
               onChange={handleChange}
-              className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-3 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
+              style={{ border: `1px solid ${theme.cardBorder}`, color: theme.text, backgroundColor: theme.cardBackground }}
             >
               <option value="none">Única</option>
               <option value="weekly">Semanal</option>
               <option value="monthly">Mensal</option>
               <option value="yearly">Anual</option>
             </select>
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-xs text-text opacity-70 mt-1">
               {getRecurrenceDescription()}
             </p>
             {getRecurrenceWarning() && (
-              <div className="mt-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+              <div className="mt-2 p-3 rounded-lg" style={{ backgroundColor: theme.cardBackground, border: `1px solid ${theme.cardBorder}` }}>
                 <div className="flex items-start gap-2">
-                  <AlertCircle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
-                  <p className="text-xs text-amber-800">
+                  <AlertCircle className="w-4 h-4 text-accent flex-shrink-0 mt-0.5" />
+                  <p className="text-xs text-text">
                     {getRecurrenceWarning()}
                   </p>
                 </div>
@@ -207,7 +315,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, transaction, on
           {/* Data da transação apenas para receitas */}
           {type === 'income' && (
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
+              <label className="block text-sm font-medium text-text mb-2">
                 <Calendar className="w-4 h-4 inline mr-1" />
                 Data da Receita
               </label>
@@ -216,11 +324,12 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, transaction, on
                 name="date"
                 value={formData.date}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
+                style={{ border: `1px solid ${theme.cardBorder}`, color: theme.text, backgroundColor: theme.cardBackground }}
                 required
               />
               {formData.recurrence !== 'none' && (
-                <p className="text-xs text-slate-500 mt-1">
+                <p className="text-xs text-text opacity-70 mt-1">
                   Esta será a data da primeira ocorrência. As próximas serão calculadas automaticamente.
                 </p>
               )}
@@ -231,25 +340,26 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, transaction, on
           {type === 'expense' && (
             <>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
+                <label className="block text-sm font-medium text-text mb-2">
                   <Calendar className="w-4 h-4 inline mr-1" />
-                  Data de Vencimento {!formData.isPaid && <span className="text-red-500">*</span>}
+                  Data de Vencimento {!formData.isPaid && <span className="text-accent">*</span>}
                 </label>
                 <input
                   type="date"
                   name="dueDate"
                   value={formData.dueDate}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
+                  style={{ border: `1px solid ${theme.cardBorder}`, color: theme.text, backgroundColor: theme.cardBackground }}
                   required={!formData.isPaid}
                 />
-                <p className="text-xs text-slate-500 mt-1">
+                <p className="text-xs text-text opacity-70 mt-1">
                   {formData.isPaid 
                     ? "Para gastos já pagos, a data de vencimento é opcional" 
                     : "Obrigatório para gastos pendentes"}
                   {formData.recurrence !== 'none' && " • Esta será a data do primeiro vencimento"}
                   <br />
-                  <span className="text-green-600 font-medium">
+                  <span className="text-primary font-medium">
                     ✅ Agora você pode adicionar despesas de qualquer data (passado, presente ou futuro)
                   </span>
                 </p>
@@ -258,16 +368,16 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, transaction, on
           )}
 
           {/* Checkbox para "Pago" ou "Recebido" */}
-          <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-xl">
+          <div className="flex items-center gap-3 p-4 rounded-xl" style={{ backgroundColor: theme.cardBackground }}>
             <input
               type="checkbox"
               id="isPaid"
               name="isPaid"
               checked={formData.isPaid}
               onChange={handleChange}
-              className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
+              className="w-5 h-5 rounded focus:ring-primary text-primary"
             />
-            <label htmlFor="isPaid" className="flex items-center gap-2 text-sm font-medium text-slate-700">
+            <label htmlFor="isPaid" className="flex items-center gap-2 text-sm font-medium text-text">
               <CreditCard className="w-4 h-4" />
               {type === 'expense' ? 'Já foi pago' : 'Já foi recebido'}
             </label>
@@ -277,17 +387,14 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, transaction, on
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-3 border border-slate-300 text-slate-700 rounded-xl hover:bg-slate-50 transition-colors"
+              className="flex-1 px-4 py-3 rounded-xl transition-colors hover:bg-cardBorder"
+              style={{ border: `1px solid ${theme.cardBorder}`, color: theme.text, backgroundColor: theme.cardBackground }}
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className={`flex-1 px-4 py-3 text-white rounded-xl font-medium transition-colors flex items-center justify-center gap-2 ${
-                type === 'expense' 
-                  ? 'bg-red-500 hover:bg-red-600' 
-                  : 'bg-green-500 hover:bg-green-600'
-              }`}
+              className={`flex-1 px-4 py-3 text-white rounded-xl font-medium transition-colors flex items-center justify-center gap-2 bg-primary hover:bg-secondary`}
             >
               <Plus className="w-4 h-4" />
               {transaction ? 'Salvar' : 'Adicionar'}

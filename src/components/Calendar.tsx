@@ -4,6 +4,7 @@ import { formatCurrency, getCurrentBrazilDate, formatBrazilDate, parseLocalDate,
 import { ChevronLeft, ChevronRight, AlertTriangle, Clock, CreditCard, TrendingUp, DollarSign, Repeat, Check } from 'lucide-react';
 import TransactionDetailModal from './TransactionDetailModal';
 import { startOfMonth, endOfMonth } from 'date-fns';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface CalendarProps {
   transactions: Transaction[];
@@ -30,6 +31,7 @@ const Calendar: React.FC<CalendarProps> = ({ transactions, onUpdatePaymentStatus
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
+  const { theme } = useTheme();
 
   const handleDayClick = (date: Date) => {
     setSelectedDate(prev => {
@@ -231,7 +233,7 @@ const Calendar: React.FC<CalendarProps> = ({ transactions, onUpdatePaymentStatus
   const currentMonthEvents = getTransactionsWithRecurrence(transactions, monthStart, monthEnd, false);
   
   const monthlyIncome = currentMonthEvents
-    .filter(e => e.type === 'income')
+    .filter(e => e.type === 'income' && e.isPaid)
     .reduce((sum, e) => sum + e.amount, 0);
   
   const monthlyExpensesPending = currentMonthEvents
@@ -241,13 +243,13 @@ const Calendar: React.FC<CalendarProps> = ({ transactions, onUpdatePaymentStatus
   return (
     <div className="space-y-6">
       <div className="text-center py-4">
-        <h1 className="text-2xl font-bold text-slate-800 mb-2">
+        <h1 className="text-2xl font-bold text-text mb-2">
           Calendário Financeiro
         </h1>
-        <p className="text-slate-600">
+        <p className="text-text opacity-90">
           Acompanhe receitas e despesas por data
         </p>
-        <p className="text-xs text-slate-500 mt-1">
+        <p className="text-xs text-text opacity-70 mt-1">
           <Repeat className="w-3 h-3 inline mr-1" />
           Inclui transações recorrentes automaticamente
         </p>
@@ -255,80 +257,80 @@ const Calendar: React.FC<CalendarProps> = ({ transactions, onUpdatePaymentStatus
 
       {/* IMPROVED: Summary Cards - Better horizontal layout */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <div className="bg-red-50 border border-red-200 rounded-xl p-3">
+        <div className="rounded-xl p-3" style={{ backgroundColor: theme.cardBackground, border: `1px solid ${theme.cardBorder}` }}>
           <div className="flex items-center gap-2 mb-2">
-            <AlertTriangle className="w-4 h-4 text-red-600 flex-shrink-0" />
-            <h3 className="font-semibold text-red-800 text-sm truncate">Vencidos</h3>
+            <AlertTriangle className="w-4 h-4 text-primary flex-shrink-0" />
+            <h3 className="font-semibold text-text text-sm truncate">Vencidos</h3>
           </div>
-          <p className="text-lg sm:text-xl font-bold text-red-900">
+          <p className="text-lg sm:text-xl font-bold text-text">
             {overduePayments.length}
           </p>
-          <p className="text-xs text-red-700 break-words">
+          <p className="text-xs text-text opacity-90 break-words">
             {formatCurrency(overduePayments.reduce((sum, p) => sum + p.amount, 0))}
           </p>
         </div>
 
-        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-3">
+        <div className="rounded-xl p-3" style={{ backgroundColor: theme.cardBackground, border: `1px solid ${theme.cardBorder}` }}>
           <div className="flex items-center gap-2 mb-2">
-            <Clock className="w-4 h-4 text-yellow-600 flex-shrink-0" />
-            <h3 className="font-semibold text-yellow-800 text-sm truncate">Próximos 7 dias</h3>
+            <Clock className="w-4 h-4 text-accent flex-shrink-0" />
+            <h3 className="font-semibold text-text text-sm truncate">Próximos 7 dias</h3>
           </div>
-          <p className="text-lg sm:text-xl font-bold text-yellow-900">
+          <p className="text-lg sm:text-xl font-bold text-text">
             {upcomingPayments.length}
           </p>
-          <p className="text-xs text-yellow-700 break-words">
+          <p className="text-xs text-text opacity-90 break-words">
             {formatCurrency(upcomingPayments.reduce((sum, p) => sum + p.amount, 0))}
           </p>
         </div>
 
-        <div className="bg-green-50 border border-green-200 rounded-xl p-3">
+        <div className="rounded-xl p-3" style={{ backgroundColor: theme.cardBackground, border: `1px solid ${theme.cardBorder}` }}>
           <div className="flex items-center gap-2 mb-2">
-            <TrendingUp className="w-4 h-4 text-green-600 flex-shrink-0" />
-            <h3 className="font-semibold text-green-800 text-sm truncate">Receitas do Mês</h3>
+            <TrendingUp className="w-4 h-4 text-primary flex-shrink-0" />
+            <h3 className="font-semibold text-text text-sm truncate">Receitas do Mês</h3>
           </div>
-          <p className="text-sm sm:text-lg font-bold text-green-900 break-words">
+          <p className="text-sm sm:text-lg font-bold text-text break-words">
             {formatCurrency(monthlyIncome)}
           </p>
         </div>
 
-        <div className="bg-blue-50 border border-blue-200 rounded-xl p-3">
+        <div className="rounded-xl p-3" style={{ backgroundColor: theme.cardBackground, border: `1px solid ${theme.cardBorder}` }}>
           <div className="flex items-center gap-2 mb-2">
-            <CreditCard className="w-4 h-4 text-blue-600 flex-shrink-0" />
-            <h3 className="font-semibold text-blue-800 text-sm truncate">Despesas Pendentes</h3>
+            <CreditCard className="w-4 h-4 text-primary flex-shrink-0" />
+            <h3 className="font-semibold text-text text-sm truncate">Despesas Pendentes</h3>
           </div>
-          <p className="text-sm sm:text-lg font-bold text-blue-900 break-words">
+          <p className="text-sm sm:text-lg font-bold text-text break-words">
             {formatCurrency(monthlyExpensesPending)}
           </p>
         </div>
       </div>
 
       {/* Calendar */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-6">
+      <div className="rounded-2xl p-6" style={{ backgroundColor: theme.cardBackground, border: `1px solid ${theme.cardBorder}` }}>
         {/* Calendar Header */}
         <div className="flex items-center justify-between mb-6">
           <button
             onClick={() => navigateMonth('prev')}
-            className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+            className="p-2 rounded-lg transition-colors hover:bg-cardBorder"
           >
-            <ChevronLeft className="w-5 h-5 text-slate-600" />
+            <ChevronLeft className="w-5 h-5 text-text" />
           </button>
           
-          <h2 className="text-lg font-semibold text-slate-800 truncate px-4">
+          <h2 className="text-lg font-semibold text-text truncate px-4">
             {formatBrazilDate(currentDate, 'MMMM yyyy')}
           </h2>
           
           <button
             onClick={() => navigateMonth('next')}
-            className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+            className="p-2 rounded-lg transition-colors hover:bg-cardBorder"
           >
-            <ChevronRight className="w-5 h-5 text-slate-600" />
+            <ChevronRight className="w-5 h-5 text-text" />
           </button>
         </div>
 
         {/* Days of Week */}
         <div className="grid grid-cols-7 gap-1 mb-2">
           {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map(day => (
-            <div key={day} className="p-2 text-center text-sm font-medium text-slate-600">
+            <div key={day} className="p-2 text-center text-sm font-medium text-text opacity-90">
               {day}
             </div>
           ))}
@@ -348,21 +350,41 @@ const Calendar: React.FC<CalendarProps> = ({ transactions, onUpdatePaymentStatus
             return (
               <div
                 key={index}
-                className={`min-h-[80px] p-1 border border-slate-100 rounded-lg cursor-pointer ${
-                  !isCurrentMonth ? 'bg-slate-50 text-slate-400' :
-                  isToday ? 'bg-blue-100 border-blue-300' :
-                  hasOverdue ? 'bg-red-50 border-red-200' :
-                  hasUpcoming ? 'bg-yellow-50 border-yellow-200' :
-                  hasIncome ? 'bg-green-50 border-green-200' :
-                  'bg-white hover:bg-slate-50'
-                } ${selectedDate && day.toDateString() === selectedDate.toDateString() ? 'ring-2 ring-blue-500' : ''} transition-colors`}
+                className={`min-h-[80px] p-1 border rounded-lg cursor-pointer ${
+                  !isCurrentMonth ? 'text-text opacity-70' :
+                  isToday ? 'text-white' :
+                  hasOverdue ? 'text-white' :
+                  hasUpcoming ? 'text-white' :
+                  hasIncome ? 'text-white' :
+                  'text-text'
+                } ${selectedDate && day.toDateString() === selectedDate.toDateString() ? 'ring-2 ring-primary' : ''} transition-colors`}
+                style={{
+                  backgroundColor: !isCurrentMonth ? theme.cardBackground : (
+                    isToday ? theme.primary : (
+                      hasOverdue ? theme.primary : (
+                        hasUpcoming ? theme.accent : (
+                          hasIncome ? theme.primary : theme.cardBackground
+                        )
+                      )
+                    )
+                  ),
+                  borderColor: !isCurrentMonth ? theme.cardBorder : (
+                    isToday ? theme.primary : (
+                      hasOverdue ? theme.primary : (
+                        hasUpcoming ? theme.accent : (
+                          hasIncome ? theme.primary : theme.cardBorder
+                        )
+                      )
+                    )
+                  )
+                }}
                 onClick={() => isCurrentMonth && handleDayClick(day)}
               >
                 <div className="text-sm font-medium mb-1 flex items-center justify-between">
                   <span>{day.getDate()}</span>
                   {hasRecurring && (
                     <>
-                      <Repeat className="w-2 h-2 text-slate-400" />
+                      <Repeat className="w-2 h-2 text-text opacity-70" />
                       <span className="sr-only">Contém transações recorrentes</span>
                     </>
                   )}
@@ -373,15 +395,16 @@ const Calendar: React.FC<CalendarProps> = ({ transactions, onUpdatePaymentStatus
                     {eventsForDay.slice(0, 3).map(event => (
                       <div
                         key={event.id}
-                        className={`text-xs p-1 rounded truncate flex items-center gap-1 cursor-pointer ${
-                          event.type === 'income' 
-                            ? 'bg-green-200 text-green-800' 
+                        className={`text-xs p-1 rounded truncate flex items-center gap-1 cursor-pointer text-white`}
+                        style={{
+                          backgroundColor: event.type === 'income' 
+                            ? theme.primary 
                             : event.isOverdue 
-                            ? 'bg-red-200 text-red-800' 
+                            ? theme.primary 
                             : event.isPaid
-                            ? 'bg-green-200 text-green-800'
-                            : 'bg-yellow-200 text-yellow-800'
-                        }`}
+                            ? theme.primary
+                            : theme.accent
+                        }}
                         title={`${event.description} - ${formatCurrency(event.amount)}${event.isRecurring ? ' (Recorrente)' : ''}${event.type === 'expense' ? (event.isPaid ? ' - Pago' : ' - Pendente') : ''}`}
                         onClick={() => handleTransactionClick(event)}
                       >
@@ -401,7 +424,7 @@ const Calendar: React.FC<CalendarProps> = ({ transactions, onUpdatePaymentStatus
                       </div>
                     ))}
                     {eventsForDay.length > 3 && (
-                      <div className="text-xs text-slate-600 text-center">
+                      <div className="text-xs text-text opacity-90 text-center">
                         +{eventsForDay.length - 3}
                       </div>
                     )}
@@ -415,8 +438,8 @@ const Calendar: React.FC<CalendarProps> = ({ transactions, onUpdatePaymentStatus
 
       {/* Expanded Day View */}
       {selectedDate && (
-        <div className="bg-white rounded-2xl border border-slate-200 p-6">
-          <h3 className="text-lg font-semibold text-slate-800 mb-4 truncate">
+        <div className="rounded-2xl p-6" style={{ backgroundColor: theme.cardBackground, border: `1px solid ${theme.cardBorder}` }}>
+          <h3 className="text-lg font-semibold text-text mb-4 truncate">
             Transações de {formatBrazilDate(selectedDate)}
           </h3>
           <div className="space-y-3">
@@ -426,52 +449,55 @@ const Calendar: React.FC<CalendarProps> = ({ transactions, onUpdatePaymentStatus
                 return (
                   <div
                     key={event.id}
-                    className={`flex items-center justify-between p-4 rounded-xl border gap-3 transition-all cursor-pointer ${
-                      event.type === 'income'
-                        ? 'bg-green-50 border-green-200'
+                    className={`flex items-center justify-between p-4 rounded-xl border gap-3 transition-all cursor-pointer ${isProcessing ? 'opacity-75' : ''}`}
+                    style={{
+                      backgroundColor: theme.cardBackground,
+                      borderColor: event.type === 'income'
+                        ? theme.primary
                         : event.isPaid
-                        ? 'bg-green-50 border-green-200'
+                        ? theme.primary
                         : event.isOverdue
-                        ? 'bg-red-50 border-red-200'
-                        : 'bg-yellow-50 border-yellow-200'
-                    } ${isProcessing ? 'opacity-75' : ''}`}
+                        ? theme.primary
+                        : theme.accent
+                    }}
                     onClick={() => handleTransactionClick(event)}
                   >
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         {event.type === 'income' ? (
-                          <TrendingUp className="w-4 h-4 text-green-600 flex-shrink-0" />
+                          <TrendingUp className="w-4 h-4 text-primary flex-shrink-0" />
                         ) : event.isPaid ? (
-                          <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
+                          <Check className="w-4 h-4 text-primary flex-shrink-0" />
                         ) : (
-                          <DollarSign className="w-4 h-4 text-orange-600 flex-shrink-0" />
+                          <DollarSign className="w-4 h-4 text-accent flex-shrink-0" />
                         )}
-                        <h4 className="font-medium text-slate-900 truncate">
+                        <h4 className="font-medium text-text truncate">
                           {event.description}
                         </h4>
                         {event.isRecurring && (
                           <>
-                            <Repeat className="w-3 h-3 text-slate-500 flex-shrink-0" />
+                            <Repeat className="w-3 h-3 text-text opacity-70 flex-shrink-0" />
                             <span className="sr-only">Transação recorrente</span>
                           </>
                         )}
                       </div>
-                      <div className="flex items-center gap-2 text-sm text-slate-600 flex-wrap">
-                        <span className="bg-slate-200 px-2 py-1 rounded-full truncate max-w-[120px]">
+                      <div className="flex items-center gap-2 text-sm text-text opacity-90 flex-wrap">
+                        <span className="px-2 py-1 rounded-full truncate max-w-[120px]" style={{ backgroundColor: theme.cardBorder }}>
                           {event.category}
                         </span>
                         {event.type === 'expense' && (
-                          <span className={`px-2 py-1 rounded-full whitespace-nowrap ${
-                            event.isPaid
-                              ? 'bg-green-200 text-green-800'
-                              : event.isOverdue
-                              ? 'bg-red-200 text-red-800'
-                              : event.daysUntilDue === 0
-                              ? 'bg-yellow-200 text-yellow-800'
-                              : event.daysUntilDue === 1
-                              ? 'bg-yellow-200 text-yellow-800'
-                              : 'bg-blue-200 text-blue-800'
-                          }`}>
+                          <span className={`px-2 py-1 rounded-full whitespace-nowrap text-white`}
+                            style={{
+                              backgroundColor: event.isPaid
+                                ? theme.primary
+                                : event.isOverdue
+                                ? theme.primary
+                                : event.daysUntilDue === 0
+                                ? theme.accent
+                                : event.daysUntilDue === 1
+                                ? theme.accent
+                                : theme.primary
+                            }}>
                             {event.isPaid ? '✓ Pago' :
                               event.isOverdue ? 'Vencido' :
                               event.daysUntilDue === 0 ? 'Vence hoje' :
@@ -482,9 +508,8 @@ const Calendar: React.FC<CalendarProps> = ({ transactions, onUpdatePaymentStatus
                       </div>
                     </div>
                     <div className="flex items-center gap-3 flex-shrink-0">
-                      <span className={`font-semibold text-sm sm:text-lg break-words ${
-                        event.type === 'income' ? 'text-green-600' : 'text-red-600'
-                      }`}>
+                      <span className={`font-semibold text-sm sm:text-lg break-words`}
+                        style={{ color: event.type === 'income' ? theme.primary : theme.accent }}>
                         {event.type === 'income' ? '+' : '-'}{formatCurrency(event.amount)}
                       </span>
                       {event.type === 'expense' && !event.isPaid && (
@@ -494,7 +519,7 @@ const Calendar: React.FC<CalendarProps> = ({ transactions, onUpdatePaymentStatus
                           className={`px-3 py-2 text-white rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
                             isProcessing
                               ? 'bg-gray-400 cursor-not-allowed'
-                              : 'bg-green-500 hover:bg-green-600 hover:scale-105'
+                              : 'bg-primary hover:bg-secondary'
                           }`}
                         >
                           {isProcessing ? (
@@ -512,7 +537,7 @@ const Calendar: React.FC<CalendarProps> = ({ transactions, onUpdatePaymentStatus
                 );
               })
             ) : (
-              <p className="text-slate-600 text-center">Nenhuma transação para esta data.</p>
+              <p className="text-text opacity-90 text-center">Nenhuma transação para esta data.</p>
             )}
           </div>
         </div>
@@ -520,8 +545,8 @@ const Calendar: React.FC<CalendarProps> = ({ transactions, onUpdatePaymentStatus
 
       {/* Events List for Current Month */}
       {currentMonthEvents.length > 0 && (
-        <div className="bg-white rounded-2xl border border-slate-200 p-6">
-          <h3 className="text-lg font-semibold text-slate-800 mb-4 truncate">
+        <div className="rounded-2xl p-6" style={{ backgroundColor: theme.cardBackground, border: `1px solid ${theme.cardBorder}` }}>
+          <h3 className="text-lg font-semibold text-text mb-4 truncate">
             Eventos do Mês - {formatBrazilDate(currentDate, 'MMMM yyyy')}
           </h3>
           
@@ -543,37 +568,39 @@ const Calendar: React.FC<CalendarProps> = ({ transactions, onUpdatePaymentStatus
                 return (
                   <div
                     key={`${event.id}-${eventDate}`}
-                    className={`flex items-center justify-between p-4 rounded-xl border gap-3 transition-all ${
-                      event.type === 'income'
-                        ? 'bg-green-50 border-green-200'
+                    className={`flex items-center justify-between p-4 rounded-xl border gap-3 transition-all ${isProcessing ? 'opacity-75' : ''}`}
+                    style={{
+                      backgroundColor: theme.cardBackground,
+                      borderColor: event.type === 'income'
+                        ? theme.primary
                         : event.isPaid
-                        ? 'bg-green-50 border-green-200'
+                        ? theme.primary
                         : isOverdue 
-                        ? 'bg-red-50 border-red-200' 
-                        : 'bg-yellow-50 border-yellow-200'
-                    } ${isProcessing ? 'opacity-75' : ''}`}
+                        ? theme.primary 
+                        : theme.accent
+                    }}
                   >
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         {event.type === 'income' ? (
-                          <TrendingUp className="w-4 h-4 text-green-600 flex-shrink-0" />
+                          <TrendingUp className="w-4 h-4 text-primary flex-shrink-0" />
                         ) : event.isPaid ? (
-                          <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
+                          <Check className="w-4 h-4 text-primary flex-shrink-0" />
                         ) : (
-                          <DollarSign className="w-4 h-4 text-orange-600 flex-shrink-0" />
+                          <DollarSign className="w-4 h-4 text-accent flex-shrink-0" />
                         )}
-                        <h4 className="font-medium text-slate-900 truncate">
+                        <h4 className="font-medium text-text truncate">
                           {event.description}
                         </h4>
                         {isRecurring && (
                           <>
-                            <Repeat className="w-3 h-3 text-slate-500 flex-shrink-0" />
+                            <Repeat className="w-3 h-3 text-text opacity-70 flex-shrink-0" />
                             <span className="sr-only">Transação recorrente</span>
                           </>
                         )}
                       </div>
-                      <div className="flex items-center gap-2 text-sm text-slate-600 flex-wrap">
-                        <span className="bg-slate-200 px-2 py-1 rounded-full truncate max-w-[120px]">
+                      <div className="flex items-center gap-2 text-sm text-text opacity-90 flex-wrap">
+                        <span className="px-2 py-1 rounded-full truncate max-w-[120px]" style={{ backgroundColor: theme.cardBorder }}>
                           {event.category}
                         </span>
                         <span className="whitespace-nowrap">
@@ -581,17 +608,18 @@ const Calendar: React.FC<CalendarProps> = ({ transactions, onUpdatePaymentStatus
                         </span>
                         {event.type === 'expense' && (
                           <>
-                            <span className={`px-2 py-1 rounded-full whitespace-nowrap ${
-                              event.isPaid 
-                                ? 'bg-green-200 text-green-800' 
-                                : isOverdue 
-                                ? 'bg-red-200 text-red-800' 
-                                : daysUntilDue === 0 
-                                ? 'bg-yellow-200 text-yellow-800'
-                                : daysUntilDue === 1 
-                                ? 'bg-yellow-200 text-yellow-800'
-                                : 'bg-blue-200 text-blue-800'
-                            }`}>
+                            <span className={`px-2 py-1 rounded-full whitespace-nowrap text-white`}
+                              style={{
+                                backgroundColor: event.isPaid 
+                                  ? theme.primary 
+                                  : isOverdue 
+                                  ? theme.primary 
+                                  : daysUntilDue === 0 
+                                  ? theme.accent
+                                  : daysUntilDue === 1 
+                                  ? theme.accent
+                                  : theme.primary
+                              }}>
                               {event.isPaid ? '✓ Pago' :
                                isOverdue ? 'Vencido' : 
                                daysUntilDue === 0 ? 'Vence hoje' :
@@ -604,9 +632,8 @@ const Calendar: React.FC<CalendarProps> = ({ transactions, onUpdatePaymentStatus
                     </div>
                     
                     <div className="flex items-center gap-3 flex-shrink-0">
-                      <span className={`font-semibold text-sm sm:text-lg break-words ${
-                        event.type === 'income' ? 'text-green-600' : 'text-red-600'
-                      }`}>
+                      <span className={`font-semibold text-sm sm:text-lg break-words`}
+                        style={{ color: event.type === 'income' ? theme.primary : theme.accent }}>
                         {event.type === 'income' ? '+' : '-'}{formatCurrency(event.amount)}
                       </span>
                       {event.type === 'expense' && !event.isPaid && (
@@ -616,7 +643,7 @@ const Calendar: React.FC<CalendarProps> = ({ transactions, onUpdatePaymentStatus
                           className={`px-3 py-2 text-white rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
                             isProcessing 
                               ? 'bg-gray-400 cursor-not-allowed' 
-                              : 'bg-green-500 hover:bg-green-600 hover:scale-105'
+                              : 'bg-primary hover:bg-secondary'
                           }`}
                         >
                           {isProcessing ? (

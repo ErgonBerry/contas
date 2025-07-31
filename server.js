@@ -2,6 +2,8 @@ import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import cron from 'node-cron';
+
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -9,6 +11,34 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 dotenv.config();
+
+// Function to mark income as paid
+const markIncomeAsPaid = async () => {
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Set to start of today in local time
+
+    const result = await Transaction.updateMany(
+      {
+        type: 'income',
+        isPaid: false,
+        dueDate: { $lte: today }
+      },
+      { $set: { isPaid: true } }
+    );
+    console.log(`Cron job: Marked ${result.modifiedCount} income transactions as paid.`);
+  } catch (error) {
+    console.error('Cron job error marking income as paid:', error);
+  }
+};
+
+// Schedule the cron job to run daily at a specific time (e.g., 2 AM)
+cron.schedule('0 2 * * *', () => {
+  console.log('Running daily cron job to mark income as paid...');
+  markIncomeAsPaid();
+}, {
+  timezone: "America/Sao_Paulo" // Adjust timezone as needed
+});
 
 // Helper function to convert YYYY-MM-DD string to a UTC Date object at the start of the day
 const createLocalDateForStorage = (dateString) => {
@@ -30,8 +60,13 @@ mongoose.connect(process.env.MONGO_URI, {
   useUnifiedTopology: true,
   serverSelectionTimeoutMS: 5000
 })
-  .then(() => console.log('MongoDB connected'))
-  .catch(err => console.error('MongoDB connection error:', err));
+  .then(() => {
+    console.log('MongoDB connected successfully');
+  })
+  .catch(err => {
+    console.error('MongoDB connection error:', err);
+    process.exit(1); // Exit process if DB connection fails
+  });
 
 // Schemas e Models
 
@@ -127,10 +162,57 @@ const savingsGoalSchema = new mongoose.Schema({
 const Transaction = mongoose.model('Transaction', transactionSchema);
 const SavingsGoal = mongoose.model('SavingsGoal', savingsGoalSchema);
 
+const shoppingItemSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+  purchased: {
+    type: Boolean,
+    default: false,
+  },
+  isPriority: {
+    type: Boolean,
+    default: false,
+  },
+}, {
+  timestamps: true, // Adiciona createdAt e updatedAt
+  toJSON: {
+    virtuals: true,
+    transform: function(doc, ret) {
+      ret.id = ret._id;
+      delete ret._id;
+      delete ret.__v;
+    }
+  },
+  toObject: {
+    virtuals: true,
+    transform: function(doc, ret) {
+      ret.id = ret._id;
+      delete ret._id;
+      delete ret.__v;
+    }
+  }
+});
+
+const ShoppingItem = mongoose.model('ShoppingItem', shoppingItemSchema);
+
 // Rotas da API
 app.get('/api/transactions', async (req, res) => {
   try {
-    const transactions = await Transaction.find();
+    const { search, type } = req.query;
+    let query = {};
+
+    if (type) {
+      query.type = type;
+    }
+
+    if (search) {
+      query.description = { $regex: search, $options: 'i' }; // Case-insensitive search
+    }
+
+    const transactions = await Transaction.find(query);
     res.json(transactions);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -303,6 +385,69 @@ app.delete('/api/goals/:goalId/contributions/:contributionId', async (req, res) 
     res.json(goal);
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+});
+
+// Rotas da Lista de Compras
+app.get('/api/shopping-list', async (req, res) => {
+  try {
+    const items = await ShoppingItem.find();
+    res.json(items);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Add a new shopping list item
+app.post('/api/shopping-list', async (req, res) => {
+  const item = new ShoppingItem({
+    name: req.body.name,
+    isPriority: req.body.isPriority || false, // Ensure isPriority is captured
+  });
+  try {
+    const newItem = await item.save();
+    res.status(201).json(newItem);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// Update a shopping list item (e.g., toggle purchased)
+app.put('/api/shopping-list/:id', async (req, res) => {
+  try {
+    const updatedItem = await ShoppingItem.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    );
+    if (!updatedItem) {
+      return res.status(404).json({ message: 'Shopping item not found' });
+    }
+    res.json(updatedItem);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// Clear all purchased items
+app.delete('/api/shopping-list/purchased', async (req, res) => {
+  console.log('Received DELETE request for /api/shopping-list/purchased');
+  try {
+    await ShoppingItem.deleteMany({ purchased: true });
+    res.json({ message: 'Purchased items cleared' });
+  } catch (err) {
+    console.error("Error clearing purchased items:", err);
+    res.status(500).json({ message: 'Failed to clear purchased items: ' + err.message });
+  }
+});
+
+// Delete a shopping list item
+app.delete('/api/shopping-list/:id', async (req, res) => {
+  try {
+    await ShoppingItem.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Shopping item deleted' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 });
 

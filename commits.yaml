@@ -5,3 +5,6 @@
    obs.: antes de enviar para prod
       1 - deletar node_modules
       2 - rodar para validar ---> docker-compose -f docker-compose.prod.yml up --build
+
+   obs.2: git reset --hard <commit hash>
+          git push --force-with-leas

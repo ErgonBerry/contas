@@ -2,6 +2,162 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.7.2](https://github.com/ErgonBerry/contas/compare/v0.7.1...v0.7.2) (2025-07-15)
+
+### [0.7.1](https://github.com/ErgonBerry/contas/compare/v0.7.0...v0.7.1) (2025-07-15)
+
+
+### Bug Fixes
+
+* total showing right ([9f30693](https://github.com/ErgonBerry/contas/commit/9f3069317a87eaa1e1afba9a70d50531a2f19465))
+
+## [0.7.0](https://github.com/ErgonBerry/contas/compare/v0.6.0...v0.7.0) (2025-07-14)
+
+## [0.6.0](https://github.com/ErgonBerry/contas/compare/v0.5.1...v0.6.0) (2025-07-14)
+
+### [0.5.1](https://github.com/ErgonBerry/contas/compare/v0.4.106...v0.5.1) (2025-07-14)
+
+### [0.4.106](https://github.com/ErgonBerry/contas/compare/v0.4.105...v0.4.106) (2025-07-14)
+
+
+### Features
+
+* search expenses ([eeee742](https://github.com/ErgonBerry/contas/commit/eeee742ab5a6d770659b88c28124dd620a824c75))
+
+
+### Bug Fixes
+
+* pin code prod ([2b7ec04](https://github.com/ErgonBerry/contas/commit/2b7ec04e75b22d4133e6be7831b4f31621a73004))
+
+### [0.4.105](https://github.com/ErgonBerry/contas/compare/v0.4.104...v0.4.105) (2025-07-14)
+
+
+### Features
+
+* reports and verification pin ([1487985](https://github.com/ErgonBerry/contas/commit/14879853a542a5015650ef1936bf1473d06ed6ed))
+
+
+### Bug Fixes
+
+* priority item ([ed55625](https://github.com/ErgonBerry/contas/commit/ed55625875458b5541a732e931e466cb33e1e79d))
+
+### [0.4.104](https://github.com/ErgonBerry/contas/compare/v0.4.103...v0.4.104) (2025-07-12)
+
+### [0.4.103](https://github.com/ErgonBerry/contas/compare/v0.4.102...v0.4.103) (2025-07-11)
+
+
+### Features
+
+* animated combinade ([c6f264e](https://github.com/ErgonBerry/contas/commit/c6f264ed37ce6e313c54611fbd7fc2ea09e02098))
+* shake ([6e7f7d8](https://github.com/ErgonBerry/contas/commit/6e7f7d80851304b41866f04bb8835723311e0318))
+
+### [0.4.102](https://github.com/ErgonBerry/contas/compare/v0.4.101...v0.4.102) (2025-07-11)
+
+
+### Bug Fixes
+
+* shopping list ([aa6c44b](https://github.com/ErgonBerry/contas/commit/aa6c44bb3bd61d3a582252f95ad414341d70b7f6))
+
+### [0.4.101](https://github.com/ErgonBerry/contas/compare/v0.4.100...v0.4.101) (2025-07-11)
+
+### [0.4.100](https://github.com/ErgonBerry/contas/compare/v0.3.2...v0.4.100) (2025-07-10)
+
+
+### Features
+
+* cores melhores II ([2e94391](https://github.com/ErgonBerry/contas/commit/2e94391c6aa1d8485f433cccca9540a3ae299bf7))
+
+### [0.3.2](https://github.com/ErgonBerry/contas/compare/v0.3.1...v0.3.2) (2025-07-10)
+
+
+### Features
+
+* cores melhores ([4493d65](https://github.com/ErgonBerry/contas/commit/4493d65420fa4ceb063f0d9cdaa935713cc1b167))
+
+### [0.3.1](https://github.com/ErgonBerry/contas/compare/v0.2.6...v0.3.1) (2025-07-09)
+
+
+### Bug Fixes
+
+* slice on mobile (touch) ([da19b1b](https://github.com/ErgonBerry/contas/commit/da19b1b1a59832cdd2e18ecfcef206e34f27c5b7))
+
+### [0.2.6](https://github.com/ErgonBerry/contas/compare/v0.2.5...v0.2.6) (2025-07-09)
+
+
+### Bug Fixes
+
+* cleanup ([ba3d023](https://github.com/ErgonBerry/contas/commit/ba3d023d2f5255164b2a9f5dbf2d34ea8a04ec82))
+
+### [0.2.5](https://github.com/ErgonBerry/contas/compare/v0.2.4...v0.2.5) (2025-07-09)
+
+
+### Features
+
+* melhoria filter ([fb3b3f0](https://github.com/ErgonBerry/contas/commit/fb3b3f0a225d79d10e456b37c2e0107b86313feb))
+* slice filter 2 ([4ec06b2](https://github.com/ErgonBerry/contas/commit/4ec06b24bc3697a79e897b822945105fc3c13b00))
+* slice filter 3 ([128f1cf](https://github.com/ErgonBerry/contas/commit/128f1cf227cac00cb8af9aa48fbe01f31b8b3e9e))
+
+### [0.2.4](https://github.com/ErgonBerry/contas/compare/v0.2.3...v0.2.4) (2025-07-09)
+
+
+### Features
+
+* slice filter ([69caa52](https://github.com/ErgonBerry/contas/commit/69caa52e5648efa9230f4cb6b0893ab775fe3b64))
+
+### [0.2.3](https://github.com/ErgonBerry/contas/compare/v0.2.2...v0.2.3) (2025-07-09)
+
+
+### Features
+
+* darkmode ([5d1814b](https://github.com/ErgonBerry/contas/commit/5d1814bc24014a3d8339d1881ecdbe5c8ce1d605))
+* small stuff ([fbc95e5](https://github.com/ErgonBerry/contas/commit/fbc95e5f821db08137380c2dfec9fac7ba3a733d))
+
+### [0.2.2](https://github.com/ErgonBerry/contas/compare/v0.2.1...v0.2.2) (2025-07-08)
+
+
+### Bug Fixes
+
+* long press ([e62b8a4](https://github.com/ErgonBerry/contas/commit/e62b8a4a0851949d77632d131a6ffccb9c07e142))
+
+### [0.2.1](https://github.com/ErgonBerry/contas/compare/v0.1.31...v0.2.1) (2025-07-08)
+
+
+### Bug Fixes
+
+* 3 segundos para swipe ([403d977](https://github.com/ErgonBerry/contas/commit/403d977080baa8dcb650cf6f817aadb1d19fb79a))
+
+### [0.1.31](https://github.com/ErgonBerry/contas/compare/v0.1.30...v0.1.31) (2025-07-08)
+
+
+### Features
+
+* swipe ([9757c80](https://github.com/ErgonBerry/contas/commit/9757c8029fac9d893dfda6a34136da72ab772c37))
+
+### [0.1.30](https://github.com/ErgonBerry/contas/compare/v0.1.29...v0.1.30) (2025-07-08)
+
+
+### Features
+
+* calc ([89b3df5](https://github.com/ErgonBerry/contas/commit/89b3df5de19af05ee0e5d95351fe59ed2cc3b955))
+* replication ([eb0e205](https://github.com/ErgonBerry/contas/commit/eb0e205f0f223ce69788bcfa2d7f16b0a26caa65))
+
+### [0.1.29](https://github.com/ErgonBerry/contas/compare/v0.1.28...v0.1.29) (2025-07-08)
+
+### [0.1.28](https://github.com/ErgonBerry/contas/compare/v0.1.27...v0.1.28) (2025-07-08)
+
+
+### Bug Fixes
+
+* incomes improvemtns ([51e2f06](https://github.com/ErgonBerry/contas/commit/51e2f0626afff453cbb6850eaf4f4b4644a9699b))
+
+### [0.1.27](https://github.com/ErgonBerry/contas/compare/v0.1.26...v0.1.27) (2025-07-07)
+
+### [0.1.26](https://github.com/ErgonBerry/contas/compare/v0.1.2...v0.1.26) (2025-07-07)
+
+### [0.1.10](https://github.com/ErgonBerry/contas/compare/v0.1.2...v0.1.10) (2025-07-07)
+
+### [0.1.2](https://github.com/ErgonBerry/contas/compare/v0.1.1...v0.1.2) (2025-07-07)
+
 ### [0.1.1](https://github.com/ErgonBerry/contas/compare/v0.1.0...v0.1.1) (2025-07-03)
 
 ### [0.0.9](https://github.com/ErgonBerry/contas/compare/v0.0.8...v0.0.9) (2025-07-03)

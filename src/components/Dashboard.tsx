@@ -1,12 +1,13 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Transaction, SavingsGoal, MonthlyBalance } from '../types';
-import { formatCurrency, filterTransactionsByMonth, calculateGoalsImpact, getCurrentBrazilDate, formatBrazilDate, parseLocalDate } from '../utils/helpers';
+import { formatCurrency, filterTransactionsByMonth, calculateGoalsImpact, getCurrentBrazilDate } from '../utils/helpers';
 import { TrendingUp, TrendingDown, Wallet, Target, AlertTriangle, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
 import Confetti from 'react-confetti';
 import useWindowSize from '../hooks/useWindowSize';
 import { format, addMonths, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface DashboardProps {
   transactions: Transaction[];
@@ -20,6 +21,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, savingsGoals, month
   const [showConfetti, setShowConfetti] = useState(false);
   const [isPulsing, setIsPulsing] = useState(false);
   const [currentMonth, setCurrentMonth] = useState<Date>(getCurrentBrazilDate());
+  const { theme } = useTheme();
 
   const transactionsForSelectedMonth = filterTransactionsByMonth(transactions, currentMonth);
   
@@ -51,13 +53,6 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, savingsGoals, month
 
   const previousAdjustedBalance = (previousMonthBalanceData?.balance ?? 0) - calculateGoalsImpact(savingsGoals, subMonths(currentMonth, 1));
   const balanceChange = adjustedBalance - previousAdjustedBalance;
-
-  const getBalanceCardStyle = () => {
-    if (adjustedBalance < 0) {
-      return 'bg-gradient-to-r from-orange-500 to-orange-600';
-    }
-    return 'bg-gradient-to-r from-blue-500 to-blue-600';
-  };
 
   const getBalanceIcon = () => {
     if (adjustedBalance < 0) {
@@ -97,22 +92,22 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, savingsGoals, month
     <div className="space-y-6">
       {showConfetti && <Confetti width={width} height={height} recycle={false} numberOfPieces={adjustedBalance < 0 ? 300 : 200} colors={confettiColors} />}
       <div className="text-center py-3">
-        <h1 className="text-2xl font-bold text-slate-800 mb-2">
+        <h1 className="text-2xl font-bold text-text mb-2">
           Resumo Financeiro
         </h1>
-        <div className="flex items-center justify-center gap-2 text-slate-600">
-          <button onClick={handlePreviousMonth} className="p-1 rounded-full hover:bg-slate-100">
-            <ChevronLeft className="w-5 h-5 text-slate-600" />
+        <div className="flex items-center justify-center gap-2 text-text">
+          <button onClick={handlePreviousMonth} className="p-1 rounded-full hover:bg-cardBorder">
+            <ChevronLeft className="w-5 h-5 text-text" />
           </button>
-          <p className="text-slate-600">
+          <p className="text-text">
             {format(currentMonth, 'MMMM yyyy', { locale: ptBR })}
           </p>
-          <button onClick={handleNextMonth} className="p-1 rounded-full hover:bg-slate-100">
-            <ChevronRight className="w-5 h-5 text-slate-600" />
+          <button onClick={handleNextMonth} className="p-1 rounded-full hover:bg-cardBorder">
+            <ChevronRight className="w-5 h-5 text-text" />
           </button>
           <button
             onClick={() => handleCardClick('/calendar')}
-            className="p-2 rounded-full bg-orange-100 text-orange-600 hover:bg-orange-200 transition-colors shadow-md"
+            className="p-2 rounded-full bg-accent text-text hover:bg-opacity-80 transition-colors shadow-md"
             title="Ir para o Calendário"
           >
             <Calendar className="w-4 h-4" />
@@ -122,7 +117,8 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, savingsGoals, month
 
       {/* Main Balance */}
       <div 
-        className={`${getBalanceCardStyle()} rounded-2xl p-6 text-white cursor-pointer transition-all duration-300 ease-in-out ${isPulsing ? 'scale-105 shadow-xl' : 'scale-100 shadow-lg'}`}
+        className={`rounded-2xl p-6 cursor-pointer transition-all duration-300 ease-in-out ${isPulsing ? 'scale-105 shadow-xl' : 'scale-100 shadow-lg'} ${adjustedBalance < 0 ? 'text-gray-800' : 'text-white'}`}
+        style={{ background: adjustedBalance < 0 ? 'linear-gradient(to right, #FFDDC1, #FFB26B)' : `linear-gradient(to right, ${theme.primary}, ${theme.secondary})` }}
         onClick={handleBalanceCardClick}
       >
         <div className="flex items-center justify-between mb-4">
@@ -156,8 +152,8 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, savingsGoals, month
           </div>
         </div>
         {adjustedBalance < 0 && (
-          <div className="mt-3 p-3 bg-white bg-opacity-20 rounded-lg">
-            <p className="text-sm opacity-90">
+          <div className="mt-3 p-3 rounded-lg" style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}>
+                        <p className="text-sm text-gray-800">
               ⚠️ Suas despesas e metas excedem suas receitas este mês
             </p>
           </div>
@@ -167,52 +163,55 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, savingsGoals, month
       {/* IMPROVED: Income vs Expenses vs Goals - Better horizontal layout */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div 
-          className="bg-green-50 border border-green-200 rounded-xl p-4 cursor-pointer hover:shadow-md transition-shadow duration-200"
+          className="rounded-xl p-4 cursor-pointer hover:shadow-md transition-shadow duration-200"
+          style={{ backgroundColor: '#D4EDDA', border: `1px solid #C3E6CB` }}
           onClick={() => handleCardClick('/income')}
         >
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2 min-w-0">
-              <TrendingUp className="w-4 h-4 text-green-600 flex-shrink-0" />
-              <h3 className="text-sm font-medium text-green-800 truncate">Receitas</h3>
+              <TrendingUp className="w-4 h-4 text-black flex-shrink-0" />
+              <h3 className="text-sm font-medium text-black truncate">Receitas</h3>
             </div>
           </div>
-          <p className="text-xl sm:text-2xl font-bold text-green-900 break-words">
+          <p className="text-xl sm:text-2xl font-bold text-black break-words">
             {formatCurrency(currentIncome)}
           </p>
         </div>
 
         <div 
-          className="bg-red-50 border border-red-200 rounded-xl p-4 cursor-pointer hover:shadow-md transition-shadow duration-200"
+          className="rounded-xl p-4 cursor-pointer hover:shadow-md transition-shadow duration-200"
+          style={{ backgroundColor: '#FFE0B2', border: `1px solid #FFCC80` }}
           onClick={() => handleCardClick('/expenses')}
         >
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2 min-w-0">
-              <TrendingDown className="w-4 h-4 text-red-600 flex-shrink-0" />
-              <h3 className="text-sm font-medium text-red-800 truncate">Gastos Pagos</h3>
+              <TrendingDown className="w-4 h-4 text-black flex-shrink-0" />
+              <h3 className="text-sm font-medium text-black truncate">Gastos Pagos</h3>
             </div>
           </div>
-          <p className="text-xl sm:text-2xl font-bold text-red-900 break-words">
+          <p className="text-xl sm:text-2xl font-bold text-black break-words">
             {formatCurrency(currentExpenses)}
           </p>
-          <p className="text-xs text-red-700 mt-1 truncate">
+          <p className="text-xs text-black mt-1 truncate opacity-80">
             Apenas despesas já pagas
           </p>
         </div>
 
         <div 
-          className="bg-amber-50 border border-amber-200 rounded-xl p-4 cursor-pointer hover:shadow-md transition-shadow duration-200"
+          className="rounded-xl p-4 cursor-pointer hover:shadow-md transition-shadow duration-200"
+          style={{ backgroundColor: '#FFFACD', border: `1px solid #FFECB3` }}
           onClick={() => handleCardClick('/goals')}
         >
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2 min-w-0">
-              <Target className="w-4 h-4 text-amber-600 flex-shrink-0" />
-              <h3 className="text-sm font-medium text-amber-800 truncate">Metas</h3>
+              <Target className="w-4 h-4 text-black flex-shrink-0" />
+              <h3 className="text-sm font-medium text-black truncate">Metas</h3>
             </div>
           </div>
-          <p className="text-xl sm:text-2xl font-bold text-amber-900 break-words">
+          <p className="text-xl sm:text-2xl font-bold text-black break-words">
             {formatCurrency(goalsImpact)}
           </p>
-          <p className="text-xs text-amber-700 mt-1 truncate">
+          <p className="text-xs text-black mt-1 truncate opacity-80">
             Aportes realizados no mês
           </p>
         </div>
@@ -221,33 +220,35 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, savingsGoals, month
       {/* Savings Goals Summary */}
       {savingsGoals.length > 0 && (
         <div 
-          className="bg-amber-50 border border-amber-200 rounded-xl p-4 cursor-pointer hover:shadow-md transition-shadow duration-200"
+          className="rounded-xl p-4 cursor-pointer hover:shadow-md transition-shadow duration-200"
+          style={{ backgroundColor: theme.cardBackground, border: `1px solid ${theme.cardBorder}` }}
           onClick={() => handleCardClick('/goals')}
         >
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-medium text-amber-800 truncate pr-2">Progresso das Metas</h3>
-            <Target className="w-4 h-4 text-amber-600 flex-shrink-0" />
+            <h3 className="text-sm font-medium text-text truncate pr-2">Progresso das Metas</h3>
+            <Target className="w-4 h-4 text-primary flex-shrink-0" />
           </div>
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
-              <span className="text-amber-800 truncate pr-2">Progresso Total</span>
-              <span className="font-medium text-amber-900 flex-shrink-0 break-words">
+              <span className="text-text truncate pr-2">Progresso Total</span>
+              <span className="font-medium text-text flex-shrink-0 break-words">
                 {formatCurrency(totalSaved)} / {formatCurrency(totalSavingsGoals)}
               </span>
             </div>
-            <div className="w-full bg-amber-200 rounded-full h-2">
+            <div className="w-full rounded-full h-2" style={{ backgroundColor: theme.cardBorder }}>
               <div 
-                className="bg-amber-500 h-2 rounded-full transition-all duration-500"
+                className="h-2 rounded-full transition-all duration-500"
                 style={{ 
+                  backgroundColor: theme.primary,
                   width: `${totalSavingsGoals > 0 ? (totalSaved / totalSavingsGoals) * 100 : 0}%` 
                 }}
               />
             </div>
             <div className="flex justify-between text-xs">
-              <span className="text-amber-700 truncate pr-2">
+              <span className="text-text truncate pr-2 opacity-80">
                 {totalSavingsGoals > 0 ? Math.round((totalSaved / totalSavingsGoals) * 100) : 0}% concluído
               </span>
-              <span className="text-amber-700 flex-shrink-0">
+              <span className="text-text flex-shrink-0 opacity-80">
                 {goalsImpact > 0 && `${formatCurrency(goalsImpact)} este mês`}
               </span>
             </div>
@@ -255,78 +256,9 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, savingsGoals, month
         </div>
       )}
 
-      {/* Recent Transactions - NOT CLICKABLE */}
-      {transactionsForSelectedMonth.length > 0 && (
-        <div className="bg-white rounded-xl border border-slate-200 p-4">
-          <h3 className="text-lg font-semibold text-slate-800 mb-3">
-            Transações Recentes
-          </h3>
-          <div className="space-y-3">
-            {transactionsForSelectedMonth.slice(0, 5).map((transaction) => (
-              <div key={transaction.id} className="flex items-center justify-between py-2 gap-3">
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-slate-900 text-sm truncate">
-                    {transaction.description}
-                    {(transaction.id.includes('_') || transaction.recurrence !== 'none') && (
-                      <span className="ml-2 text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
-                        Recorrente
-                      </span>
-                    )}
-                  </p>
-                  <p className="text-xs text-slate-500 break-words">
-                    <span className="truncate">
-                      {transaction.category}
-                    </span>
-                    {' • '}
-                    <span className="whitespace-nowrap">
-                      {transaction.type === 'income' 
-                        ? formatBrazilDate(parseLocalDate(transaction.date))
-                        : transaction.dueDate 
-                        ? `Vence: ${formatBrazilDate(parseLocalDate(transaction.dueDate))}`
-                        : 'Sem vencimento'
-                      }
-                    </span>
-                  </p>
-                </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  <p className={`font-semibold text-sm sm:text-base break-words ${
-                    transaction.type === 'income' ? 'text-green-600' : 'text-red-600'
-                  }`}>
-                    {transaction.type === 'income' ? '+' : '-'}{formatCurrency(transaction.amount)}
-                  </p>
-                  <span className={`w-2 h-2 rounded-full flex-shrink-0 ${
-                    transaction.isPaid ? 'bg-green-500' : 'bg-orange-500'
-                  }`} />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      
 
-      {/* ENHANCED DEBUG INFO */}
-      <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-xs">
-        <h4 className="font-semibold text-green-800 mb-2">🔧 DEBUG - Transações Recorrentes</h4>
-        <div className="space-y-1 text-green-700">
-          <p><strong>Total transações do mês:</strong> {transactionsForSelectedMonth.length}</p>
-          <p><strong>Transações recorrentes:</strong> {transactionsForSelectedMonth.filter(t => t.id.includes('_') || t.recurrence !== 'none').length}</p>
-          <p><strong>Despesas pagas (recorrentes):</strong> {transactionsForSelectedMonth.filter(t => (t.id.includes('_') || t.recurrence !== 'none') && t.type === 'expense' && t.isPaid).length}</p>
-          <p><strong>Despesas pendentes (recorrentes):</strong> {transactionsForSelectedMonth.filter(t => (t.id.includes('_') || t.recurrence !== 'none') && t.type === 'expense' && !t.isPaid).length}</p>
-          <p><strong>Receitas:</strong> {formatCurrency(currentIncome)}</p>
-          <p><strong>Despesas pagas:</strong> {formatCurrency(currentExpenses)}</p>
-          <p><strong>Saldo final:</strong> {formatCurrency(adjustedBalance)}</p>
-          {transactionsForSelectedMonth.filter(t => t.id.includes('_') || t.recurrence !== 'none').length > 0 && (
-            <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded">
-              <p className="font-semibold text-blue-800 mb-1">Detalhes das Recorrentes:</p>
-              {transactionsForSelectedMonth.filter(t => t.id.includes('_') || t.recurrence !== 'none').slice(0, 3).map(t => (
-                <p key={t.id} className="text-blue-700 text-xs">
-                  • {t.description}: {formatCurrency(t.amount)} ({t.isPaid ? 'Pago' : 'Pendente'})
-                </p>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
+      
     </div>
   );
 };

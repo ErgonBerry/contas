@@ -335,11 +335,15 @@ export const getMonthlyData = (
     const monthTransactions = filterTransactionsByMonth(transactions, date);
     
     const income = monthTransactions
-      .filter(t => t.type === 'income')
+      .filter(t => t.type === 'income' && t.isPaid)
       .reduce((sum, t) => sum + t.amount, 0);
     
     const expenses = monthTransactions
       .filter(t => t.type === 'expense' && t.isPaid)
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    const unpaidExpenses = monthTransactions
+      .filter(t => t.type === 'expense' && !t.isPaid)
       .reduce((sum, t) => sum + t.amount, 0);
 
     const goalsImpact = calculateGoalsImpactForMonth(savingsGoals, date);
@@ -348,6 +352,7 @@ export const getMonthlyData = (
       month: format(date, 'MMM', { locale: ptBR }),
       income,
       expenses,
+      unpaidExpenses,
       balance: income - expenses - goalsImpact,
       goalsImpact,
     });
